@@ -418,12 +418,16 @@ useEffect(() => {
   const salvaSalone = async () => {
     if (!userId) return;
     setSalvataggioStato("salvataggio");
-    const { error } = await supabase.from("saloni").update({
+    const { data: saved, error } = await supabase.from("saloni").upsert({
+      user_id: userId,
       nome: salone.nome,
+      slug: salone.slug || salone.nome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-"),
       indirizzo: salone.indirizzo,
       telefono: salone.telefono,
       email: salone.email,
-    }).eq("user_id", userId);
+      tipo: tipoAttivita,
+    }, { onConflict: "user_id" }).select().single();
+    if (saved && !salone.dbId) setSalone(prev => ({ ...prev, dbId: saved.id }));
     setSalvataggioStato(error ? "errore" : "ok");
     setTimeout(() => setSalvataggioStato(null), 3000);
   };
@@ -1827,9 +1831,12 @@ useEffect(() => {
               {/* BOTTONE SALVA VETRINA */}
               <button
                 onClick={async () => {
-                  if (!salone.dbId) return;
+                  if (!userId) return;
                   setSalvataggioVetrinaStato("salvataggio");
-                  const { error } = await supabase.from("saloni").update({
+                  const { error } = await supabase.from("saloni").upsert({
+                    user_id: userId,
+                    nome: salone.nome,
+                    slug: salone.slug || salone.nome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-"),
                     descrizione: salone.descrizione,
                     logo: salone.logo,
                     galleria: salone.galleria,
@@ -1839,7 +1846,7 @@ useEffect(() => {
                     mostra_orari: salone.mostraOrari,
                     mostra_galleria: salone.mostraGalleria,
                     mostra_social: salone.mostraSocial,
-                  }).eq("id", salone.dbId);
+                  }, { onConflict: "user_id" });
                   setSalvataggioVetrinaStato(error ? "errore" : "ok");
                   setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
                 }}
