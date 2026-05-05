@@ -1,6 +1,8 @@
-import { useState } from "react";
+import React from 'react';
+import { useState, useEffect } from "react";
 import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2 } from "lucide-react";
-import WhatsAppAssistenza from "./whatsapp-assistenza";
+import WhatsAppAssistenza from "./whatsapp-assistenza"; 
+import { supabase } from "./supabase";
 
 // =============================================================
 // CONFIGURAZIONE PER TIPO DI ATTIVITÀ
@@ -70,6 +72,72 @@ const CONFIG_ATTIVITA = {
   },
 };
 
+
+function SalvaBottone({ onClick, label = "SALVA", T }) {
+  const [stato, setStato] = React.useState("idle");
+  const handle = async () => {
+    setStato("salvataggio");
+    try {
+      await onClick();
+      setStato("ok");
+    } catch {
+      setStato("errore");
+    }
+    setTimeout(() => setStato("idle"), 2500);
+  };
+  const bg = stato === "ok" ? "#16a34a" : stato === "errore" ? "#dc2626" : T.accent;
+  const testo = stato === "salvataggio" ? "SALVATAGGIO..." : stato === "ok" ? "✓ SALVATO" : stato === "errore" ? "ERRORE — RIPROVA" : label;
+  return (
+    <button
+      onClick={handle}
+      disabled={stato === "salvataggio"}
+      className="w-full py-3 text-sm tracking-widest mt-3"
+      style={{ backgroundColor: bg, color: "#fff", border: "none", cursor: stato === "salvataggio" ? "wait" : "pointer", letterSpacing: "0.15em", transition: "background-color 0.3s" }}
+    >
+      {testo}
+    </button>
+  );
+}
+
+function CambioPassword({ T }) {
+  const [vecchia, setVecchia] = React.useState("");
+  const [nuova, setNuova] = React.useState("");
+  const [conferma, setConferma] = React.useState("");
+  const [msg, setMsg] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleCambio = async () => {
+    if (nuova !== conferma) { setMsg({ tipo: "errore", testo: "Le password non coincidono" }); return; }
+    if (nuova.length < 8) { setMsg({ tipo: "errore", testo: "La password deve avere almeno 8 caratteri" }); return; }
+    setLoading(true);
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const sb = createClient("https://lievvbydmynrdrmgxljm.supabase.co", "sb_publishable_5F_dQ3i8fsEuNmS9kXazcA_CWONTYqF");
+      const { error } = await sb.auth.updateUser({ password: nuova });
+      if (error) setMsg({ tipo: "errore", testo: error.message });
+      else { setMsg({ tipo: "ok", testo: "Password aggiornata con successo!" }); setVecchia(""); setNuova(""); setConferma(""); }
+    } catch(e) { setMsg({ tipo: "errore", testo: "Errore imprevisto" }); }
+    setLoading(false);
+  };
+
+  return (
+    <div className="space-y-3">
+      <div>
+        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>NUOVA PASSWORD</label>
+        <input type="password" value={nuova} onChange={e => setNuova(e.target.value)} placeholder="Minimo 8 caratteri" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+      </div>
+      <div>
+        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>CONFERMA PASSWORD</label>
+        <input type="password" value={conferma} onChange={e => setConferma(e.target.value)} placeholder="Ripeti la nuova password" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+      </div>
+      {msg && <div className="text-sm p-3" style={{ background: msg.tipo === "ok" ? "rgba(93,226,121,0.1)" : "rgba(231,76,60,0.1)", color: msg.tipo === "ok" ? "#27ae60" : "#e74c3c", borderRadius: 8 }}>{msg.testo}</div>}
+      <button onClick={handleCambio} disabled={loading} className="w-full p-3 text-sm font-semibold" style={{ background: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+        {loading ? "Aggiornamento..." : "Aggiorna password"}
+      </button>
+    </div>
+  );
+}
+
 export default function DashboardPrenoty() {
   // TEMA
   const [tema, setTema] = useState("chiaro"); // chiaro | scuro
@@ -96,7 +164,93 @@ export default function DashboardPrenoty() {
   // In produzione viene salvato in Supabase al primo accesso.
   const [tipoAttivita, setTipoAttivita] = useState("parrucchiere");
   const config = CONFIG_ATTIVITA[tipoAttivita];
-  const IconaAttivita = config.icona;
+  const IconaAttivita = config.icona; 
+
+useEffect(() => {
+    const caricaDati = async () => {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) return;
+      const userId = session.user.id;
+
+      // Carica dati salone
+      const { data: saloneDb } = await supabase
+        .from("saloni")
+        .select("*")
+        .eq("user_id", userId)
+        .single();
+
+      if (saloneDb) {
+        setSalone(prev => ({
+          ...prev,
+          nome: saloneDb.nome || prev.nome,
+          indirizzo: saloneDb.indirizzo || prev.indirizzo,
+          telefono: saloneDb.telefono || prev.telefono,
+          email: saloneDb.email || prev.email,
+          slug: saloneDb.slug || prev.slug,
+          dbId: saloneDb.id,
+          orari: saloneDb.orari || prev.orari,
+          descrizione: saloneDb.descrizione || prev.descrizione,
+          logo: saloneDb.logo || prev.logo,
+          galleria: saloneDb.galleria || [],
+          social: saloneDb.social || prev.social,
+          mostraRecensioni: saloneDb.mostra_recensioni ?? true,
+          mostraMappa: saloneDb.mostra_mappa ?? true,
+          mostraOrari: saloneDb.mostra_orari ?? true,
+          mostraGalleria: saloneDb.mostra_galleria ?? true,
+          mostraSocial: saloneDb.mostra_social ?? true,
+        }));
+        if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
+          setTipoAttivita(saloneDb.tipo);
+        }
+        if (saloneDb.staff && saloneDb.staff.length > 0) {
+          setStaff(saloneDb.staff);
+        }
+      }
+
+      // Carica servizi da Supabase usando salone_id
+      const { data: serviziDb } = await supabase
+        .from("servizi")
+        .select("*")
+        .eq("salone_id", saloneDb?.id);
+
+      if (serviziDb && serviziDb.length > 0) {
+        setServizi(serviziDb.map(s => ({
+          id: s.id,
+          nome: s.nome,
+          durata: s.durata,
+          prezzo: s.prezzo,
+        })));
+      }
+
+      // Carica prenotazioni reali da Supabase
+      if (saloneDb) {
+        const { data: prenDb } = await supabase
+          .from("prenotazioni")
+          .select("*")
+          .eq("salone_id", saloneDb.id)
+          .order("created_at", { ascending: false });
+
+        setPrenotazioni(prenDb ? prenDb.map(p => ({
+          id: p.id,
+          cliente: p.nome_cliente,
+          tel: p.telefono_cliente,
+          email: p.email_cliente || "",
+          servizio: p.nomi_servizi || serviziDb?.find(s => s.id === p.servizio_id)?.nome || "Servizio",
+          durata: p.durata_totale || serviziDb?.find(s => s.id === p.servizio_id)?.durata || 30,
+          prezzo: serviziDb?.find(s => s.id === p.servizio_id)?.prezzo || 0,
+          data: p.data,
+          ora: p.ora?.slice(0, 5) || "",
+          stato: p.stato || "confermato",
+          pagamento: "salone",
+          staffId: p.staff_id || 1,
+          nuovo: true,
+          note: p.note || "",
+        })) : []);
+        if (saloneDb) caricaClienti(saloneDb.id);
+      }
+    };
+    caricaDati();
+  }, []);
 
   // DATI SALONE (modificabili in impostazioni → così l'app serve per qualsiasi attività beauty)
   const [salone, setSalone] = useState({
@@ -110,7 +264,7 @@ export default function DashboardPrenoty() {
     // VETRINA — contenuti che il cliente vede sulla home pubblica
     descrizione: "Salone storico nel cuore di Milano. Specializzati in colore, taglio e cura della persona. Ti aspettiamo con un caffè.",
     galleria: [], // max 6 foto del salone/lavori (data URL)
-    social: { Camera: "", tiktok: "", Globe: "", sito: "" },
+    social: { instagram: "", facebook: "", tiktok: "", sito: "" },
 
     // INTERRUTTORI vetrina (il parrucchiere decide cosa mostrare al cliente)
     mostraRecensioni: true,
@@ -186,8 +340,12 @@ export default function DashboardPrenoty() {
   // Modifica inline staff: { id: 2, campo: "nome" | "ruolo" }
   const [modificaStaff, setModificaStaff] = useState(null);
 
-  const aggiornaStaff = (id, campo, valore) => {
-    setStaff(staff.map(s => s.id === id ? { ...s, [campo]: valore } : s));
+  const aggiornaStaff = async (id, campo, valore) => {
+    const nuovoStaff = staff.map(s => s.id === id ? { ...s, [campo]: valore } : s);
+    setStaff(nuovoStaff);
+    if (salone.dbId) {
+      await supabase.from("saloni").update({ staff: nuovoStaff }).eq("id", salone.dbId);
+    }
   };
 
   // Modal eliminazione staff (in-app, funziona ovunque)
@@ -201,43 +359,86 @@ export default function DashboardPrenoty() {
     setConfermaEliminaStaff(id);
   };
 
-  const eseguiEliminaStaff = () => {
+  const eseguiEliminaStaff = async () => {
     if (!confermaEliminaStaff) return;
-    setStaff(staff.filter(s => s.id !== confermaEliminaStaff));
+    const nuovoStaff = staff.filter(s => s.id !== confermaEliminaStaff);
+    setStaff(nuovoStaff);
+    if (salone.dbId) {
+      await supabase.from("saloni").update({ staff: nuovoStaff }).eq("id", salone.dbId);
+    }
     setConfermaEliminaStaff(null);
   };
 
-  const nuovoStaff = () => {
+  const nuovoStaff = async () => {
     if (staff.length >= MAX_STAFF) return;
     const nuovoId = Math.max(0, ...staff.map(s => s.id)) + 1;
-    // colori predefiniti a rotazione per i nuovi operatori
     const coloriDisponibili = ["#6c5ce7", "#a29bfe", "#fd79a8", "#00cec9", "#fdcb6e"];
     const colore = coloriDisponibili[staff.length % coloriDisponibili.length];
-    setStaff([...staff, { id: nuovoId, nome: "Nuovo operatore", ruolo: config.operatoreSing, colore, foto: null }]);
+    const nuovoMembro = { id: nuovoId, nome: "Nuovo operatore", ruolo: config.operatoreSing, colore, foto: null };
+    const nuovoStaffList = [...staff, nuovoMembro];
+    setStaff(nuovoStaffList);
     setModificaStaff({ id: nuovoId, campo: "nome" });
+    if (salone.dbId) {
+      await supabase.from("saloni").update({ staff: nuovoStaffList }).eq("id", salone.dbId);
+    }
   };
 
   // Gestisce upload foto (logo salone o foto staff)
   const uploadFoto = (file, callback) => {
     if (!file) return;
     const reader = new FileReader();
-    reader.onload = (e) => callback(e.target.result);
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const MAX = 1200;
+        let w = img.width;
+        let h = img.height;
+        if (w > MAX || h > MAX) {
+          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
+          else { w = Math.round(w * MAX / h); h = MAX; }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = w;
+        canvas.height = h;
+        canvas.getContext("2d").drawImage(img, 0, 0, w, h);
+        callback(canvas.toDataURL("image/jpeg", 0.80));
+      };
+      img.src = e.target.result;
+    };
     reader.readAsDataURL(file);
   };
 
-  // SERVIZI — popolati dinamicamente in base al tipo di attività
-  // Quando il professionista cambia tipo (parrucchiere/estetista/spa),
-  // i servizi predefiniti si aggiornano in automatico
+  // USER ID (salvato per usarlo nelle operazioni Supabase sui servizi)
+  const [userId, setUserId] = useState(null);
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      if (session) setUserId(session.user.id);
+    });
+  }, []);
+
+  // SALVATAGGIO IMPOSTAZIONI SALONE
+  const [salvataggioStato, setSalvataggioStato] = useState(null);
+  const [salvataggioVetrinaStato, setSalvataggioVetrinaStato] = useState(null);
+  const salvaSalone = async () => {
+    if (!userId) return;
+    setSalvataggioStato("salvataggio");
+    const { error } = await supabase.from("saloni").update({
+      nome: salone.nome,
+      indirizzo: salone.indirizzo,
+      telefono: salone.telefono,
+      email: salone.email,
+    }).eq("user_id", userId);
+    setSalvataggioStato(error ? "errore" : "ok");
+    setTimeout(() => setSalvataggioStato(null), 3000);
+  };
+
+  // SERVIZI — caricati da Supabase (vedi useEffect sopra), fallback ai default
   const [servizi, setServizi] = useState(CONFIG_ATTIVITA.parrucchiere.serviziDefault);
 
   // Modifica inline servizi: tiene traccia di quale servizio si sta modificando
-  // e quale campo (es: { id: 3, campo: "prezzo" })
   const [modificaServizio, setModificaServizio] = useState(null);
 
-  // Cambia tipo di attività e ricarica i servizi predefiniti
-  // (con conferma per evitare di sovrascrivere lavoro esistente)
   // Modal di conferma per cambio tipo attività
-  // (in-app: funziona ovunque, ed è più elegante del confirm() nativo)
   const [confermaCambioTipo, setConfermaCambioTipo] = useState(null);
 
   const cambiaTipoAttivita = (nuovoTipo) => {
@@ -245,82 +446,125 @@ export default function DashboardPrenoty() {
     setConfermaCambioTipo(nuovoTipo);
   };
 
-  const eseguiCambioTipo = () => {
+  const eseguiCambioTipo = async () => {
     if (!confermaCambioTipo) return;
+    const nuoviServizi = CONFIG_ATTIVITA[confermaCambioTipo].serviziDefault;
     setTipoAttivita(confermaCambioTipo);
-    setServizi(CONFIG_ATTIVITA[confermaCambioTipo].serviziDefault);
+    setServizi(nuoviServizi);
     setConfermaCambioTipo(null);
+    if (!userId) return;
+    // Salva tipo attività sul salone
+    await supabase.from("saloni").update({ tipo: confermaCambioTipo }).eq("user_id", userId);
+    // Sostituisce i servizi su Supabase: elimina i vecchi e inserisce i nuovi
+    await supabase.from("servizi").delete().eq("salone_id", salone.dbId);
+    await supabase.from("servizi").insert(
+      nuoviServizi.map(s => ({ nome: s.nome, durata: s.durata, prezzo: s.prezzo, salone_id: salone.dbId }))
+    );
   };
 
-  const aggiornaServizio = (id, campo, valore) => {
-    setServizi(servizi.map(s =>
-      s.id === id ? { ...s, [campo]: campo === "nome" ? valore : Number(valore) || 0 } : s
-    ));
+  const aggiornaServizio = async (id, campo, valore) => {
+    const valoreFinale = campo === "nome" ? valore : Number(valore) || 0;
+    setServizi(servizi.map(s => s.id === id ? { ...s, [campo]: valoreFinale } : s));
+    if (!salone.dbId) return;
+    await supabase.from("servizi").update({ [campo]: valoreFinale }).eq("id", id).eq("salone_id", salone.dbId);
   };
 
-  // Modal eliminazione servizio (in-app, funziona ovunque)
+  // Modal eliminazione servizio
   const [confermaEliminaServizio, setConfermaEliminaServizio] = useState(null);
 
   const eliminaServizio = (id) => {
     setConfermaEliminaServizio(id);
   };
 
-  const eseguiEliminaServizio = () => {
+  const eseguiEliminaServizio = async () => {
     if (!confermaEliminaServizio) return;
     setServizi(servizi.filter(s => s.id !== confermaEliminaServizio));
+    if (salone.dbId) {
+      await supabase.from("servizi").delete().eq("id", confermaEliminaServizio).eq("salone_id", salone.dbId);
+    }
     setConfermaEliminaServizio(null);
   };
 
-  const nuovoServizio = () => {
+  const nuovoServizio = async () => {
+    const servizioTemp = { nome: "Nuovo servizio", durata: 30, prezzo: 0 };
+    if (salone.dbId) {
+      const { data } = await supabase.from("servizi")
+        .insert({ ...servizioTemp, salone_id: salone.dbId })
+        .select()
+        .single();
+      if (data) {
+        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo }]);
+        setModificaServizio({ id: data.id, campo: "nome" });
+        return;
+      }
+    }
+    // Fallback offline
     const nuovoId = Math.max(0, ...servizi.map(s => s.id)) + 1;
-    setServizi([...servizi, { id: nuovoId, nome: "Nuovo servizio", durata: 30, prezzo: 0 }]);
+    setServizi(prev => [...prev, { id: nuovoId, ...servizioTemp }]);
     setModificaServizio({ id: nuovoId, campo: "nome" });
   };
 
   // CLIENTI
-  const [clienti, setClienti] = useState([
-    { id: 1, nome: "Giulia Rossi", tel: "+39 333 1234567", visite: 12, totaleSpeso: 780, ultimaVisita: "2026-04-10", note: "Colore castano scuro, allergica all'ammoniaca", fedelta: 8 },
-    { id: 2, nome: "Marco Bianchi", tel: "+39 347 9876543", visite: 5, totaleSpeso: 100, ultimaVisita: "2026-04-15", note: "Taglio sfumato sui lati", fedelta: 3 },
-    { id: 3, nome: "Sofia Esposito", tel: "+39 320 5551234", visite: 18, totaleSpeso: 1200, ultimaVisita: "2026-04-20", note: "Cliente VIP, preferisce appuntamenti pomeridiani", fedelta: 15 },
-    { id: 4, nome: "Laura Conti", tel: "+39 335 4443322", visite: 7, totaleSpeso: 520, ultimaVisita: "2026-03-28", note: "", fedelta: 5 },
-    { id: 5, nome: "Anna Verdi", tel: "+39 340 7778899", visite: 3, totaleSpeso: 90, ultimaVisita: "2026-04-05", note: "Nuova cliente", fedelta: 2 },
-  ]);
+  const [clienti, setClienti] = useState([]);
+
+  const caricaClienti = async (saloneId) => {
+    const { data: clientiDb } = await supabase
+      .from("clienti")
+      .select("*")
+      .eq("salone_id", saloneId)
+      .order("ultima_visita", { ascending: false });
+    if (clientiDb) {
+      setClienti(clientiDb.map(c => ({
+        id: c.id,
+        nome: c.nome || "",
+        tel: c.telefono || "",
+        email: c.email || "",
+        visite: c.visite || 0,
+        totaleSpeso: 0,
+        ultimaVisita: c.ultima_visita || null,
+        note: c.note || "",
+        fedelta: Math.floor((c.visite || 0) / 2),
+      })));
+    }
+  };
 
   // GESTIONE NUOVO CLIENTE / ELIMINA CLIENTE
   const [modalNuovoCliente, setModalNuovoCliente] = useState(false);
   const [nuovoCliente, setNuovoCliente] = useState({ nome: "", tel: "", note: "" });
   const [confermaEliminaCliente, setConfermaEliminaCliente] = useState(null);
 
-  const aggiungiCliente = () => {
+  const aggiungiCliente = async () => {
     if (!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()) return;
-    const nuovoId = Math.max(0, ...clienti.map(c => c.id)) + 1;
-    setClienti([...clienti, {
-      id: nuovoId, nome: nuovoCliente.nome.trim(), tel: nuovoCliente.tel.trim(), note: nuovoCliente.note.trim(),
-      visite: 0, totaleSpeso: 0, ultimaVisita: null, fedelta: 0,
-    }]);
+    const saloneId = salone.dbId;
+    if (saloneId) {
+      const { data: ins } = await supabase.from("clienti").insert({
+        salone_id: saloneId,
+        nome: nuovoCliente.nome.trim(),
+        telefono: nuovoCliente.tel.trim(),
+        note: nuovoCliente.note.trim(),
+        visite: 0,
+      }).select().single();
+      if (ins) {
+        setClienti([{ id: ins.id, nome: ins.nome, tel: ins.telefono, email: ins.email || "", visite: 0, totaleSpeso: 0, ultimaVisita: null, note: ins.note || "", fedelta: 0 }, ...clienti]);
+      }
+    } else {
+      setClienti([{ id: Date.now(), nome: nuovoCliente.nome.trim(), tel: nuovoCliente.tel.trim(), note: nuovoCliente.note.trim(), visite: 0, totaleSpeso: 0, ultimaVisita: null, fedelta: 0 }, ...clienti]);
+    }
     setNuovoCliente({ nome: "", tel: "", note: "" });
     setModalNuovoCliente(false);
   };
 
-  const eseguiEliminaCliente = () => {
+  const eseguiEliminaCliente = async () => {
     if (!confermaEliminaCliente) return;
+    await supabase.from("clienti").delete().eq("id", confermaEliminaCliente);
     setClienti(clienti.filter(c => c.id !== confermaEliminaCliente));
     setConfermaEliminaCliente(null);
   };
 
   // PRENOTAZIONI
-  const [prenotazioni, setPrenotazioni] = useState([
-    { id: 1, cliente: "Giulia Rossi", tel: "+39 333 1234567", servizio: "Colore", durata: 90, prezzo: 65, data: "2026-04-24", ora: "09:00", stato: "confermato", pagamento: "pagato", staffId: 3, nuovo: true, note: "Colore castano scuro" },
-    { id: 2, cliente: "Marco Bianchi", tel: "+39 347 9876543", servizio: "Taglio Uomo", durata: 30, prezzo: 20, data: "2026-04-24", ora: "10:30", stato: "confermato", pagamento: "salone", staffId: 1, nuovo: false },
-    { id: 3, cliente: "Sofia Esposito", tel: "+39 320 5551234", servizio: "Taglio + Piega", durata: 60, prezzo: 50, data: "2026-04-24", ora: "11:30", stato: "confermato", pagamento: "pagato", staffId: 2, nuovo: true },
-    { id: 4, cliente: "Laura Conti", tel: "+39 335 4443322", servizio: "Colpi di Sole", durata: 120, prezzo: 85, data: "2026-04-24", ora: "14:30", stato: "confermato", pagamento: "salone", staffId: 3, nuovo: false },
-    { id: 5, cliente: "Anna Verdi", tel: "+39 340 7778899", servizio: "Piega", durata: 30, prezzo: 25, data: "2026-04-24", ora: "17:00", stato: "confermato", pagamento: "pagato", staffId: 2, nuovo: false },
-    { id: 6, cliente: "Francesca Moro", tel: "+39 328 1112233", servizio: "Taglio Donna", durata: 45, prezzo: 35, data: "2026-04-25", ora: "10:00", stato: "confermato", pagamento: "salone", staffId: 2, nuovo: true },
-    { id: 7, cliente: "Elena Ricci", tel: "+39 333 6667788", servizio: "Colore", durata: 90, prezzo: 65, data: "2026-04-25", ora: "14:00", stato: "confermato", pagamento: "pagato", staffId: 3, nuovo: false },
-    { id: 8, cliente: "Chiara Galli", tel: "+39 347 2223344", servizio: "Taglio Donna", durata: 45, prezzo: 35, data: "2026-04-26", ora: "11:00", stato: "confermato", pagamento: "salone", staffId: 1, nuovo: false },
-  ]);
+  const [prenotazioni, setPrenotazioni] = useState([]);
 
-  const oggi = "2026-04-24";
+  const oggi = new Date().toISOString().split("T")[0];
 
   const filtraPrenotazioni = () => {
     let f = prenotazioni;
@@ -338,6 +582,8 @@ export default function DashboardPrenoty() {
   // Dropdown notifiche (campanella)
   const [notificheAperte, setNotificheAperte] = useState(false);
 
+  const segnaLetta = (id) => setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
+
   const listaNotifiche = [
     ...prenotazioni.filter(p => p.nuovo).map(p => ({
       tipo: "prenotazione",
@@ -345,7 +591,7 @@ export default function DashboardPrenoty() {
       titolo: `Nuova prenotazione: ${p.cliente}`,
       sottotitolo: `${p.servizio} · ${p.data} ore ${p.ora}`,
       data: p.data,
-      onClick: () => { setSezione("agenda"); setNotificheAperte(false); },
+      onClick: () => { setSezione("agenda"); setNotificheAperte(false); setDettaglio(p); segnaLetta(p.id); },
     })),
     ...recensioni.filter(r => !r.rispostaProprietario).slice(0, 3).map(r => ({
       tipo: "recensione",
@@ -359,7 +605,6 @@ export default function DashboardPrenoty() {
   const incassoMese = prenotazioni.reduce((s, p) => s + p.prezzo, 0);
 
   const cancella = (id) => { setPrenotazioni(prenotazioni.filter(p => p.id !== id)); setDettaglio(null); };
-  const segnaLetta = (id) => setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
 
   const fmtData = (d) => {
     const date = new Date(d);
@@ -763,8 +1008,15 @@ export default function DashboardPrenoty() {
                           </span>
                         )}
                       </div>
-                      <div className="text-sm flex items-center gap-3 mt-1" style={{ color: T.textSoft }}>
-                        <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{c.tel}</span>
+                      <div className="text-sm flex items-center gap-3 mt-1 flex-wrap" style={{ color: T.textSoft }}>
+                        <a href={`tel:${c.tel}`} className="flex items-center gap-1 hover:opacity-70 transition" style={{ color: T.textSoft }}>
+                          <Phone className="w-3 h-3" />{c.tel}
+                        </a>
+                        {c.email && (
+                          <a href={`mailto:${c.email}`} className="flex items-center gap-1 hover:opacity-70 transition" style={{ color: T.textSoft }}>
+                            <Mail className="w-3 h-3" />{c.email}
+                          </a>
+                        )}
                       </div>
                       {c.note && (
                         <div className="text-xs mt-1 italic" style={{ color: T.textMuted }}>{c.note}</div>
@@ -1266,6 +1518,29 @@ export default function DashboardPrenoty() {
           {/* IMPOSTAZIONI */}
           {sezione === "impostazioni" && (
             <div className="space-y-6">
+
+              {/* IL TUO LINK DI PRENOTAZIONE */}
+              {salone.slug && (
+                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+                  <h3 className="text-sm tracking-widest mb-1" style={{ color: T.accent, letterSpacing: "0.15em" }}>🔗 IL TUO LINK DI PRENOTAZIONE</h3>
+                  <p className="text-xs mb-3" style={{ color: T.textMuted }}>Condividi questo link con i tuoi clienti per ricevere prenotazioni online</p>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 p-3 text-sm" style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.accent, fontFamily: "monospace", borderRadius: 8, wordBreak: "break-all" }}>
+                      {`https://prenoty.com/${salone.slug}`}
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard.writeText(`https://prenoty.com/${salone.slug}`);
+                      }}
+                      className="px-4 py-3 text-xs tracking-widest flex-shrink-0"
+                      style={{ background: T.accent, color: "#fff", border: "none", cursor: "pointer", borderRadius: 8, letterSpacing: "0.15em" }}
+                    >
+                      COPIA
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {/* TIPO DI ATTIVITÀ — primo blocco perché è la scelta più importante */}
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>TIPO DI ATTIVITÀ</h3>
@@ -1371,6 +1646,23 @@ export default function DashboardPrenoty() {
                       )}
                     </label>
                   </div>
+
+                  {/* BOTTONE SALVA */}
+                  <button
+                    onClick={salvaSalone}
+                    disabled={salvataggioStato === "salvataggio"}
+                    className="w-full py-3 text-sm tracking-widest mt-2"
+                    style={{
+                      backgroundColor: salvataggioStato === "ok" ? "#27ae60" : T.accent,
+                      color: "#fff",
+                      border: "none",
+                      cursor: salvataggioStato === "salvataggio" ? "wait" : "pointer",
+                      letterSpacing: "0.15em",
+                      opacity: salvataggioStato === "salvataggio" ? 0.7 : 1,
+                    }}
+                  >
+                    {salvataggioStato === "salvataggio" ? "SALVATAGGIO..." : salvataggioStato === "ok" ? "✓ SALVATO" : salvataggioStato === "errore" ? "ERRORE — RIPROVA" : "SALVA IMPOSTAZIONI"}
+                  </button>
                 </div>
               </div>
 
@@ -1455,26 +1747,23 @@ export default function DashboardPrenoty() {
                   <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>LINK SOCIAL</label>
                   <div className="space-y-2 mt-2">
                     {[
-                      { key: "Camera", label: "Camera", icon: Camera, placeholder: "https://Camera.com/tuosalone" },
-                      { key: "tiktok", label: "TikTok", icon: Globe, placeholder: "https://tiktok.com/@tuosalone" },
-                      { key: "Globe", label: "Globe", icon: Globe, placeholder: "https://Globe.com/tuosalone" },
-                      { key: "sito", label: "Sito web", icon: Globe, placeholder: "https://tuosito.it" },
-                    ].map(s => {
-                      const Ic = s.icon;
-                      return (
-                        <div key={s.key} className="flex items-center gap-2">
-                          <Ic className="w-4 h-4 flex-shrink-0" style={{ color: T.textMuted }} />
-                          <input
-                            type="url"
-                            value={salone.social[s.key]}
-                            onChange={(e) => setSalone({ ...salone, social: { ...salone.social, [s.key]: e.target.value } })}
-                            placeholder={s.placeholder}
-                            className="flex-1 p-2 border outline-none text-sm"
-                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
-                          />
-                        </div>
-                      );
-                    })}
+                      { key: "instagram", label: "Instagram", placeholder: "https://instagram.com/tuosalone", svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg> },
+                      { key: "facebook", label: "Facebook", placeholder: "https://facebook.com/tuosalone", svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg> },
+                      { key: "tiktok", label: "TikTok", placeholder: "https://tiktok.com/@tuosalone", svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg> },
+                      { key: "sito", label: "Sito web", placeholder: "https://tuosito.it", svg: <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><circle cx="12" cy="12" r="10"/><line x1="2" y1="12" x2="22" y2="12"/><path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"/></svg> },
+                    ].map(s => (
+                      <div key={s.key} className="flex items-center gap-2">
+                        <span style={{ color: T.textMuted, flexShrink: 0 }}>{s.svg}</span>
+                        <input
+                          type="url"
+                          value={salone.social?.[s.key] || ""}
+                          onChange={(e) => setSalone({ ...salone, social: { ...salone.social, [s.key]: e.target.value } })}
+                          placeholder={s.placeholder}
+                          className="flex-1 p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                        />
+                      </div>
+                    ))}
                   </div>
                 </div>
 
@@ -1507,23 +1796,68 @@ export default function DashboardPrenoty() {
                 </div>
               </div>
 
+              {/* BOTTONE SALVA VETRINA */}
+              <button
+                onClick={async () => {
+                  if (!salone.dbId) return;
+                  setSalvataggioVetrinaStato("salvataggio");
+                  const { error } = await supabase.from("saloni").update({
+                    descrizione: salone.descrizione,
+                    logo: salone.logo,
+                    galleria: salone.galleria,
+                    social: salone.social,
+                    mostra_recensioni: salone.mostraRecensioni,
+                    mostra_mappa: salone.mostraMappa,
+                    mostra_orari: salone.mostraOrari,
+                    mostra_galleria: salone.mostraGalleria,
+                    mostra_social: salone.mostraSocial,
+                  }).eq("id", salone.dbId);
+                  setSalvataggioVetrinaStato(error ? "errore" : "ok");
+                  setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
+                }}
+                disabled={salvataggioVetrinaStato === "salvataggio"}
+                className="w-full py-3 text-sm tracking-widest"
+                style={{
+                  backgroundColor: salvataggioVetrinaStato === "ok" ? "#27ae60" : T.accent,
+                  color: "#fff",
+                  border: "none",
+                  cursor: salvataggioVetrinaStato === "salvataggio" ? "wait" : "pointer",
+                  letterSpacing: "0.15em",
+                  opacity: salvataggioVetrinaStato === "salvataggio" ? 0.7 : 1,
+                }}
+              >
+                {salvataggioVetrinaStato === "salvataggio" ? "SALVATAGGIO..." : salvataggioVetrinaStato === "ok" ? "✓ SALVATO" : salvataggioVetrinaStato === "errore" ? "ERRORE — RIPROVA" : "SALVA VETRINA"}
+              </button>
+
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>ORARI DI APERTURA</h3>
                 <div className="space-y-2">
-                  {Object.entries(salone.orari).map(([giorno, orario]) => (
-                    <div key={giorno} className="flex items-center gap-3">
-                      <div className="w-16 text-sm capitalize">{giorno}</div>
-                      <input
-                        type="text"
-                        value={orario}
-                        onChange={(e) => setSalone({ ...salone, orari: { ...salone.orari, [giorno]: e.target.value } })}
-                        className="flex-1 p-2 border outline-none text-sm"
-                        style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
-                      />
-                    </div>
-                  ))}
+                  {["lun","mar","mer","gio","ven","sab","dom"].map((giorno) => {
+                    const orario = (salone.orari && salone.orari[giorno]) || "Chiuso";
+                    return (
+                      <div key={giorno} className="flex items-center gap-3">
+                        <div className="w-16 text-sm capitalize">{giorno}</div>
+                        <input
+                          type="text"
+                          value={orario}
+                          onChange={(e) => setSalone({ ...salone, orari: { ...salone.orari, [giorno]: e.target.value } })}
+                          className="flex-1 p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                        />
+                      </div>
+                    );
+                  })}
+                  <SalvaBottone
+                    onClick={async () => {
+                      if (!salone.dbId) throw new Error("dbId mancante");
+                      await supabase.from("saloni").update({ orari: salone.orari }).eq("id", salone.dbId);
+                    }}
+                    label="SALVA ORARI"
+                    T={T}
+                  />
                 </div>
               </div>
+
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>NOTIFICHE EMAIL</h3>
@@ -1702,6 +2036,14 @@ export default function DashboardPrenoty() {
                   )}
                 </div>
               )}
+
+              {/* SICUREZZA */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SICUREZZA</h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Cambia la password del tuo account</p>
+                <CambioPassword T={T} />
+              </div>
+
             </div>
           )}
         </main>
@@ -1749,15 +2091,18 @@ export default function DashboardPrenoty() {
                   {dettaglio.servizio}
                 </div>
               </div>
-              {staffDi(dettaglio.staffId) && (
-                <div>
-                  <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>OPERATORE</div>
-                  <div className="flex items-center gap-2">
-                    <div className="w-4 h-4 rounded-full" style={{ backgroundColor: staffDi(dettaglio.staffId).colore }} />
-                    {staffDi(dettaglio.staffId).nome}
-                  </div>
+              <div>
+                <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>OPERATORE</div>
+                <div className="flex items-center gap-2">
+                  {(() => {
+                    const op = staffDi(dettaglio.staffId);
+                    if (op) return (
+                      <><div className="w-4 h-4 rounded-full" style={{ backgroundColor: op.colore }} /><span>{op.nome}</span></>
+                    );
+                    return <span style={{ color: T.textMuted }}>Chiunque disponibile</span>;
+                  })()}
                 </div>
-              )}
+              </div>
               {dettaglio.note && (
                 <div>
                   <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>NOTE</div>
