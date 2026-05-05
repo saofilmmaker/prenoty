@@ -1,5 +1,6 @@
 import React from 'react';
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { supabase } from "./supabase";
 import { Users, Euro, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Clock, Search, Sun, Moon, Mail, Phone, Calendar, MoreVertical, Download, ArrowUpRight, ArrowDownRight, Shield, Bell, Star, MessageSquare, X, Trash2 } from "lucide-react";
 
 // =============================================================
@@ -72,27 +73,34 @@ export default function DashboardAdmin() {
   const [filtro, setFiltro] = useState("");
   const [filtroStato, setFiltroStato] = useState("tutti");
 
-  // ============================================================
-  // DATI DEMO — in produzione vengono da Supabase + Stripe API
-  // ============================================================
+  const [saloni, setSaloni] = useState([]);
+  const [recensioniSegnalate, setRecensioniSegnalate] = useState([]);
 
-  // Saloni iscritti (clienti del tuo SaaS)
-  const saloni = [
-    { id: 1, nome: "Atelier Bellezza", titolare: "Marco Ferrari", email: "marco@atelierbellezza.it", tel: "+39 333 1234567", citta: "Milano", iscritto: "2026-01-15", piano: 29, stato: "pagante", ultimoPagamento: "2026-04-15", prossimoRinnovo: "2026-05-15", prenotazioni: 87 },
-    { id: 2, nome: "Hair Studio Roma", titolare: "Giulia Conti", email: "info@hairstudioroma.it", tel: "+39 347 9876543", citta: "Roma", iscritto: "2026-02-03", piano: 29, stato: "pagante", ultimoPagamento: "2026-04-03", prossimoRinnovo: "2026-05-03", prenotazioni: 124 },
-    { id: 3, nome: "Salone Modern", titolare: "Luca Russo", email: "luca@salonmodern.it", tel: "+39 320 5551234", citta: "Torino", iscritto: "2026-03-20", piano: 0, stato: "trial", ultimoPagamento: null, prossimoRinnovo: "2026-04-20", prenotazioni: 31 },
-    { id: 4, nome: "Beauty Lab", titolare: "Anna Verdi", email: "anna@beautylab.it", tel: "+39 335 4443322", citta: "Napoli", iscritto: "2026-01-30", piano: 29, stato: "pagamento_fallito", ultimoPagamento: "2026-03-30", prossimoRinnovo: "2026-04-30", prenotazioni: 56 },
-    { id: 5, nome: "Capelli & Stile", titolare: "Francesca Moro", email: "francesca@capelliestile.it", tel: "+39 340 7778899", citta: "Bologna", iscritto: "2026-02-15", piano: 29, stato: "annullato", ultimoPagamento: "2026-03-15", prossimoRinnovo: null, prenotazioni: 18 },
-    { id: 6, nome: "Glamour Hair", titolare: "Sofia Esposito", email: "sofia@glamourhair.it", tel: "+39 328 1112233", citta: "Firenze", iscritto: "2026-04-01", piano: 0, stato: "trial", ultimoPagamento: null, prossimoRinnovo: "2026-05-01", prenotazioni: 12 },
-    { id: 7, nome: "Studio Capelli", titolare: "Elena Ricci", email: "elena@studiocapelli.it", tel: "+39 333 6667788", citta: "Genova", iscritto: "2026-03-10", piano: 29, stato: "pagante", ultimoPagamento: "2026-04-10", prossimoRinnovo: "2026-05-10", prenotazioni: 45 },
-  ];
-
-  // RECENSIONI SEGNALATE dai titolari (arrivano qui per moderazione admin)
-  const [recensioniSegnalate, setRecensioniSegnalate] = useState([
-    { id: 101, saloneNome: "Atelier Bellezza", clienteNome: "Anonimo", stelle: 1, testo: "Servizio pessimo, da evitare assolutamente!", data: "2026-04-22", motivo: "Recensione fake da concorrente", segnalataIl: "2026-04-23" },
-    { id: 102, saloneNome: "Hair Studio Roma", clienteNome: "User123", stelle: 1, testo: "Linguaggio offensivo che non riporto qui...", data: "2026-04-20", motivo: "Contenuto offensivo", segnalataIl: "2026-04-21" },
-    { id: 103, saloneNome: "Beauty Lab", clienteNome: "MarioR", stelle: 2, testo: "Il colore non era esattamente quello che chiedevo, comunque ok.", data: "2026-04-18", motivo: "Non sembra un problema reale, ma il titolare l'ha segnalata", segnalataIl: "2026-04-19" },
-  ]);
+  useEffect(() => {
+    const carica = async () => {
+      const { data } = await supabase
+        .from("saloni")
+        .select("id, nome, email, telefono, indirizzo, tipo, created_at")
+        .order("created_at", { ascending: false });
+      if (data) {
+        setSaloni(data.map(s => ({
+          id: s.id,
+          nome: s.nome || "—",
+          email: s.email || "—",
+          tel: s.telefono || "—",
+          citta: s.indirizzo ? s.indirizzo.split(",").slice(-2).join(",").trim() : "—",
+          tipo: s.tipo || "parrucchiere",
+          iscritto: s.created_at?.slice(0, 10) || "—",
+          piano: 0,
+          stato: "trial",
+          ultimoPagamento: null,
+          prossimoRinnovo: null,
+          prenotazioni: 0,
+        })));
+      }
+    };
+    carica();
+  }, []);
 
   // Dropdown menu azioni salone (i 3 puntini)
   const [menuSaloneAperto, setMenuSaloneAperto] = useState(null); // id del salone con menu aperto
