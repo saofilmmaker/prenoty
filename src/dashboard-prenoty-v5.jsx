@@ -1464,50 +1464,54 @@ useEffect(() => {
           )}
 
           {/* REPORT */}
-          {sezione === "report" && (
-            <div>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-                {[
-                  { lbl: "INCASSO MESE", val: `€${incassoMese}`, trend: "+12%" },
-                  { lbl: "APPUNTAMENTI", val: prenotazioni.length, trend: "+8%" },
-                  { lbl: "NUOVI CLIENTI", val: 3, trend: "+50%" },
-                ].map((s, i) => (
-                  <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                    <div className="text-xs tracking-widest mb-2" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
-                    <div className="text-3xl" style={{ color: T.accent }}>{s.val}</div>
-                    <div className="text-xs mt-1" style={{ color: "#16a34a" }}>{s.trend} vs mese scorso</div>
-                  </div>
-                ))}
-              </div>
+          {sezione === "report" && (() => {
+            const conteggioServizi = prenotazioni.reduce((acc, p) => {
+              const nome = p.servizio || "—";
+              acc[nome] = (acc[nome] || 0) + 1;
+              return acc;
+            }, {});
+            const serviziOrdinati = Object.entries(conteggioServizi).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            const maxCount = serviziOrdinati[0]?.[1] || 1;
+            return (
+              <div>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
+                  {[
+                    { lbl: "INCASSO MESE", val: `€${incassoMese}` },
+                    { lbl: "APPUNTAMENTI", val: prenotazioni.length },
+                    { lbl: "CLIENTI TOTALI", val: clienti.length },
+                  ].map((s, i) => (
+                    <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                      <div className="text-xs tracking-widest mb-2" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
+                      <div className="text-3xl" style={{ color: T.accent }}>{s.val}</div>
+                    </div>
+                  ))}
+                </div>
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SERVIZI PIÙ RICHIESTI</h3>
-                <div className="space-y-3">
-                  {servizi.length === 0 ? (
-                    <p className="text-sm text-center py-4" style={{ color: T.textMuted, fontStyle: "italic" }}>
-                      Nessun servizio configurato. Vai su "Servizi" per aggiungerne.
-                    </p>
-                  ) : (
-                    servizi.slice(0, 4).map((s, i) => {
-                      const count = Math.max(1, 4 - i);
-                      const perc = Math.max(20, 90 - i * 18);
-                      return (
-                        <div key={s.id}>
+                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                  <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SERVIZI PIÙ RICHIESTI</h3>
+                  <div className="space-y-3">
+                    {serviziOrdinati.length === 0 ? (
+                      <p className="text-sm text-center py-8" style={{ color: T.textMuted, fontStyle: "italic" }}>
+                        Nessuna prenotazione ancora. I dati appariranno qui man mano che arrivano.
+                      </p>
+                    ) : (
+                      serviziOrdinati.map(([nome, count]) => (
+                        <div key={nome}>
                           <div className="flex justify-between text-sm mb-1">
-                            <span>{s.nome}</span>
+                            <span>{nome}</span>
                             <span style={{ color: T.textMuted }}>{count} {count === 1 ? "prenotazione" : "prenotazioni"}</span>
                           </div>
                           <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: T.border }}>
-                            <div className="h-full rounded-full" style={{ width: `${perc}%`, backgroundColor: T.accent }} />
+                            <div className="h-full rounded-full" style={{ width: `${Math.round((count / maxCount) * 100)}%`, backgroundColor: T.accent }} />
                           </div>
                         </div>
-                      );
-                    })
-                  )}
+                      ))
+                    )}
+                  </div>
                 </div>
               </div>
-            </div>
-          )}
+            );
+          })()}
 
           {/* IMPOSTAZIONI */}
           {sezione === "impostazioni" && (
