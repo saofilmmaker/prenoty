@@ -381,18 +381,17 @@ useEffect(() => {
   };
 
   // Gestisce upload foto (logo salone o foto staff)
-  const uploadFoto = (file, callback) => {
+  const uploadFoto = (file, callback, maxSize = 1200) => {
     if (!file) return;
     const reader = new FileReader();
     reader.onload = (e) => {
       const img = new window.Image();
       img.onload = () => {
-        const MAX = 1200;
         let w = img.width;
         let h = img.height;
-        if (w > MAX || h > MAX) {
-          if (w > h) { h = Math.round(h * MAX / w); w = MAX; }
-          else { w = Math.round(w * MAX / h); h = MAX; }
+        if (w > maxSize || h > maxSize) {
+          if (w > h) { h = Math.round(h * maxSize / w); w = maxSize; }
+          else { w = Math.round(w * maxSize / h); h = maxSize; }
         }
         const canvas = document.createElement("canvas");
         canvas.width = w;
@@ -1667,7 +1666,7 @@ useEffect(() => {
                         onChange={(e) => {
                           uploadFoto(e.target.files[0], (dataUrl) => {
                             setSalone({ ...salone, logo: dataUrl });
-                          });
+                          }, 400);
                         }}
                       />
                       {salone.logo ? (
@@ -1688,7 +1687,7 @@ useEffect(() => {
                       ) : (
                         <div className="p-6 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
                           <div className="text-sm">Tocca qui per caricare il logo</div>
-                          <div className="text-xs mt-1">PNG, JPG, SVG · max 2MB</div>
+                          <div className="text-xs mt-1" style={{ color: T.textMuted }}>PNG, JPG · ottimizzato automaticamente</div>
                         </div>
                       )}
                     </label>
