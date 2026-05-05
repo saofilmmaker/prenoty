@@ -207,11 +207,13 @@ useEffect(() => {
         }
       }
 
+      if (!saloneDb?.id) return;
+
       // Carica servizi da Supabase usando salone_id
       const { data: serviziDb } = await supabase
         .from("servizi")
         .select("*")
-        .eq("salone_id", saloneDb?.id);
+        .eq("salone_id", saloneDb.id);
 
       setServizi(serviziDb && serviziDb.length > 0 ? serviziDb.map(s => ({
         id: s.id,
