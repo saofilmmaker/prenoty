@@ -177,7 +177,7 @@ useEffect(() => {
         .from("saloni")
         .select("*")
         .eq("user_id", userId)
-        .single();
+        .maybeSingle();
 
       if (saloneDb) {
         setSalone(prev => ({
