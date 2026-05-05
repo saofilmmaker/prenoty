@@ -281,13 +281,7 @@ useEffect(() => {
   // - rispostaProprietario: testo (null se non ancora risposto)
   // - segnalata: boolean (proprietario può segnalare a admin Prenoty)
   // - nascosta: boolean (admin può nasconderla dopo segnalazione)
-  const [recensioni, setRecensioni] = useState([
-    { id: 1, nome: "Sofia E.", stelle: 5, testo: "Servizio impeccabile, Marco è bravissimo con il colore. Tornerò sicuramente!", data: "2026-04-15", rispostaProprietario: null, segnalata: false, nascosta: false },
-    { id: 2, nome: "Giulia R.", stelle: 5, testo: "Ambiente elegante e personale gentile. Il taglio è perfetto.", data: "2026-04-10", rispostaProprietario: "Grazie mille Giulia! Ti aspettiamo presto.", segnalata: false, nascosta: false },
-    { id: 3, nome: "Anna V.", stelle: 4, testo: "Bella esperienza, prezzi giusti. Consigliato.", data: "2026-04-05", rispostaProprietario: null, segnalata: false, nascosta: false },
-    { id: 4, nome: "Laura C.", stelle: 5, testo: "Le ragazze sono dolcissime, mi sento sempre coccolata. Top.", data: "2026-03-28", rispostaProprietario: null, segnalata: false, nascosta: false },
-    { id: 5, nome: "Anonimo", stelle: 1, testo: "Servizio pessimo, da evitare assolutamente!", data: "2026-04-22", rispostaProprietario: null, segnalata: false, nascosta: false },
-  ]);
+  const [recensioni, setRecensioni] = useState([]);
 
   // State per gestione risposte/segnalazioni
   const [risposteInCorso, setRisposteInCorso] = useState({}); // { recensioneId: "testo bozza" }
@@ -1578,14 +1572,18 @@ useEffect(() => {
               </div>
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>DATI SALONE</h3>
+                <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>{tipoAttivita === "generico" ? "DATI ATTIVITÀ" : "DATI SALONE"}</h3>
                 <div className="space-y-4">
                   <div>
-                    <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>NOME SALONE</label>
+                    <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>{tipoAttivita === "generico" ? "NOME ATTIVITÀ" : "NOME SALONE"}</label>
                     <input
                       type="text"
                       value={salone.nome}
-                      onChange={(e) => setSalone({ ...salone, nome: e.target.value })}
+                      onChange={(e) => {
+                        const nuovoNome = e.target.value;
+                        const nuovoSlug = nuovoNome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
+                        setSalone({ ...salone, nome: nuovoNome, slug: nuovoSlug });
+                      }}
                       className="w-full mt-1 p-3 border outline-none"
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
                     />
