@@ -1,3 +1,4 @@
+import React from 'react';
 import { useState } from "react";
 import { Users, Euro, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Clock, Search, Sun, Moon, Mail, Phone, Calendar, MoreVertical, Download, ArrowUpRight, ArrowDownRight, Shield, Bell, Star, MessageSquare, X, Trash2 } from "lucide-react";
 
@@ -5,6 +6,47 @@ import { Users, Euro, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircl
 // DASHBOARD ADMIN — solo per il proprietario del SaaS (tu)
 // URL previsto: prenoty.com/admin (protetto da login con email autorizzata)
 // =============================================================
+
+
+function CambioPasswordAdmin({ T }) {
+  const [nuova, setNuova] = React.useState("");
+  const [conferma, setConferma] = React.useState("");
+  const [msg, setMsg] = React.useState(null);
+  const [loading, setLoading] = React.useState(false);
+
+  const handleCambio = async () => {
+    if (nuova !== conferma) { setMsg({ tipo: "errore", testo: "Le password non coincidono" }); return; }
+    if (nuova.length < 8) { setMsg({ tipo: "errore", testo: "Minimo 8 caratteri" }); return; }
+    setLoading(true);
+    try {
+      const { createClient } = await import("@supabase/supabase-js");
+      const sb = createClient("https://lievvbydmynrdrmgxljm.supabase.co", "sb_publishable_5F_dQ3i8fsEuNmS9kXazcA_CWONTYqF");
+      const { error } = await sb.auth.updateUser({ password: nuova });
+      if (error) setMsg({ tipo: "errore", testo: error.message });
+      else { setMsg({ tipo: "ok", testo: "Password aggiornata!" }); setNuova(""); setConferma(""); }
+    } catch(e) { setMsg({ tipo: "errore", testo: "Errore imprevisto" }); }
+    setLoading(false);
+  };
+
+  return (
+    <div style={{ background: T?.card || "#fff", border: "1px solid " + (T?.border || "#e0dcff"), borderRadius: 12, padding: 24, marginTop: 24 }}>
+      <h3 style={{ fontSize: 12, letterSpacing: 2, color: T?.textMuted || "#9b96c8", marginBottom: 4 }}>SICUREZZA</h3>
+      <p style={{ fontSize: 12, color: T?.textMuted || "#9b96c8", marginBottom: 16 }}>Cambia la password dell'account admin</p>
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ fontSize: 11, color: T?.textMuted || "#9b96c8", letterSpacing: 1 }}>NUOVA PASSWORD</label>
+        <input type="password" value={nuova} onChange={e => setNuova(e.target.value)} placeholder="Minimo 8 caratteri" style={{ width: "100%", marginTop: 4, padding: "10px 12px", border: "1px solid " + (T?.border || "#e0dcff"), borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box", background: T?.bg || "#f4f3ff", color: T?.text || "#1e1b3a" }} />
+      </div>
+      <div style={{ marginBottom: 12 }}>
+        <label style={{ fontSize: 11, color: T?.textMuted || "#9b96c8", letterSpacing: 1 }}>CONFERMA PASSWORD</label>
+        <input type="password" value={conferma} onChange={e => setConferma(e.target.value)} placeholder="Ripeti la nuova password" style={{ width: "100%", marginTop: 4, padding: "10px 12px", border: "1px solid " + (T?.border || "#e0dcff"), borderRadius: 8, fontSize: 14, outline: "none", boxSizing: "border-box", background: T?.bg || "#f4f3ff", color: T?.text || "#1e1b3a" }} />
+      </div>
+      {msg && <div style={{ padding: "10px 12px", borderRadius: 8, marginBottom: 12, fontSize: 13, background: msg.tipo === "ok" ? "rgba(93,226,121,0.1)" : "rgba(231,76,60,0.1)", color: msg.tipo === "ok" ? "#27ae60" : "#e74c3c" }}>{msg.testo}</div>}
+      <button onClick={handleCambio} disabled={loading} style={{ width: "100%", padding: "11px", background: "#6c5ce7", color: "#fff", border: "none", borderRadius: 8, fontSize: 14, fontWeight: 600, cursor: "pointer" }}>
+        {loading ? "Aggiornamento..." : "Aggiorna password"}
+      </button>
+    </div>
+  );
+}
 
 export default function DashboardAdmin() {
   const [tema, setTema] = useState("chiaro");
@@ -168,7 +210,7 @@ export default function DashboardAdmin() {
             <Shield size={18} color="#fff" />
           </div>
           <div>
-            <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: 0.3 }}>Prenoty Admin</div>
+            <div style={{ fontSize: 17, fontWeight: 700, letterSpacing: 0.3 }}></div><a href="/" style={{display:"inline-block"}}><img src={tema === "SCURO" ? "/Prenoty_Bianco.png" : "/Prenoty_Viola.png"} alt="Prenoty" style={{height:22,objectFit:"contain"}} /></a>
             <div style={{ fontSize: 11, color: T.accent, letterSpacing: 1, textTransform: "uppercase", fontWeight: 600 }}>
               Pannello di controllo
             </div>
@@ -257,7 +299,8 @@ export default function DashboardAdmin() {
           { k: "panoramica", lbl: "Panoramica" },
           { k: "saloni", lbl: `Saloni (${saloni.length})` },
           { k: "incassi", lbl: "Incassi" },
-          { k: "moderazione", lbl: `Moderazione${recensioniSegnalate.length > 0 ? ` (${recensioniSegnalate.length})` : ""}` },
+          { k: "impostazioni", label: "Impostazioni" },
+    { k: "moderazione", lbl: `Moderazione${recensioniSegnalate.length > 0 ? ` (${recensioniSegnalate.length})` : ""}` },
         ].map(t => (
           <button
             key={t.k}
@@ -707,6 +750,12 @@ export default function DashboardAdmin() {
         {/* ============================================
             MODERAZIONE — recensioni segnalate dai titolari
         ============================================ */}
+        {sezione === "impostazioni" && (
+          <div style={{ maxWidth: 480 }}>
+            <h2 style={{ fontSize: 20, fontWeight: 700, marginBottom: 24, color: sezione === "impostazioni" ? "#1e1b3a" : "#fff" }}>Impostazioni Admin</h2>
+            <CambioPasswordAdmin />
+          </div>
+        )}
         {sezione === "moderazione" && (
           <div>
             <h2 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>Recensioni segnalate</h2>

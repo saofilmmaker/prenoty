@@ -1,6 +1,8 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
+import { supabase } from "./supabase";
 
 // =============================================================
 // CONFIGURAZIONE PER TIPO DI ATTIVITÀ
@@ -44,13 +46,16 @@ export default function AppCliente() {
   // Modal "Aggiungi alla home" — banner istruzioni PWA su mobile
   const [pwaModalAperto, setPwaModalAperto] = useState(false);
 
+  // LIGHTBOX galleria
+  const [lightboxFoto, setLightboxFoto] = useState(null);
+
   // Modal e toast condivisione (con fallback)
   const [shareModalAperto, setShareModalAperto] = useState(false);
   const [linkCopiato, setLinkCopiato] = useState(false);
 
   // Funzione condividi — strategia a 3 livelli
   const condividiSalone = async () => {
-    const url = typeof window !== "undefined" ? window.location.href : "https://prenoty.com";
+    const url = `https://prenoty.com/${slug}`;
     const datiCondivisione = {
       title: salone.nome,
       text: `Prenota un appuntamento da ${salone.nome}`,
@@ -103,55 +108,70 @@ export default function AppCliente() {
   const [note, setNote] = useState("");
   const [paga, setPaga] = useState(null);
 
-  // DATI SALONE (in produzione: da Supabase)
-  const salone = {
-    nome: "Atelier Bellezza",
-    tipoAttivita: "parrucchiere", // parrucchiere | estetista | spa
-    indirizzo: "Via Roma 12, Milano",
-    telefono: "+39 02 1234567",
-    email: "info@atelierbellezza.it",
-    logo: null, // se il salone carica un logo, apparirà qui
+  // DATI SALONE da Supabase
+  const [salone, setSalone] = useState({
+    nome: "", tipoAttivita: "generico", indirizzo: "", telefono: "", email: "",
+    logo: null, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
+    orari: { Lunedì: "09:00–19:00", Martedì: "09:00–19:00", Mercoledì: "09:00–19:00", Giovedì: "09:00–19:00", Venerdì: "09:00–19:00", Sabato: "09:00–18:00", Domenica: "Chiuso" },
+    mostraRecensioni: true, mostraMappa: true, mostraOrari: true, mostraGalleria: true, mostraSocial: true,
+    metodiPagamento: { carta: true, applePay: true, googlePay: true, nexi: true, paypal: false, bonifico: false, inSalone: true },
+  });
+  const [servizi, setServizi] = useState([]);
+  const [caricamento, setCaricamento] = useState(true);
+  const [nonTrovato, setNonTrovato] = useState(false);
 
-    // VETRINA — dati che il parrucchiere imposta dalla sua dashboard
-    descrizione: "Salone storico nel cuore di Milano. Specializzati in colore, taglio e cura della persona. Ti aspettiamo con un caffè.",
-    galleria: [], // foto del salone (data URL) - vuota di default in demo
-    social: {
-      Camera: "https://Camera.com/atelierbellezza",
-      tiktok: "",
-      Globe: "",
-      sito: "",
-    },
-    orari: { Lunedì: "09:00 – 19:00", Martedì: "09:00 – 19:00", Mercoledì: "09:00 – 19:00", Giovedì: "09:00 – 19:00", Venerdì: "09:00 – 19:00", Sabato: "09:00 – 18:00", Domenica: "Chiuso" },
+  // Carica dati reali da Supabase usando lo slug dall'URL
+  const { slug } = useParams();
+  useEffect(() => {
+    const carica = async () => {
+      const { data: saloneDb } = await supabase
+        .from("saloni").select("*").eq("slug", slug).single();
+      if (!saloneDb) { setNonTrovato(true); setCaricamento(false); return; }
+      setSalone(prev => ({ 
+        ...prev, 
+        ...saloneDb, 
+        id: saloneDb.id,
+        tipoAttivita: saloneDb.tipo || "generico",
+        galleria: saloneDb.galleria || [],
+        orari: saloneDb.orari || prev.orari,
+        social: saloneDb.social || prev.social,
+        logo: saloneDb.logo || null,
+        descrizione: saloneDb.descrizione || prev.descrizione,
+        mostraRecensioni: saloneDb.mostra_recensioni ?? true,
+        mostraMappa: saloneDb.mostra_mappa ?? true,
+        mostraOrari: saloneDb.mostra_orari ?? true,
+        mostraGalleria: saloneDb.mostra_galleria ?? true,
+        mostraSocial: saloneDb.mostra_social ?? true,
+        metodiPagamento: saloneDb.metodiPagamento || prev.metodiPagamento,
+      }));
+      const { data: serviziDb } = await supabase
+        .from("servizi").select("*").eq("salone_id", saloneDb.id);
+      if (serviziDb) setServizi(serviziDb);
+      setCaricamento(false);
+    };
+    carica();
+  }, [slug]);
 
-    // INTERRUTTORI VETRINA — il parrucchiere decide cosa mostrare
-    mostraRecensioni: true,
-    mostraMappa: true,
-    mostraOrari: true,
-    mostraGalleria: true,
-    mostraSocial: true,
+  // GEOCODING indirizzo → coordinate per la mappa
+  const [mapCoords, setMapCoords] = useState(null);
+  useEffect(() => {
+    if (!salone.indirizzo) return;
+    fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(salone.indirizzo)}&format=json&limit=1`)
+      .then(r => r.json())
+      .then(data => {
+        if (data && data[0]) {
+          const lat = parseFloat(data[0].lat);
+          const lon = parseFloat(data[0].lon);
+          setMapCoords({ lat, lon });
+        }
+      })
+      .catch(() => {});
+  }, [salone.indirizzo]);
 
-    // Metodi di pagamento che il salone ha attivato nella sua dashboard
-    metodiPagamento: {
-      carta: true,
-      applePay: true,
-      googlePay: true,
-      nexi: true,            // Nexi Pay — molto usato in Italia (specialmente nord)
-      paypal: false,
-      bonifico: false,
-      inSalone: true,
-    },
-  };
-
-  // RECENSIONI (in produzione: lette da Supabase, scritte tramite form)
-  const [recensioni, setRecensioni] = useState([
-    { id: 1, nome: "Sofia E.", stelle: 5, testo: "Servizio impeccabile, Marco è bravissimo con il colore. Tornerò sicuramente!", data: "15 apr 2026" },
-    { id: 2, nome: "Giulia R.", stelle: 5, testo: "Ambiente elegante e personale gentile. Il taglio è perfetto.", data: "10 apr 2026" },
-    { id: 3, nome: "Anna V.", stelle: 4, testo: "Bella esperienza, prezzi giusti. Consigliato.", data: "5 apr 2026" },
-    { id: 4, nome: "Laura C.", stelle: 5, testo: "Le ragazze sono dolcissime, mi sento sempre coccolata. Top.", data: "28 mar 2026" },
-  ]);
+  // RECENSIONI
+  const [recensioni, setRecensioni] = useState([]);
   const mediaStelle = recensioni.length > 0
-    ? (recensioni.reduce((s, r) => s + r.stelle, 0) / recensioni.length).toFixed(1)
-    : 0;
+    ? (recensioni.reduce((s, r) => s + r.stelle, 0) / recensioni.length).toFixed(1) : 0;
 
   // Form "Scrivi recensione"
   const [modalRecensioneAperto, setModalRecensioneAperto] = useState(false);
@@ -162,52 +182,58 @@ export default function AppCliente() {
     const testo = nuovaRecensione.testo.trim();
     const nome = nuovaRecensione.nome.trim();
     if (!testo || !nome) return;
-    const nuova = {
-      id: Math.max(0, ...recensioni.map(r => r.id)) + 1,
-      nome: nome,
-      stelle: nuovaRecensione.stelle,
-      testo: testo,
-      data: "Adesso",
-    };
+    const nuova = { id: Math.max(0, ...recensioni.map(r => r.id)) + 1, nome, stelle: nuovaRecensione.stelle, testo, data: "Adesso" };
     setRecensioni([nuova, ...recensioni]);
     setRecensioneInviata(true);
-    setTimeout(() => {
-      setModalRecensioneAperto(false);
-      setRecensioneInviata(false);
-      setNuovaRecensione({ nome: "", stelle: 5, testo: "" });
-    }, 2000);
+    setTimeout(() => { setModalRecensioneAperto(false); setRecensioneInviata(false); setNuovaRecensione({ nome: "", stelle: 5, testo: "" }); }, 2000);
   };
 
   // Configurazione dinamica in base al tipo di attività del salone
-  const config = CONFIG_ATTIVITA[salone.tipoAttivita] || CONFIG_ATTIVITA.parrucchiere;
+  const config = CONFIG_ATTIVITA[salone.tipoAttivita] || CONFIG_ATTIVITA.generico;
   const IconaAttivita = config.icona;
-
-  const servizi = [
-    { id: 1, nome: "Taglio Donna", durata: 45, prezzo: 35, cat: "Taglio" },
-    { id: 2, nome: "Taglio Uomo", durata: 30, prezzo: 20, cat: "Taglio" },
-    { id: 3, nome: "Colore", durata: 90, prezzo: 65, cat: "Colore" },
-    { id: 4, nome: "Piega", durata: 30, prezzo: 25, cat: "Styling" },
-    { id: 5, nome: "Taglio + Piega", durata: 60, prezzo: 50, cat: "Taglio" },
-    { id: 6, nome: "Colpi di Sole", durata: 120, prezzo: 85, cat: "Colore" },
-  ];
 
   const staff = [
     { id: 0, nome: "Chiunque disponibile", ruolo: "Primo disponibile", colore: "#9b96c8", foto: null },
-    { id: 1, nome: "Marco Ferrari", ruolo: "Titolare", colore: "#6c5ce7", rating: 4.9, foto: null },
-    { id: 2, nome: "Laura Bianchi", ruolo: "Senior Stylist", colore: "#a29bfe", rating: 4.8, foto: null },
-    { id: 3, nome: "Giulia Conti", ruolo: "Colorista", colore: "#fd79a8", rating: 4.9, foto: null },
+    ...(salone.staff || []),
   ];
 
-  const orari = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "14:00", "14:30", "15:00", "15:30", "16:00", "16:30", "17:00", "17:30", "18:00"];
+  // Genera slot da 30 min dagli orari reali del salone per il giorno scelto
+  const generaSlot = (dataScelta) => {
+    if (!dataScelta || !salone.orari) return [];
+    const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
+    const chiave = chiavi[dataScelta.getDay()];
+    const orarioGiorno = salone.orari[chiave];
+    if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
+    const [inizio, fine] = orarioGiorno.split("-");
+    if (!inizio || !fine) return [];
+    const [hI, mI] = inizio.split(":").map(Number);
+    const [hF, mF] = fine.split(":").map(Number);
+    const slots = [];
+    let minuti = hI * 60 + mI;
+    const fineMin = hF * 60 + mF;
+    while (minuti < fineMin) {
+      const h = String(Math.floor(minuti / 60)).padStart(2, "0");
+      const m = String(minuti % 60).padStart(2, "0");
+      slots.push(`${h}:${m}`);
+      minuti += 30;
+    }
+    return slots;
+  };
 
+  const orari = data ? generaSlot(data) : [];
+
+  const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
   const giorni = [];
   const oggi = new Date();
   let i = 0;
   while (giorni.length < 14) {
     const g = new Date(oggi);
     g.setDate(oggi.getDate() + i);
-    if (g.getDay() !== 0) giorni.push(g);
+    const chiave = chiavi[g.getDay()];
+    const orarioGiorno = salone.orari?.[chiave];
+    if (orarioGiorno && orarioGiorno !== "Chiuso") giorni.push(g);
     i++;
+    if (i > 60) break; // safety
   }
 
   const fmtData = (d) => {
@@ -230,6 +256,101 @@ export default function AppCliente() {
       : [...serviziScelti, s]);
   };
 
+  // ORARI OCCUPATI — caricati da Supabase quando il cliente sceglie la data
+  const [orariOccupati, setOrariOccupati] = useState([]);
+  const [invioInCorso, setInvioInCorso] = useState(false);
+
+  const caricaOrariOccupati = async (dataScelta) => {
+    if (!salone.id) return;
+    const dataStr = `${dataScelta.getFullYear()}-${String(dataScelta.getMonth()+1).padStart(2,"0")}-${String(dataScelta.getDate()).padStart(2,"0")}`;
+    const { data: prenotazioniDb } = await supabase
+      .from("prenotazioni")
+      .select("ora, servizio_id, durata_totale")
+      .eq("salone_id", salone.id)
+      .eq("data", dataStr)
+      .neq("stato", "annullata");
+
+    if (!prenotazioniDb) return;
+
+    const slotList = generaSlot(dataScelta);
+    const occupati = new Set();
+
+    for (const pren of prenotazioniDb) {
+      const oraInizio = pren.ora?.slice(0, 5);
+      if (!oraInizio) continue;
+
+      // usa durata_totale se disponibile, altrimenti cerca il servizio singolo
+      let durata = pren.durata_totale || null;
+      if (!durata) {
+        const servizio = servizi.find(s => s.id === pren.servizio_id);
+        durata = servizio?.durata || 30;
+      }
+
+      const slotsOccupati = Math.ceil(durata / 30);
+      const idxInizio = slotList.indexOf(oraInizio);
+
+      for (let i = 0; i < slotsOccupati; i++) {
+        if (idxInizio + i < slotList.length) {
+          occupati.add(slotList[idxInizio + i]);
+        }
+      }
+    }
+
+    setOrariOccupati([...occupati]);
+  };
+
+  // SALVA PRENOTAZIONE su Supabase
+  const inviaPrenotazione = async () => {
+    setInvioInCorso(true);
+    const dataStr = `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}`;
+    const durataTot = serviziScelti.reduce((s, x) => s + x.durata, 0);
+    const nomiServizi = serviziScelti.map(x => x.nome).join(", ");
+    const { error } = await supabase.from("prenotazioni").insert({
+      salone_id: salone.id,
+      servizio_id: serviziScelti[0]?.id || null,
+      staff_id: staffScelto?.id || null,
+      nome_cliente: nome,
+      telefono_cliente: telefono,
+      email_cliente: email,
+      data: dataStr,
+      ora: ora,
+      stato: "confermato",
+      durata_totale: durataTot,
+      nomi_servizi: nomiServizi,
+      note: note || null,
+    });
+    if (!error) {
+      // Salva/aggiorna cliente in anagrafica automaticamente
+      const { data: esistente } = await supabase
+        .from("clienti")
+        .select("id, visite")
+        .eq("salone_id", salone.id)
+        .eq("telefono", telefono)
+        .single();
+      if (esistente) {
+        await supabase.from("clienti").update({
+          visite: (esistente.visite || 0) + 1,
+          ultima_visita: dataStr,
+          nome: nome,
+          email: email || undefined,
+        }).eq("id", esistente.id);
+      } else {
+        await supabase.from("clienti").insert({
+          salone_id: salone.id,
+          nome,
+          telefono,
+          email: email || null,
+          visite: 1,
+          ultima_visita: dataStr,
+        });
+      }
+      setStep(7);
+    } else {
+      alert("Errore durante la prenotazione. Riprova.");
+    }
+    setInvioInCorso(false);
+  };
+
   const puoAvanzare =
     (step === 1 && serviziScelti.length > 0) ||
     (step === 2 && staffScelto !== null) ||
@@ -237,6 +358,21 @@ export default function AppCliente() {
     (step === 4 && ora) ||
     (step === 5 && nome.trim() && telefono.trim() && email.trim()) ||
     (step === 6 && paga);
+
+  if (caricamento) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730" }}>
+      <div style={{ color: "#9b96c8", fontSize: 14 }}>Caricamento...</div>
+    </div>
+  );
+
+  if (nonTrovato) return (
+    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730", flexDirection: "column", gap: 16 }}>
+      <div style={{ fontSize: 48 }}>🔍</div>
+      <div style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>Salone non trovato</div>
+      <div style={{ color: "#9b96c8", fontSize: 14 }}>Il link potrebbe essere errato o il salone non è più attivo.</div>
+      <a href="https://prenoty.com" style={{ color: "#6c5ce7", fontSize: 14, marginTop: 8 }}>← Torna a Prenoty</a>
+    </div>
+  );
 
   return (
     <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
@@ -265,21 +401,23 @@ export default function AppCliente() {
               )}
             </div>
           </div>
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-2">
             <button
               onClick={condividiSalone}
-              className="p-2 rounded transition"
-              style={{ color: T.textSoft }}
-              title="Condividi"
+              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 20, cursor: "pointer", padding: "6px 13px", display: "flex", alignItems: "center", gap: 6, color: T.textSoft, fontFamily: "inherit", fontSize: 12 }}
             >
-              <Share2 className="w-4 h-4" />
+              <Share2 style={{ width: 13, height: 13 }} />
+              Condividi
             </button>
             <button
               onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}
-              className="p-2 rounded transition text-xs tracking-widest"
-              style={{ color: T.textSoft, letterSpacing: "0.1em" }}
+              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 20, cursor: "pointer", padding: "6px 13px", display: "flex", alignItems: "center", gap: 6, color: T.textSoft, fontFamily: "inherit", fontSize: 12 }}
             >
-              {tema === "chiaro" ? "SCURO" : "CHIARO"}
+              {tema === "chiaro" ? (
+                <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg> Tema scuro</>
+              ) : (
+                <><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg> Tema chiaro</>
+              )}
             </button>
           </div>
         </div>
@@ -316,23 +454,26 @@ export default function AppCliente() {
               )}
               <h1 className="text-4xl mb-3 leading-tight">{salone.nome}</h1>
 
-              {/* Rating compatto (solo se attivato) */}
-              {salone.mostraRecensioni && recensioni.length > 0 && (
+              {/* Rating compatto (sempre visibile se recensioni attivate) */}
+              {salone.mostraRecensioni && (
                 <div className="flex items-center justify-center gap-2 mb-4">
+                  {recensioni.length > 0 && (
+                    <span className="text-sm font-medium" style={{ color: T.text }}>{mediaStelle}</span>
+                  )}
                   <div className="flex">
                     {[1, 2, 3, 4, 5].map(n => (
                       <Star
                         key={n}
                         className="w-4 h-4"
                         style={{
-                          fill: n <= Math.round(mediaStelle) ? T.accent : "transparent",
+                          fill: recensioni.length > 0 && n <= Math.round(parseFloat(mediaStelle)) ? T.accent : "transparent",
                           color: T.accent,
                         }}
                       />
                     ))}
                   </div>
                   <span className="text-sm" style={{ color: T.textSoft }}>
-                    {mediaStelle} · {recensioni.length} recensioni
+                    {recensioni.length > 0 ? `${recensioni.length} recensioni` : "Nessuna recensione"}
                   </span>
                 </div>
               )}
@@ -357,11 +498,19 @@ export default function AppCliente() {
                 <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>GALLERIA</div>
                 <div className="grid grid-cols-3 gap-2">
                   {salone.galleria.map((foto, i) => (
-                    <div key={i} className="aspect-square overflow-hidden border" style={{ borderColor: T.border }}>
+                    <div key={i} className="aspect-square overflow-hidden border cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => setLightboxFoto(foto)}>
                       <img src={foto} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
                     </div>
                   ))}
                 </div>
+              </div>
+            )}
+
+            {/* LIGHTBOX */}
+            {lightboxFoto && (
+              <div onClick={() => setLightboxFoto(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
+                <img src={lightboxFoto} alt="Foto" style={{ maxWidth: "100%", maxHeight: "90vh", objectFit: "contain", borderRadius: 8 }} />
+                <button onClick={() => setLightboxFoto(null)} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 40, height: 40, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
               </div>
             )}
 
@@ -396,30 +545,117 @@ export default function AppCliente() {
             </div>
 
             {/* TEAM */}
+            {staff.filter(s => s.id !== 0).length > 0 && (
+              <div>
+                <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>TEAM</div>
+                <div className="grid grid-cols-3 gap-2">
+                  {staff.filter(s => s.id !== 0).map(s => (
+                    <div
+                      key={s.id}
+                      className="p-3 border text-center"
+                      style={{ backgroundColor: T.card, borderColor: T.border }}
+                    >
+                      {s.foto ? (
+                        <div className="w-14 h-14 rounded-full mx-auto mb-2 overflow-hidden border-2" style={{ borderColor: s.colore }}>
+                          <img src={s.foto} alt={s.nome} className="w-full h-full object-cover" />
+                        </div>
+                      ) : (
+                        <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center text-white text-sm" style={{ backgroundColor: s.colore }}>
+                          {s.nome.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                        </div>
+                      )}
+                      <div className="text-xs">{s.nome.split(" ")[0]}</div>
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{s.ruolo}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* CONTATTI */}
             <div>
-              <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>{config.operatorePlur.toUpperCase()}</div>
-              <div className="grid grid-cols-3 gap-2">
-                {staff.filter(s => s.id !== 0).map(s => (
-                  <div
-                    key={s.id}
-                    className="p-3 border text-center"
-                    style={{ backgroundColor: T.card, borderColor: T.border }}
-                  >
-                    {s.foto ? (
-                      <div className="w-14 h-14 rounded-full mx-auto mb-2 overflow-hidden border-2" style={{ borderColor: s.colore }}>
-                        <img src={s.foto} alt={s.nome} className="w-full h-full object-cover" />
-                      </div>
-                    ) : (
-                      <div className="w-14 h-14 rounded-full mx-auto mb-2 flex items-center justify-center text-white text-sm" style={{ backgroundColor: s.colore }}>
-                        {s.nome.split(" ").map(n => n[0]).join("").slice(0, 2)}
-                      </div>
-                    )}
-                    <div className="text-xs">{s.nome.split(" ")[0]}</div>
-                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{s.ruolo}</div>
-                  </div>
-                ))}
+              <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>CONTATTI</div>
+              <div className="space-y-2">
+                {salone.telefono && (
+                  <a href={`tel:${salone.telefono}`} className="p-4 border flex items-center gap-3 transition hover:opacity-80" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <Phone className="w-4 h-4" style={{ color: T.accent }} />
+                    <span className="text-sm">{salone.telefono}</span>
+                  </a>
+                )}
+                {salone.email && (
+                  <a href={`mailto:${salone.email}`} className="p-4 border flex items-center gap-3 transition hover:opacity-80" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <Mail className="w-4 h-4" style={{ color: T.accent }} />
+                    <span className="text-sm">{salone.email}</span>
+                  </a>
+                )}
+                {salone.social?.sito && (
+                  <a href={salone.social.sito} target="_blank" rel="noopener noreferrer" className="p-4 border flex items-center gap-3 transition hover:opacity-80" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <Globe className="w-4 h-4" style={{ color: T.accent }} />
+                    <span className="text-sm">{salone.social.sito.replace(/^https?:\/\//, "")}</span>
+                  </a>
+                )}
               </div>
             </div>
+
+            {/* SOCIAL (se attivati — senza icona sito che è già in Contatti) */}
+            {salone.mostraSocial && (salone.social?.instagram || salone.social?.facebook || salone.social?.tiktok) && (
+              <div>
+                <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>SOCIAL</div>
+                <div className="flex gap-3 justify-center">
+                  {salone.social.instagram && (
+                    <a href={salone.social.instagram} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zm0-2.163c-3.259 0-3.667.014-4.947.072-4.358.2-6.78 2.618-6.98 6.98-.059 1.281-.073 1.689-.073 4.948 0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98 1.281.058 1.689.072 4.948.072 3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98-1.281-.059-1.69-.073-4.949-.073zm0 5.838c-3.403 0-6.162 2.759-6.162 6.162s2.759 6.163 6.162 6.163 6.162-2.759 6.162-6.163c0-3.403-2.759-6.162-6.162-6.162zm0 10.162c-2.209 0-4-1.79-4-4 0-2.209 1.791-4 4-4s4 1.791 4 4c0 2.21-1.791 4-4 4zm6.406-11.845c-.796 0-1.441.645-1.441 1.44s.645 1.44 1.441 1.44c.795 0 1.439-.645 1.439-1.44s-.644-1.44-1.439-1.44z"/></svg>
+                    </a>
+                  )}
+                  {salone.social.facebook && (
+                    <a href={salone.social.facebook} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+                    </a>
+                  )}
+                  {salone.social.tiktok && (
+                    <a href={salone.social.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M19.59 6.69a4.83 4.83 0 01-3.77-4.25V2h-3.45v13.67a2.89 2.89 0 01-2.88 2.5 2.89 2.89 0 01-2.89-2.89 2.89 2.89 0 012.89-2.89c.28 0 .54.04.79.1V9.01a6.27 6.27 0 00-.79-.05 6.34 6.34 0 00-6.34 6.34 6.34 6.34 0 006.34 6.34 6.34 6.34 0 006.33-6.34V8.69a8.18 8.18 0 004.78 1.52V6.77a4.85 4.85 0 01-1.01-.08z"/></svg>
+                    </a>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {salone.mostraMappa && salone.indirizzo && (
+              <div>
+                <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>DOVE SIAMO</div>
+                <div className="border overflow-hidden" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                  <div className="aspect-video w-full bg-gray-100 relative">
+                    {mapCoords ? (
+                      <iframe
+                        title="Mappa salone"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0, filter: tema === "scuro" ? "invert(0.9) hue-rotate(180deg)" : "none" }}
+                        src={`https://www.openstreetmap.org/export/embed.html?bbox=${mapCoords.lon - 0.005},${mapCoords.lat - 0.003},${mapCoords.lon + 0.005},${mapCoords.lat + 0.003}&layer=mapnik&marker=${mapCoords.lat},${mapCoords.lon}`}
+                        loading="lazy"
+                      />
+                    ) : (
+                      <div style={{ width: "100%", height: "100%", display: "flex", alignItems: "center", justifyContent: "center", background: T.accentSoft, color: T.textMuted, fontSize: 13 }}>
+                        Caricamento mappa...
+                      </div>
+                    )}
+                  </div>
+                  <a
+                    href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salone.indirizzo)}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    style={{ display: "flex", padding: "16px", alignItems: "center", gap: 12, textDecoration: "none", color: "inherit" }}
+                  >
+                    <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
+                    <div className="flex-1">
+                      <div className="text-sm">{salone.indirizzo}</div>
+                      <div className="text-xs mt-0.5" style={{ color: T.accent }}>Apri in Google Maps →</div>
+                    </div>
+                  </a>
+                </div>
+              </div>
+            )}
 
             {/* RECENSIONI (se attivate) */}
             {salone.mostraRecensioni && recensioni.length > 0 && (
@@ -451,7 +687,6 @@ export default function AppCliente() {
                     </div>
                   ))}
                 </div>
-
                 <button
                   onClick={() => setModalRecensioneAperto(true)}
                   className="w-full mt-3 py-3 border tracking-widest text-xs transition flex items-center justify-center gap-2"
@@ -479,97 +714,25 @@ export default function AppCliente() {
               </div>
             )}
 
-            {/* MAPPA + INDIRIZZO (se attivata) */}
-            {salone.mostraMappa && (
-              <div>
-                <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>DOVE SIAMO</div>
-                <a
-                  href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(salone.indirizzo)}`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block border overflow-hidden transition hover:opacity-80"
-                  style={{ backgroundColor: T.card, borderColor: T.border }}
-                >
-                  {/* Mappa statica via OpenStreetMap embed (gratis, no API key) */}
-                  <div className="aspect-video w-full bg-gray-100 relative">
-                    <iframe
-                      title="Mappa salone"
-                      width="100%"
-                      height="100%"
-                      style={{ border: 0, filter: tema === "scuro" ? "invert(0.9) hue-rotate(180deg)" : "none" }}
-                      src={`https://www.openstreetmap.org/export/embed.html?bbox=9.18,45.46,9.20,45.47&layer=mapnik&marker=45.4642,9.19`}
-                    />
-                  </div>
-                  <div className="p-4 flex items-center gap-3">
-                    <MapPin className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
-                    <div className="flex-1">
-                      <div className="text-sm">{salone.indirizzo}</div>
-                      <div className="text-xs mt-0.5" style={{ color: T.accent }}>Apri in Google Maps →</div>
-                    </div>
-                  </div>
-                </a>
-              </div>
-            )}
-
             {/* ORARI (se attivati) */}
             {salone.mostraOrari && (
               <div>
                 <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>ORARI DI APERTURA</div>
                 <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                  {Object.entries(salone.orari).map(([giorno, orario]) => (
-                    <div key={giorno} className="flex items-center justify-between py-1.5 text-sm">
-                      <span>{giorno}</span>
-                      <span style={{ color: orario === "Chiuso" ? T.textMuted : T.text }}>{orario}</span>
-                    </div>
-                  ))}
+                  {["lun","mar","mer","gio","ven","sab","dom"].map((giorno) => {
+                    const orario = salone.orari?.[giorno] || "Chiuso";
+                    return (
+                      <div key={giorno} className="flex items-center justify-between py-1.5 text-sm">
+                        <span className="capitalize">{giorno}</span>
+                        <span style={{ color: orario === "Chiuso" ? T.textMuted : T.text }}>{orario}</span>
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
 
-            {/* CONTATTI + SOCIAL */}
-            <div>
-              <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>CONTATTI</div>
-              <div className="space-y-2">
-                <a href={`tel:${salone.telefono}`} className="p-4 border flex items-center gap-3 transition hover:opacity-80" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                  <Phone className="w-4 h-4" style={{ color: T.accent }} />
-                  <span className="text-sm">{salone.telefono}</span>
-                </a>
-                {salone.email && (
-                  <a href={`mailto:${salone.email}`} className="p-4 border flex items-center gap-3 transition hover:opacity-80" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                    <Mail className="w-4 h-4" style={{ color: T.accent }} />
-                    <span className="text-sm">{salone.email}</span>
-                  </a>
-                )}
-              </div>
-
-              {/* SOCIAL (se attivati e almeno uno compilato) */}
-              {salone.mostraSocial && Object.values(salone.social).some(v => v) && (
-                <div className="flex gap-3 justify-center mt-4">
-                  {salone.social.Camera && (
-                    <a href={salone.social.Camera} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
-                      <Camera className="w-4 h-4" />
-                    </a>
-                  )}
-                  {salone.social.tiktok && (
-                    <a href={salone.social.tiktok} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
-                      <span className="text-xs font-bold">TT</span>
-                    </a>
-                  )}
-                  {salone.social.Globe && (
-                    <a href={salone.social.Globe} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
-                      <Globe className="w-4 h-4" />
-                    </a>
-                  )}
-                  {salone.social.sito && (
-                    <a href={salone.social.sito} target="_blank" rel="noopener noreferrer" className="w-10 h-10 border rounded-full flex items-center justify-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.text }}>
-                      <Globe className="w-4 h-4" />
-                    </a>
-                  )}
-                </div>
-              )}
-            </div>
-
-            {/* CTA finale ridondante (per chi scrolla fino in fondo) */}
+            {/* CTA finale (per chi scrolla fino in fondo) */}
             <div className="text-center pt-4">
               <button
                 onClick={() => setStep(1)}
@@ -705,7 +868,7 @@ export default function AppCliente() {
                 return (
                   <button
                     key={idx}
-                    onClick={() => setData(g)}
+                    onClick={() => { setData(g); setOra(null); caricaOrariOccupati(g); }}
                     className="p-3 border text-center transition"
                     style={{
                       backgroundColor: sel ? T.accentSoft : T.card,
@@ -731,16 +894,21 @@ export default function AppCliente() {
             <div className="grid grid-cols-4 gap-3">
               {orari.map((o) => {
                 const sel = ora === o;
+                const occupato = orariOccupati.includes(o);
                 return (
                   <button
                     key={o}
-                    onClick={() => setOra(o)}
+                    onClick={() => !occupato && setOra(o)}
+                    disabled={occupato}
                     className="py-3 border text-center transition"
                     style={{
-                      backgroundColor: sel ? T.accentSoft : T.card,
-                      borderColor: sel ? T.accent : T.border,
+                      backgroundColor: occupato ? T.bg : sel ? T.accentSoft : T.card,
+                      borderColor: occupato ? T.border : sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
-                      color: T.text,
+                      color: occupato ? T.textMuted : T.text,
+                      textDecoration: occupato ? "line-through" : "none",
+                      cursor: occupato ? "not-allowed" : "pointer",
+                      opacity: occupato ? 0.5 : 1,
                     }}
                   >
                     {o}
@@ -1030,12 +1198,12 @@ export default function AppCliente() {
               <ArrowLeft className="w-4 h-4 flex-shrink-0" /> INDIETRO
             </button>
             <button
-              onClick={() => setStep(step + 1)}
-              disabled={!puoAvanzare}
+              onClick={() => step === 6 ? inviaPrenotazione() : setStep(step + 1)}
+              disabled={!puoAvanzare || invioInCorso}
               className="flex-[2] px-4 py-4 text-sm transition flex items-center justify-center gap-2 disabled:opacity-30 whitespace-nowrap"
               style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.05em" }}
             >
-              {step === 6 ? "CONFERMA" : "AVANTI"} <ArrowRight className="w-4 h-4 flex-shrink-0" />
+              {invioInCorso ? "INVIO..." : step === 6 ? "CONFERMA" : "AVANTI"} <ArrowRight className="w-4 h-4 flex-shrink-0" />
             </button>
           </div>
         </div>
@@ -1266,7 +1434,7 @@ export default function AppCliente() {
         </div>
       )}
 
-      <WhatsAppAssistenza tema={tema} numero={salone.telefono.replace(/[^0-9]/g, "")} pubblico />
+      <WhatsAppAssistenza tema={tema} numero={(salone.telefono || "").replace(/[^0-9]/g, "")} pubblico />
     </div>
   );
 }
