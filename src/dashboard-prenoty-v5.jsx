@@ -213,14 +213,12 @@ useEffect(() => {
         .select("*")
         .eq("salone_id", saloneDb?.id);
 
-      if (serviziDb && serviziDb.length > 0) {
-        setServizi(serviziDb.map(s => ({
-          id: s.id,
-          nome: s.nome,
-          durata: s.durata,
-          prezzo: s.prezzo,
-        })));
-      }
+      setServizi(serviziDb && serviziDb.length > 0 ? serviziDb.map(s => ({
+        id: s.id,
+        nome: s.nome,
+        durata: s.durata,
+        prezzo: s.prezzo,
+      })) : []);
 
       // Carica prenotazioni reali da Supabase
       if (saloneDb) {
@@ -427,7 +425,7 @@ useEffect(() => {
   };
 
   // SERVIZI — caricati da Supabase (vedi useEffect sopra), fallback ai default
-  const [servizi, setServizi] = useState(CONFIG_ATTIVITA.parrucchiere.serviziDefault);
+  const [servizi, setServizi] = useState([]);
 
   // Modifica inline servizi: tiene traccia di quale servizio si sta modificando
   const [modificaServizio, setModificaServizio] = useState(null);
