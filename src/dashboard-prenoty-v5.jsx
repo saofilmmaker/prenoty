@@ -171,6 +171,7 @@ useEffect(() => {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
       const userId = session.user.id;
+      setUserId(userId);
 
       // Carica dati salone
       const { data: saloneDb } = await supabase
@@ -416,18 +417,32 @@ useEffect(() => {
   const [salvataggioStato, setSalvataggioStato] = useState(null);
   const [salvataggioVetrinaStato, setSalvataggioVetrinaStato] = useState(null);
   const salvaSalone = async () => {
-    if (!userId) return;
+    const { data: { session } } = await supabase.auth.getSession();
+    if (!session) return;
+    const uid = session.user.id;
+    setUserId(uid);
     setSalvataggioStato("salvataggio");
-    const { data: saved, error } = await supabase.from("saloni").upsert({
-      user_id: userId,
+
+    const payload = {
+      user_id: uid,
       nome: salone.nome,
       slug: salone.slug || salone.nome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-"),
       indirizzo: salone.indirizzo,
       telefono: salone.telefono,
       email: salone.email,
       tipo: tipoAttivita,
-    }, { onConflict: "user_id" }).select().single();
-    if (saved && !salone.dbId) setSalone(prev => ({ ...prev, dbId: saved.id }));
+    };
+
+    let error;
+    if (salone.dbId) {
+      const res = await supabase.from("saloni").update(payload).eq("id", salone.dbId);
+      error = res.error;
+    } else {
+      const res = await supabase.from("saloni").insert(payload).select().single();
+      error = res.error;
+      if (res.data) setSalone(prev => ({ ...prev, dbId: res.data.id }));
+    }
+
     setSalvataggioStato(error ? "errore" : "ok");
     setTimeout(() => setSalvataggioStato(null), 3000);
   };
@@ -1831,12 +1846,10 @@ useEffect(() => {
               {/* BOTTONE SALVA VETRINA */}
               <button
                 onClick={async () => {
-                  if (!userId) return;
+                  const { data: { session: sess } } = await supabase.auth.getSession();
+                  if (!sess) return;
                   setSalvataggioVetrinaStato("salvataggio");
-                  const { error } = await supabase.from("saloni").upsert({
-                    user_id: userId,
-                    nome: salone.nome,
-                    slug: salone.slug || salone.nome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-"),
+                  const vetrinaPayload = {
                     descrizione: salone.descrizione,
                     logo: salone.logo,
                     galleria: salone.galleria,
@@ -1846,7 +1859,10 @@ useEffect(() => {
                     mostra_orari: salone.mostraOrari,
                     mostra_galleria: salone.mostraGalleria,
                     mostra_social: salone.mostraSocial,
-                  }, { onConflict: "user_id" });
+                  };
+                  const { error } = salone.dbId
+                    ? await supabase.from("saloni").update(vetrinaPayload).eq("id", salone.dbId)
+                    : await supabase.from("saloni").insert({ ...vetrinaPayload, user_id: sess.user.id, nome: salone.nome, slug: salone.slug || "salone" }).select().single();
                   setSalvataggioVetrinaStato(error ? "errore" : "ok");
                   setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
                 }}
