@@ -440,18 +440,12 @@ useEffect(() => {
 
   const eseguiCambioTipo = async () => {
     if (!confermaCambioTipo) return;
-    const nuoviServizi = CONFIG_ATTIVITA[confermaCambioTipo].serviziDefault;
     setTipoAttivita(confermaCambioTipo);
-    setServizi(nuoviServizi);
+    setServizi([]);
     setConfermaCambioTipo(null);
     if (!userId) return;
-    // Salva tipo attività sul salone
     await supabase.from("saloni").update({ tipo: confermaCambioTipo }).eq("user_id", userId);
-    // Sostituisce i servizi su Supabase: elimina i vecchi e inserisce i nuovi
     await supabase.from("servizi").delete().eq("salone_id", salone.dbId);
-    await supabase.from("servizi").insert(
-      nuoviServizi.map(s => ({ nome: s.nome, durata: s.durata, prezzo: s.prezzo, salone_id: salone.dbId }))
-    );
   };
 
   const aggiornaServizio = async (id, campo, valore) => {
@@ -2296,8 +2290,7 @@ useEffect(() => {
               Cambiare attività in "{CONFIG_ATTIVITA[confermaCambioTipo].nome}"?
             </h3>
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>
-              I servizi attuali verranno sostituiti con quelli predefiniti per <strong style={{ color: T.text }}>{CONFIG_ATTIVITA[confermaCambioTipo].nome}</strong>.<br />
-              Potrai comunque modificarli dopo.
+              I servizi attuali verranno eliminati. Potrai aggiungere i tuoi servizi per <strong style={{ color: T.text }}>{CONFIG_ATTIVITA[confermaCambioTipo].nome}</strong> dalla sezione Servizi.
             </p>
             <div style={{ display: "flex", gap: 8 }}>
               <button
