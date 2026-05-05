@@ -11,7 +11,7 @@ export default function AdminGuard({ children }) {
   useEffect(() => {
     supabase.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) { setStato("login"); return; }
-      const { data } = await supabase.from("admins").select("id").eq("id", session.user.id).single();
+      const { data } = await supabase.from("admins").select("id").eq("id", session.user.id).maybeSingle();
       setStato(data ? "ok" : "negato");
     });
   }, []);
@@ -21,7 +21,7 @@ export default function AdminGuard({ children }) {
     setErrore("");
     const { data, error } = await supabase.auth.signInWithPassword({ email, password });
     if (error) { setErrore("Email o password errati"); setLoading(false); return; }
-    const { data: adminData } = await supabase.from("admins").select("id").eq("id", data.user.id).single();
+    const { data: adminData } = await supabase.from("admins").select("id").eq("id", data.user.id).maybeSingle();
     if (adminData) setStato("ok");
     else { setErrore("Account non autorizzato come admin"); await supabase.auth.signOut(); }
     setLoading(false);
