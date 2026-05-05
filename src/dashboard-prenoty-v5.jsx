@@ -252,6 +252,8 @@ useEffect(() => {
     caricaDati();
   }, []);
 
+  const [suggerimentiIndirizzo, setSuggerimentiIndirizzo] = useState([]);
+
   // DATI SALONE (modificabili in impostazioni → così l'app serve per qualsiasi attività beauty)
   const [salone, setSalone] = useState({
     nome: "Atelier Bellezza",
@@ -1586,15 +1588,45 @@ useEffect(() => {
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
                     />
                   </div>
-                  <div>
+                  <div style={{ position: "relative" }}>
                     <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>INDIRIZZO</label>
                     <input
                       type="text"
                       value={salone.indirizzo}
-                      onChange={(e) => setSalone({ ...salone, indirizzo: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        setSalone({ ...salone, indirizzo: val });
+                        if (val.length < 3) { setSuggerimentiIndirizzo([]); return; }
+                        clearTimeout(window._addrTimer);
+                        window._addrTimer = setTimeout(async () => {
+                          try {
+                            const res = await fetch(`https://nominatim.openstreetmap.org/search?q=${encodeURIComponent(val)}&format=json&limit=5&addressdetails=1`, { headers: { "Accept-Language": "it" } });
+                            const data = await res.json();
+                            setSuggerimentiIndirizzo(data.map(d => d.display_name));
+                          } catch {}
+                        }, 400);
+                      }}
+                      onBlur={() => setTimeout(() => setSuggerimentiIndirizzo([]), 200)}
                       className="w-full mt-1 p-3 border outline-none"
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                      placeholder="Es: Via Roma 12, Milano"
+                      autoComplete="off"
                     />
+                    {suggerimentiIndirizzo.length > 0 && (
+                      <div style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 100, background: T.card, border: `1px solid ${T.border}`, borderTop: "none", maxHeight: 220, overflowY: "auto" }}>
+                        {suggerimentiIndirizzo.map((s, i) => (
+                          <div
+                            key={i}
+                            onMouseDown={() => { setSalone(prev => ({ ...prev, indirizzo: s })); setSuggerimentiIndirizzo([]); }}
+                            style={{ padding: "10px 14px", fontSize: 13, cursor: "pointer", borderBottom: `1px solid ${T.border}`, color: T.text, lineHeight: 1.4 }}
+                            onMouseEnter={e => e.currentTarget.style.background = T.hover}
+                            onMouseLeave={e => e.currentTarget.style.background = "transparent"}
+                          >
+                            {s}
+                          </div>
+                        ))}
+                      </div>
+                    )}
                   </div>
                   <div>
                     <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>TELEFONO</label>
