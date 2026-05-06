@@ -80,9 +80,13 @@ export default function DashboardAdmin() {
     const carica = async () => {
       const { data } = await supabase
         .from("saloni")
-        .select("id, nome, email, telefono, indirizzo, tipo, created_at")
+        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza")
         .order("created_at", { ascending: false });
       if (data) {
+        // Prezzi per piano (€/mese) — aggiorna quando definisci i piani Stripe
+        const prezziPiano = { base: 19, pro: 29 };
+        // Mappatura stato Supabase → stato UI
+        const statoMap = { attivo: "pagante", trial: "trial", sospeso: "pagamento_fallito", cancellato: "annullato" };
         setSaloni(data.map(s => ({
           id: s.id,
           nome: s.nome || "—",
@@ -91,10 +95,11 @@ export default function DashboardAdmin() {
           citta: s.indirizzo ? s.indirizzo.split(",").slice(-2).join(",").trim() : "—",
           tipo: s.tipo || "parrucchiere",
           iscritto: s.created_at?.slice(0, 10) || "—",
-          piano: 0,
-          stato: "trial",
+          piano: prezziPiano[s.piano] ?? 0,
+          pianoNome: s.piano || "trial",
+          stato: statoMap[s.stato_abbonamento] ?? "trial",
           ultimoPagamento: null,
-          prossimoRinnovo: null,
+          prossimoRinnovo: s.abbonamento_scadenza ? s.abbonamento_scadenza.slice(0, 10) : null,
           prenotazioni: 0,
         })));
       }
@@ -154,15 +159,17 @@ export default function DashboardAdmin() {
   const problemi = saloni.filter(s => s.stato === "pagamento_fallito").length;
   const annullati = saloni.filter(s => s.stato === "annullato").length;
 
-  // MRR = Monthly Recurring Revenue (entrate ricorrenti mensili) — la metrica più importante per un SaaS
+  // MRR = Monthly Recurring Revenue — somma dei piani attivi
   const mrr = saloni.filter(s => s.stato === "pagante").reduce((tot, s) => tot + s.piano, 0);
   // ARR = Annual Recurring Revenue
   const arr = mrr * 12;
 
-  // Tasso di conversione trial → pagante (fittizio per la demo)
-  const tassoConversione = 67; // %
-  // Churn (% saloni che disdicono ogni mese, da minimizzare)
-  const churn = 4.2; // %
+  // Tasso di conversione trial → pagante (reale: paganti / totale)
+  const tassoConversione = saloni.length > 0
+    ? Math.round((paganti / saloni.length) * 100)
+    : 0;
+  // Churn: disponibile dopo integrazione Stripe (webhook)
+  const churn = null;
 
   // ============================================================
   // FILTRI per la tabella saloni
@@ -173,7 +180,6 @@ export default function DashboardAdmin() {
     const f = filtro.toLowerCase();
     saloniMostrati = saloniMostrati.filter(s =>
       s.nome.toLowerCase().includes(f) ||
-      s.titolare.toLowerCase().includes(f) ||
       s.email.toLowerCase().includes(f) ||
       s.citta.toLowerCase().includes(f)
     );
@@ -347,8 +353,8 @@ export default function DashboardAdmin() {
             }}>
               <CardMetrica T={T} icon={Euro} label="Entrate mensili (MRR)" valore={`${mrr}€`} sub={`${arr}€/anno proiettato`} trend="+18%" trendUp />
               <CardMetrica T={T} icon={Users} label="Saloni paganti" valore={paganti} sub={`su ${saloni.length} totali`} trend="+2 questo mese" trendUp />
-              <CardMetrica T={T} icon={Clock} label="In prova" valore={inTrial} sub="trial in corso" trend={`${tassoConversione}% conv.`} />
-              <CardMetrica T={T} icon={TrendingDown} label="Tasso disdetta" valore={`${churn}%`} sub="ultimi 30 giorni" trend="-0.8%" trendUp />
+              <CardMetrica T={T} icon={Clock} label="In prova" valore={inTrial} sub="trial in corso" trend={paganti > 0 ? `${tassoConversione}% conv.` : undefined} />
+              <CardMetrica T={T} icon={TrendingDown} label="Tasso disdetta" valore={churn !== null ? `${churn}%` : "—"} sub={churn !== null ? "ultimi 30 giorni" : "disponibile con Stripe"} />
             </div>
 
             {/* Avvisi importanti */}
@@ -428,7 +434,7 @@ export default function DashboardAdmin() {
                       <div>
                         <div style={{ fontSize: 15, marginBottom: 2 }}>{s.nome}</div>
                         <div style={{ fontSize: 12, color: T.textSoft }}>
-                          {s.titolare} · {s.citta} · iscritto il {s.iscritto}
+                          {s.citta} · iscritto il {s.iscritto}
                         </div>
                       </div>
                       <div style={{
@@ -588,8 +594,6 @@ export default function DashboardAdmin() {
                           <td style={td}>
                             <div style={{ fontWeight: 500 }}>{s.nome}</div>
                             <div style={{ fontSize: 12, color: T.textSoft, display: "flex", gap: 8, marginTop: 2 }}>
-                              <span>{s.titolare}</span>
-                              <span style={{ color: T.textMuted }}>·</span>
                               <span>{s.citta}</span>
                             </div>
                             <div style={{ fontSize: 11, color: T.textMuted, marginTop: 4, display: "flex", gap: 10, flexWrap: "wrap" }}>
@@ -615,9 +619,12 @@ export default function DashboardAdmin() {
                           </td>
                           <td style={td}>
                             {s.piano === 0 ? (
-                              <span style={{ color: T.textMuted, fontStyle: "italic" }}>Gratis</span>
+                              <span style={{ color: T.textMuted, fontStyle: "italic", textTransform: "capitalize" }}>{s.pianoNome || "Trial"}</span>
                             ) : (
-                              <span style={{ color: T.accent, fontWeight: 500 }}>{s.piano}€/m</span>
+                              <span style={{ color: T.accent, fontWeight: 500 }}>
+                                {s.piano}€/m
+                                <span style={{ fontSize: 11, color: T.textMuted, marginLeft: 4, textTransform: "capitalize" }}>({s.pianoNome})</span>
+                              </span>
                             )}
                           </td>
                           <td style={{ ...td, fontSize: 13, color: T.textSoft }}>{s.iscritto}</td>
