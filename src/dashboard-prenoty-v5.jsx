@@ -779,7 +779,13 @@ useEffect(() => {
         {/* HEADER mobile + notifiche */}
         <header className="border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border }}>
           <div className="md:hidden flex items-center gap-2">
-            <IconaAttivita className="w-5 h-5" style={{ color: T.accent }} />
+            {salone.logo ? (
+              <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 8 }} />
+            ) : (
+              <div style={{ width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
+              </div>
+            )}
             <span className="text-sm tracking-wider">{salone.nome.toUpperCase()}</span>
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
