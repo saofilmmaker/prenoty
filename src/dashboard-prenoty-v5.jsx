@@ -231,6 +231,8 @@ useEffect(() => {
           .eq("salone_id", saloneDb.id)
           .order("created_at", { ascending: false });
 
+        // Legge notifiche già lette da localStorage (fallback affidabile)
+        const letteDaStorage = JSON.parse(localStorage.getItem("prenoty_notifiche_lette") || "[]");
         setPrenotazioni(prenDb ? prenDb.map(p => ({
           id: p.id,
           cliente: p.nome_cliente,
@@ -244,7 +246,7 @@ useEffect(() => {
           stato: p.stato || "confermato",
           pagamento: "salone",
           staffId: p.staff_id || 1,
-          nuovo: !p.letta,
+          nuovo: !p.letta && !letteDaStorage.includes(p.id),
           note: p.note || "",
         })) : []);
         if (saloneDb) caricaClienti(saloneDb.id);
@@ -621,10 +623,16 @@ useEffect(() => {
     prevNotifiche.current = nuoveNotifiche;
   }, [nuoveNotifiche]);
 
-  // Segna notifica come letta — aggiorna stato locale e salva su Supabase
+  // Segna notifica come letta — localStorage (affidabile) + Supabase (quando possibile)
   const segnaLetta = async (id) => {
     setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
-    await supabase.from("prenotazioni").update({ letta: true }).eq("id", id);
+    // localStorage: persiste sempre, anche se Supabase ha RLS che blocca UPDATE
+    const lette = JSON.parse(localStorage.getItem("prenoty_notifiche_lette") || "[]");
+    if (!lette.includes(id)) {
+      localStorage.setItem("prenoty_notifiche_lette", JSON.stringify([...lette, id]));
+    }
+    // Supabase: salva anche nel DB per sincronizzare altri dispositivi
+    supabase.from("prenotazioni").update({ letta: true }).eq("id", id);
   };
 
   const listaNotifiche = [
