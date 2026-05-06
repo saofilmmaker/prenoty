@@ -903,6 +903,18 @@ useEffect(() => {
               </button>
             );
           })}
+          {/* Separatore + Esci — in fondo, si raggiunge solo scorrendo */}
+          <div className="flex-shrink-0 flex items-center px-2" style={{ borderLeft: `1px solid ${T.border}`, marginLeft: 4 }}>
+            <button
+              onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }}
+              className="flex flex-col items-center gap-1 px-3 py-3 text-xs"
+              style={{ color: T.textMuted }}
+              title="Esci"
+            >
+              <LogOut className="w-4 h-4" />
+              Esci
+            </button>
+          </div>
         </div>
 
         <main className="flex-1 p-4 md:p-8 overflow-y-auto">
