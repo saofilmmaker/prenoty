@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { supabase } from "./supabase";
+import { supabaseAdmin as supabase } from "./supabase";
 
 export default function AdminGuard({ children }) {
   const [stato, setStato] = useState("caricamento"); // caricamento | login | ok | negato
