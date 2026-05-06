@@ -37,7 +37,25 @@ export default function AdminGuard({ children }) {
 
   if (stato === "negato") return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730" }}>
-      <div style={{ color: "#e74c3c", fontSize: 14 }}>Accesso negato — account non admin.</div>
+      <div style={{ background: "#13112b", border: "0.5px solid rgba(231,76,60,0.3)", borderRadius: 16, padding: 40, width: 340, textAlign: "center" }}>
+        <div style={{ fontSize: 32, marginBottom: 12 }}>🚫</div>
+        <div style={{ color: "#e74c3c", fontSize: 15, fontWeight: 600, marginBottom: 8 }}>Accesso negato</div>
+        <div style={{ color: "#9b96c8", fontSize: 13, marginBottom: 24 }}>
+          Sei loggato con un account che non è admin.<br />Fai logout e accedi con le credenziali admin.
+        </div>
+        <button
+          onClick={async () => {
+            await supabase.auth.signOut();
+            setStato("login");
+            setEmail("");
+            setPassword("");
+            setErrore("");
+          }}
+          style={{ width: "100%", background: "#6c5ce7", color: "#fff", border: "none", borderRadius: 10, padding: "11px", fontSize: 14, fontWeight: 600, cursor: "pointer" }}
+        >
+          Esci e accedi come admin
+        </button>
+      </div>
     </div>
   );
 
