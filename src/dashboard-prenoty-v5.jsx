@@ -1,5 +1,5 @@
 import React from 'react';
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2 } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza"; 
 import { supabase } from "./supabase";
@@ -244,7 +244,7 @@ useEffect(() => {
           stato: p.stato || "confermato",
           pagamento: "salone",
           staffId: p.staff_id || 1,
-          nuovo: true,
+          nuovo: !p.letta,
           note: p.note || "",
         })) : []);
         if (saloneDb) caricaClienti(saloneDb.id);
@@ -590,7 +590,42 @@ useEffect(() => {
   // Dropdown notifiche (campanella)
   const [notificheAperte, setNotificheAperte] = useState(false);
 
-  const segnaLetta = (id) => setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
+  // Suono notifica — tono soft via Web Audio API (no file necessario)
+  const suonaCampanella = () => {
+    try {
+      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      [880, 1100].forEach((freq, i) => {
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.frequency.value = freq;
+        osc.type = "sine";
+        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
+        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + i * 0.18 + 0.05);
+        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.5);
+        osc.start(ctx.currentTime + i * 0.18);
+        osc.stop(ctx.currentTime + i * 0.18 + 0.5);
+      });
+    } catch(e) {}
+  };
+
+  // Rilevamento nuove notifiche — suona solo dopo il primo caricamento
+  const prevNotifiche = useRef(null);
+  useEffect(() => {
+    if (prevNotifiche.current === null) {
+      prevNotifiche.current = nuoveNotifiche;
+      return;
+    }
+    if (nuoveNotifiche > prevNotifiche.current) suonaCampanella();
+    prevNotifiche.current = nuoveNotifiche;
+  }, [nuoveNotifiche]);
+
+  // Segna notifica come letta — aggiorna stato locale e salva su Supabase
+  const segnaLetta = async (id) => {
+    setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
+    await supabase.from("prenotazioni").update({ letta: true }).eq("id", id);
+  };
 
   const listaNotifiche = [
     ...prenotazioni.filter(p => p.nuovo).map(p => ({
