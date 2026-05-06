@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect } from "react";
 import { supabase } from "./supabase";
-import { Users, Euro, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Clock, Search, Sun, Moon, Mail, Phone, Calendar, MoreVertical, Download, ArrowUpRight, ArrowDownRight, Shield, Bell, Star, MessageSquare, X, Trash2 } from "lucide-react";
+import { Users, Euro, TrendingUp, TrendingDown, AlertCircle, CheckCircle, XCircle, Clock, Search, Sun, Moon, Mail, Phone, Calendar, MoreVertical, Download, ArrowUpRight, ArrowDownRight, Shield, Bell, Star, MessageSquare, X, Trash2, LogOut } from "lucide-react";
 
 // =============================================================
 // DASHBOARD ADMIN — solo per il proprietario del SaaS (tu)
@@ -297,6 +297,22 @@ export default function DashboardAdmin() {
               SCURO
             </button>
           </div>
+
+          {/* BOTTONE ESCI */}
+          <button
+            onClick={async () => {
+              await supabase.auth.signOut();
+              window.location.reload();
+            }}
+            title="Esci dall'area admin"
+            style={{
+              ...iconBtn(T),
+              color: T.danger,
+              borderColor: T.danger + "55",
+            }}
+          >
+            <LogOut size={16} />
+          </button>
         </div>
       </header>
 
