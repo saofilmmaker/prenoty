@@ -247,7 +247,7 @@ useEffect(() => {
           email: p.email_cliente || "",
           servizio: p.nomi_servizi || serviziDb?.find(s => s.id === p.servizio_id)?.nome || "Servizio",
           durata: p.durata_totale || serviziDb?.find(s => s.id === p.servizio_id)?.durata || 30,
-          prezzo: serviziDb?.find(s => s.id === p.servizio_id)?.prezzo || 0,
+          prezzo: p.prezzo || serviziDb?.find(s => s.id === p.servizio_id)?.prezzo || 0,
           data: p.data,
           ora: p.ora?.slice(0, 5) || "",
           stato: p.stato || "confermato",
@@ -2411,7 +2411,8 @@ useEffect(() => {
                       const d = new Date(dettaglio.creatoIl);
                       const giorni = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
                       const mesi = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-                      return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} alle ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+                      // Usa l'ora locale del browser (gestisce automaticamente UTC+1/+2)
+                      return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} alle ${d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`;
                     })()}
                   </div>
                 </div>
