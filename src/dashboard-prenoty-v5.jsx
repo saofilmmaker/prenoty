@@ -199,6 +199,7 @@ useEffect(() => {
           mostraOrari: saloneDb.mostra_orari ?? true,
           mostraGalleria: saloneDb.mostra_galleria ?? true,
           mostraSocial: saloneDb.mostra_social ?? true,
+          suonoNotifica: saloneDb.suono_notifica || "ding",
         }));
         if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
           setTipoAttivita(saloneDb.tipo);
@@ -280,6 +281,7 @@ useEffect(() => {
     mostraOrari: true,
     mostraGalleria: true,
     mostraSocial: true,
+    suonoNotifica: "ding",
   });
 
   // RECENSIONI (in produzione arriveranno da Supabase, qui mock per la demo)
@@ -610,27 +612,41 @@ useEffect(() => {
     return () => document.removeEventListener("click", sblocca);
   }, []);
 
-  // Suono notifica — riusa l'AudioContext già sbloccato
-  const suonaCampanella = async () => {
+  // Suoni disponibili per le notifiche
+  const SUONI = [
+    { id: "ding",    label: "Ding ding",   emoji: "🔔" },
+    { id: "singolo", label: "Singolo",     emoji: "🎵" },
+    { id: "chime",   label: "Chime",       emoji: "✨" },
+    { id: "whatsapp",label: "Messaggio",   emoji: "💬" },
+    { id: "pop",     label: "Pop",         emoji: "🫧" },
+  ];
+
+  const suonaCampanella = async (tipo) => {
     try {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
       }
       const ctx = audioCtxRef.current;
       if (ctx.state === "suspended") await ctx.resume();
-      [880, 1100].forEach((freq, i) => {
+      const t = ctx.currentTime;
+      const suono = tipo || salone.suonoNotifica || "ding";
+
+      const nota = (freq, start, dur, vol = 0.25, type = "sine") => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
-        osc.connect(gain);
-        gain.connect(ctx.destination);
-        osc.frequency.value = freq;
-        osc.type = "sine";
-        gain.gain.setValueAtTime(0, ctx.currentTime + i * 0.18);
-        gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + i * 0.18 + 0.05);
-        gain.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + i * 0.18 + 0.5);
-        osc.start(ctx.currentTime + i * 0.18);
-        osc.stop(ctx.currentTime + i * 0.18 + 0.5);
-      });
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.frequency.value = freq; osc.type = type;
+        gain.gain.setValueAtTime(0, t + start);
+        gain.gain.linearRampToValueAtTime(vol, t + start + 0.03);
+        gain.gain.exponentialRampToValueAtTime(0.001, t + start + dur);
+        osc.start(t + start); osc.stop(t + start + dur);
+      };
+
+      if (suono === "ding")     { nota(880, 0, 0.5); nota(1100, 0.18, 0.5); }
+      if (suono === "singolo")  { nota(1046, 0, 0.8); }
+      if (suono === "chime")    { nota(523, 0, 0.4); nota(659, 0.15, 0.4); nota(784, 0.30, 0.6); }
+      if (suono === "whatsapp") { nota(800, 0, 0.12); nota(1000, 0.13, 0.12); nota(800, 0.26, 0.2); }
+      if (suono === "pop")      { nota(300, 0, 0.08, 0.3, "sine"); nota(200, 0.08, 0.1, 0.15); }
     } catch(e) {}
   };
 
@@ -1952,6 +1968,36 @@ useEffect(() => {
                       </div>
                     ))}
                   </div>
+                </div>
+
+                {/* SUONO NOTIFICHE */}
+                <div>
+                  <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>SUONO NOTIFICHE</div>
+                  <div className="grid grid-cols-5 gap-2">
+                    {SUONI.map(s => (
+                      <button
+                        key={s.id}
+                        onClick={async () => {
+                          setSalone({ ...salone, suonoNotifica: s.id });
+                          await suonaCampanella(s.id);
+                          if (salone.dbId) {
+                            await supabase.from("saloni").update({ suono_notifica: s.id }).eq("id", salone.dbId);
+                          }
+                        }}
+                        className="flex flex-col items-center gap-1 py-3 border transition"
+                        style={{
+                          borderColor: salone.suonoNotifica === s.id ? T.accent : T.border,
+                          borderWidth: salone.suonoNotifica === s.id ? 2 : 1,
+                          backgroundColor: salone.suonoNotifica === s.id ? T.accentSoft : T.card,
+                          borderRadius: 10,
+                        }}
+                      >
+                        <span style={{ fontSize: 20 }}>{s.emoji}</span>
+                        <span style={{ fontSize: 11, color: salone.suonoNotifica === s.id ? T.accent : T.textMuted }}>{s.label}</span>
+                      </button>
+                    ))}
+                  </div>
+                  <p className="text-xs mt-2" style={{ color: T.textMuted }}>Clicca per ascoltare l'anteprima · salvato automaticamente</p>
                 </div>
 
                 {/* INTERRUTTORI VISIBILITÀ */}
