@@ -2408,10 +2408,11 @@ useEffect(() => {
                   <div className="flex items-center gap-2 text-sm" style={{ color: T.textSoft }}>
                     <Clock className="w-4 h-4" style={{ color: T.textMuted }} />
                     {(() => {
-                      const d = new Date(dettaglio.creatoIl);
+                      // Supabase restituisce created_at senza 'Z' → forziamo UTC
+                      const raw = dettaglio.creatoIl.replace(" ", "T");
+                      const d = new Date(raw.endsWith("Z") || raw.includes("+") ? raw : raw + "Z");
                       const giorni = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
                       const mesi = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
-                      // Usa l'ora locale del browser (gestisce automaticamente UTC+1/+2)
                       return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} alle ${d.toLocaleTimeString("it-IT", { hour: "2-digit", minute: "2-digit" })}`;
                     })()}
                   </div>

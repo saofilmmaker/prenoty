@@ -329,6 +329,7 @@ export default function AppCliente() {
       stato: "confermato",
       durata_totale: durataTot,
       nomi_servizi: nomiServizi,
+      prezzo: totale,
       note: note || null,
     });
     if (!error) {
