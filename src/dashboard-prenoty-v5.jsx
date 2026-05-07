@@ -255,6 +255,7 @@ useEffect(() => {
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
+          creatoIl: p.created_at || null,
         })) : []);
         if (saloneDb) caricaClienti(saloneDb.id);
       }
@@ -705,6 +706,7 @@ useEffect(() => {
             staffId: p.staff_id || 1,
             nuovo: true,
             note: p.note || "",
+            creatoIl: p.created_at || null,
           };
           setPrenotazioni(prev => [nuovaPren, ...prev]);
           suonaCampanella(suonoRef.current);
@@ -748,6 +750,7 @@ useEffect(() => {
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
+          creatoIl: p.created_at || null,
         })));
       }
 
@@ -2399,6 +2402,20 @@ useEffect(() => {
                   </div>
                 </div>
               </div>
+              {dettaglio.creatoIl && (
+                <div>
+                  <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>PRENOTATO IL</div>
+                  <div className="flex items-center gap-2 text-sm" style={{ color: T.textSoft }}>
+                    <Clock className="w-4 h-4" style={{ color: T.textMuted }} />
+                    {(() => {
+                      const d = new Date(dettaglio.creatoIl);
+                      const giorni = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+                      const mesi = ["Gen","Feb","Mar","Apr","Mag","Giu","Lug","Ago","Set","Ott","Nov","Dic"];
+                      return `${giorni[d.getDay()]} ${d.getDate()} ${mesi[d.getMonth()]} alle ${String(d.getHours()).padStart(2,"0")}:${String(d.getMinutes()).padStart(2,"0")}`;
+                    })()}
+                  </div>
+                </div>
+              )}
               <div>
                 <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>SERVIZIO</div>
                 <div className="flex items-center gap-2">
