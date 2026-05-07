@@ -654,6 +654,10 @@ useEffect(() => {
     } catch(e) {}
   };
 
+  // Ref per salone.dbId — usato in handler asincroni senza stale closure
+  const saloneIdRef = useRef(null);
+  useEffect(() => { saloneIdRef.current = salone.dbId; }, [salone.dbId]);
+
   // Ref per il suono selezionato — evita stale closure nel Realtime callback
   const suonoRef = useRef("ding");
   useEffect(() => {
@@ -710,6 +714,52 @@ useEffect(() => {
 
     return () => { supabase.removeChannel(channel); };
   }, [salone.dbId]);
+
+  // iOS PWA — riconnette Realtime e ricarica prenotazioni quando l'app torna in foreground
+  useEffect(() => {
+    const handleVisibilityChange = async () => {
+      if (document.visibilityState !== "visible") return;
+      const dbId = saloneIdRef.current;
+      if (!dbId) return;
+
+      // 1. Rinnova la sessione (evita logout dopo background)
+      await supabase.auth.getSession();
+
+      // 2. Ricarica prenotazioni perse durante il background
+      const { data: prenDb } = await supabase
+        .from("prenotazioni").select("*").eq("salone_id", dbId).order("created_at", { ascending: false });
+      if (prenDb) {
+        const letteDb_raw = await supabase.from("saloni").select("notifiche_lette").eq("id", dbId).maybeSingle();
+        const letteDb = Array.isArray(letteDb_raw.data?.notifiche_lette) ? letteDb_raw.data.notifiche_lette : [];
+        const letteStorage = JSON.parse(localStorage.getItem("prenoty_notifiche_lette") || "[]");
+        const letteSet = new Set([...letteDb, ...letteStorage]);
+        setPrenotazioni(prenDb.map(p => ({
+          id: p.id,
+          cliente: p.nome_cliente,
+          tel: p.telefono_cliente,
+          email: p.email_cliente || "",
+          servizio: p.nomi_servizi || "Servizio",
+          durata: p.durata_totale || 30,
+          prezzo: p.prezzo || 0,
+          data: p.data,
+          ora: p.ora?.slice(0, 5) || "",
+          stato: p.stato || "confermato",
+          pagamento: "salone",
+          staffId: p.staff_id || 1,
+          nuovo: !letteSet.has(p.id),
+          note: p.note || "",
+        })));
+      }
+
+      // 3. Riconnette il canale Realtime se disconnesso
+      supabase.getChannels().forEach(ch => {
+        if (ch.state !== "joined") ch.subscribe();
+      });
+    };
+
+    document.addEventListener("visibilitychange", handleVisibilityChange);
+    return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
+  }, []);
 
   // Segna notifica come letta — salva in saloni.notifiche_lette (cross-device) + localStorage
   const segnaLetta = async (id) => {

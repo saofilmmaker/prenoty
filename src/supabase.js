@@ -4,7 +4,14 @@ const supabaseUrl = 'https://lievvbydmynrdrmgxljm.supabase.co'
 const supabaseKey = 'sb_publishable_5F_dQ3i8fsEuNmS9kXazcA_CWONTYqF'
 
 // Client principale — usato da dashboard salon e app cliente
-export const supabase = createClient(supabaseUrl, supabaseKey)
+export const supabase = createClient(supabaseUrl, supabaseKey, {
+  auth: {
+    persistSession: true,
+    autoRefreshToken: true,
+    detectSessionInUrl: false,
+    storageKey: 'prenoty-session',
+  }
+})
 
 // Client admin — sessione separata, non sovrascrive quella del salone
 // Permette di tenere aperto /admin e /dashboard contemporaneamente
