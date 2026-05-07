@@ -22,6 +22,13 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+// Registra Service Worker per PWA offline-ready (iOS + Android)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => {
+    navigator.serviceWorker.register("/sw.js").catch(() => {});
+  });
+}
+
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
   <BrowserRouter>
