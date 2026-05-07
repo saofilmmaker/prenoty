@@ -201,6 +201,9 @@ useEffect(() => {
           mostraSocial: saloneDb.mostra_social ?? true,
           suonoNotifica: saloneDb.suono_notifica || "ding",
         }));
+        if (saloneDb.metodi_pagamento) {
+          setMetodiPagamento(saloneDb.metodi_pagamento);
+        }
         if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
           setTipoAttivita(saloneDb.tipo);
         }
@@ -650,14 +653,19 @@ useEffect(() => {
     } catch(e) {}
   };
 
-  // Rilevamento nuove notifiche — suona solo dopo il primo caricamento
+  // Ref per il suono selezionato — evita stale closure nel Realtime callback
+  const suonoRef = useRef("ding");
+  useEffect(() => {
+    suonoRef.current = salone.suonoNotifica || "ding";
+  }, [salone.suonoNotifica]);
+
+  // Rilevamento nuove notifiche — solo conteggio badge, il suono lo fa il Realtime
   const prevNotifiche = useRef(null);
   useEffect(() => {
     if (prevNotifiche.current === null) {
       prevNotifiche.current = nuoveNotifiche;
       return;
     }
-    if (nuoveNotifiche > prevNotifiche.current) suonaCampanella();
     prevNotifiche.current = nuoveNotifiche;
   }, [nuoveNotifiche]);
 
@@ -694,7 +702,7 @@ useEffect(() => {
             note: p.note || "",
           };
           setPrenotazioni(prev => [nuovaPren, ...prev]);
-          suonaCampanella();
+          suonaCampanella(suonoRef.current);
         }
       )
       .subscribe();
@@ -2162,6 +2170,14 @@ useEffect(() => {
                     );
                   })}
                 </div>
+                <SalvaBottone
+                  onClick={async () => {
+                    if (!salone.dbId) throw new Error("dbId mancante");
+                    await supabase.from("saloni").update({ metodi_pagamento: metodiPagamento }).eq("id", salone.dbId);
+                  }}
+                  label="SALVA METODI"
+                  T={T}
+                />
               </div>
 
               {/* SCELTA PSP — dove arrivano i soldi dei clienti */}

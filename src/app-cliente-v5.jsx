@@ -115,6 +115,9 @@ export default function AppCliente() {
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [paga, setPaga] = useState(null);
+  const [cartaNumero, setCartaNumero] = useState("");
+  const [cartaScadenza, setCartaScadenza] = useState("");
+  const [cartaCvv, setCartaCvv] = useState("");
 
   // DATI SALONE da Supabase
   const [salone, setSalone] = useState({
@@ -150,7 +153,7 @@ export default function AppCliente() {
         mostraOrari: saloneDb.mostra_orari ?? true,
         mostraGalleria: saloneDb.mostra_galleria ?? true,
         mostraSocial: saloneDb.mostra_social ?? true,
-        metodiPagamento: saloneDb.metodiPagamento || prev.metodiPagamento,
+        metodiPagamento: saloneDb.metodi_pagamento || prev.metodiPagamento,
       }));
       const { data: serviziDb } = await supabase
         .from("servizi").select("*").eq("salone_id", saloneDb.id);
@@ -256,6 +259,7 @@ export default function AppCliente() {
   const reset = () => {
     setStep(0); setServiziScelti([]); setStaffScelto(null); setData(null); setOra(null);
     setNome(""); setTelefono(""); setEmail(""); setNote(""); setPaga(null);
+    setCartaNumero(""); setCartaScadenza(""); setCartaCvv("");
   };
 
   const toggleServizio = (s) => {
@@ -365,7 +369,7 @@ export default function AppCliente() {
     (step === 3 && data) ||
     (step === 4 && ora) ||
     (step === 5 && nome.trim() && telefono.trim() && email.trim()) ||
-    (step === 6 && paga);
+    (step === 6 && paga && (paga !== "carta" || (cartaNumero.replace(/\s/g,"").length >= 13 && cartaScadenza.length >= 4 && cartaCvv.length >= 3)));
 
   if (caricamento) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730" }}>
@@ -529,8 +533,7 @@ export default function AppCliente() {
                 {servizi.slice(0, 4).map(s => (
                   <div
                     key={s.id}
-                    onClick={() => { setServiziScelti([s.id]); setStep(1); }}
-                    className="p-4 border flex items-center justify-between cursor-pointer transition hover:opacity-80"
+                    className="p-4 border flex items-center justify-between"
                     style={{ backgroundColor: T.card, borderColor: T.border }}
                   >
                     <div>
@@ -1130,11 +1133,44 @@ export default function AppCliente() {
             {/* Form carta solo se ha scelto carta */}
             {paga === "carta" && (
               <div className="mt-6 p-5 border space-y-3" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                <input type="text" placeholder="Numero carta" className="w-full p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                <input
+                  type="text"
+                  placeholder="Numero carta"
+                  maxLength={19}
+                  value={cartaNumero}
+                  onChange={e => {
+                    const v = e.target.value.replace(/\D/g, "").slice(0, 16);
+                    setCartaNumero(v.replace(/(.{4})/g, "$1 ").trim());
+                  }}
+                  className="w-full p-3 border outline-none"
+                  style={{ backgroundColor: T.bg, borderColor: cartaNumero.replace(/\s/g,"").length > 0 && cartaNumero.replace(/\s/g,"").length < 13 ? "#e74c3c" : T.border, color: T.text, letterSpacing: "0.05em" }}
+                />
                 <div className="grid grid-cols-2 gap-3">
-                  <input type="text" placeholder="MM/AA" className="p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
-                  <input type="text" placeholder="CVV" className="p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                  <input
+                    type="text"
+                    placeholder="MM/AA"
+                    maxLength={5}
+                    value={cartaScadenza}
+                    onChange={e => {
+                      const v = e.target.value.replace(/\D/g, "").slice(0, 4);
+                      setCartaScadenza(v.length > 2 ? v.slice(0,2) + "/" + v.slice(2) : v);
+                    }}
+                    className="p-3 border outline-none"
+                    style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                  />
+                  <input
+                    type="text"
+                    placeholder="CVV"
+                    maxLength={4}
+                    value={cartaCvv}
+                    onChange={e => setCartaCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
+                    className="p-3 border outline-none"
+                    style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                  />
                 </div>
+                {paga === "carta" && (!cartaNumero || !cartaScadenza || !cartaCvv) && (
+                  <p className="text-xs" style={{ color: T.textMuted }}>Compila tutti i campi per procedere</p>
+                )}
               </div>
             )}
 
