@@ -595,10 +595,29 @@ useEffect(() => {
   // Dropdown notifiche (campanella)
   const [notificheAperte, setNotificheAperte] = useState(false);
 
-  // Suono notifica — tono soft via Web Audio API (no file necessario)
-  const suonaCampanella = () => {
+  // AudioContext persistente — si sblocca al primo click sulla pagina
+  const audioCtxRef = useRef(null);
+  useEffect(() => {
+    const sblocca = () => {
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtxRef.current.state === "suspended") {
+        audioCtxRef.current.resume();
+      }
+    };
+    document.addEventListener("click", sblocca, { once: true });
+    return () => document.removeEventListener("click", sblocca);
+  }, []);
+
+  // Suono notifica — riusa l'AudioContext già sbloccato
+  const suonaCampanella = async () => {
     try {
-      const ctx = new (window.AudioContext || window.webkitAudioContext)();
+      if (!audioCtxRef.current) {
+        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      const ctx = audioCtxRef.current;
+      if (ctx.state === "suspended") await ctx.resume();
       [880, 1100].forEach((freq, i) => {
         const osc = ctx.createOscillator();
         const gain = ctx.createGain();
