@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2 } from "lucide-react";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza"; 
 import { supabase } from "./supabase";
 
@@ -614,11 +614,11 @@ useEffect(() => {
 
   // Suoni disponibili per le notifiche
   const SUONI = [
-    { id: "ding",    label: "Ding ding",   emoji: "🔔" },
-    { id: "singolo", label: "Singolo",     emoji: "🎵" },
-    { id: "chime",   label: "Chime",       emoji: "✨" },
-    { id: "whatsapp",label: "Messaggio",   emoji: "💬" },
-    { id: "pop",     label: "Pop",         emoji: "🫧" },
+    { id: "ding",     label: "Ding ding",  Icon: Bell },
+    { id: "singolo",  label: "Singolo",    Icon: Music2 },
+    { id: "chime",    label: "Chime",      Icon: Waves },
+    { id: "whatsapp", label: "Messaggio",  Icon: MessageSquare },
+    { id: "pop",      label: "Pop",        Icon: Zap },
   ];
 
   const suonaCampanella = async (tipo) => {
@@ -1974,28 +1974,32 @@ useEffect(() => {
                 <div>
                   <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>SUONO NOTIFICHE</div>
                   <div className="grid grid-cols-5 gap-2">
-                    {SUONI.map(s => (
-                      <button
-                        key={s.id}
-                        onClick={async () => {
-                          setSalone({ ...salone, suonoNotifica: s.id });
-                          await suonaCampanella(s.id);
-                          if (salone.dbId) {
-                            await supabase.from("saloni").update({ suono_notifica: s.id }).eq("id", salone.dbId);
-                          }
-                        }}
-                        className="flex flex-col items-center gap-1 py-3 border transition"
-                        style={{
-                          borderColor: salone.suonoNotifica === s.id ? T.accent : T.border,
-                          borderWidth: salone.suonoNotifica === s.id ? 2 : 1,
-                          backgroundColor: salone.suonoNotifica === s.id ? T.accentSoft : T.card,
-                          borderRadius: 10,
-                        }}
-                      >
-                        <span style={{ fontSize: 20 }}>{s.emoji}</span>
-                        <span style={{ fontSize: 11, color: salone.suonoNotifica === s.id ? T.accent : T.textMuted }}>{s.label}</span>
-                      </button>
-                    ))}
+                    {SUONI.map(s => {
+                      const Icona = s.Icon;
+                      const attivo = salone.suonoNotifica === s.id;
+                      return (
+                        <button
+                          key={s.id}
+                          onClick={async () => {
+                            setSalone({ ...salone, suonoNotifica: s.id });
+                            await suonaCampanella(s.id);
+                            if (salone.dbId) {
+                              await supabase.from("saloni").update({ suono_notifica: s.id }).eq("id", salone.dbId);
+                            }
+                          }}
+                          className="flex flex-col items-center gap-2 py-3 border transition"
+                          style={{
+                            borderColor: attivo ? T.accent : T.border,
+                            borderWidth: attivo ? 2 : 1,
+                            backgroundColor: attivo ? T.accentSoft : T.card,
+                            borderRadius: 10,
+                          }}
+                        >
+                          <Icona className="w-4 h-4" style={{ color: attivo ? T.accent : T.textMuted }} />
+                          <span style={{ fontSize: 11, color: attivo ? T.accent : T.textMuted }}>{s.label}</span>
+                        </button>
+                      );
+                    })}
                   </div>
                   <p className="text-xs mt-2" style={{ color: T.textMuted }}>Clicca per ascoltare l'anteprima · salvato automaticamente</p>
                 </div>
