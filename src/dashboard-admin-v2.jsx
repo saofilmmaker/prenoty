@@ -83,6 +83,18 @@ export default function DashboardAdmin() {
         .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza")
         .order("created_at", { ascending: false });
       if (data) {
+        // Carica conteggio prenotazioni per ogni salone
+        const idSaloni = data.map(s => s.id);
+        const { data: prenData } = await supabase
+          .from("prenotazioni")
+          .select("salone_id")
+          .in("salone_id", idSaloni);
+
+        const countPren = {};
+        if (prenData) prenData.forEach(p => {
+          countPren[p.salone_id] = (countPren[p.salone_id] || 0) + 1;
+        });
+
         // Prezzi per piano (€/mese) — aggiorna quando definisci i piani Stripe
         const prezziPiano = { base: 19, pro: 29 };
         // Mappatura stato Supabase → stato UI
@@ -100,7 +112,7 @@ export default function DashboardAdmin() {
           stato: statoMap[s.stato_abbonamento] ?? "trial",
           ultimoPagamento: null,
           prossimoRinnovo: s.abbonamento_scadenza ? s.abbonamento_scadenza.slice(0, 10) : null,
-          prenotazioni: 0,
+          prenotazioni: countPren[s.id] || 0,
         })));
       }
     };
