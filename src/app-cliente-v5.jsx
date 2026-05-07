@@ -15,6 +15,8 @@ const CONFIG_ATTIVITA = {
     operatoreSing: "Operatore",
     operatorePlur: "I nostri operatori",
     tagline: "Il tuo stile, prenotato",
+    pagaInLoco: "Paga in salone",
+    pagaInLocoSub: "Al termine del servizio",
   },
   estetista: {
     nome: "Estetista",
@@ -22,6 +24,8 @@ const CONFIG_ATTIVITA = {
     operatoreSing: "Estetista",
     operatorePlur: "Le nostre estetiste",
     tagline: "La tua bellezza, su misura",
+    pagaInLoco: "Paga in centro",
+    pagaInLocoSub: "Al termine del trattamento",
   },
   spa: {
     nome: "SPA",
@@ -29,6 +33,8 @@ const CONFIG_ATTIVITA = {
     operatoreSing: "Terapista",
     operatorePlur: "I nostri terapisti",
     tagline: "Il tuo momento di puro relax",
+    pagaInLoco: "Paga in struttura",
+    pagaInLocoSub: "Al termine del trattamento",
   },
   generico: {
     nome: "Altro",
@@ -36,6 +42,8 @@ const CONFIG_ATTIVITA = {
     operatoreSing: "Operatore",
     operatorePlur: "Il nostro team",
     tagline: "Il tuo appuntamento, semplice",
+    pagaInLoco: "Paga in loco",
+    pagaInLocoSub: "Al termine dell'appuntamento",
   },
 };
 
@@ -1111,8 +1119,8 @@ export default function AppCliente() {
                   <div className="flex items-center gap-3">
                     <Sparkles className="w-5 h-5" style={{ color: T.accent }} />
                     <div>
-                      <div>Paga in salone</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Al termine del servizio</div>
+                      <div>{config.pagaInLoco}</div>
+                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>{config.pagaInLocoSub}</div>
                     </div>
                   </div>
                 </button>
