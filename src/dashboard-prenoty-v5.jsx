@@ -258,47 +258,6 @@ useEffect(() => {
     caricaDati();
   }, []);
 
-  // REALTIME — ascolta nuove prenotazioni senza ricaricare la pagina
-  useEffect(() => {
-    if (!salone.dbId) return;
-
-    const channel = supabase
-      .channel(`prenotazioni-salone-${salone.dbId}`)
-      .on(
-        "postgres_changes",
-        {
-          event: "INSERT",
-          schema: "public",
-          table: "prenotazioni",
-          filter: `salone_id=eq.${salone.dbId}`,
-        },
-        (payload) => {
-          const p = payload.new;
-          const nuovaPren = {
-            id: p.id,
-            cliente: p.nome_cliente,
-            tel: p.telefono_cliente,
-            email: p.email_cliente || "",
-            servizio: p.nomi_servizi || "Servizio",
-            durata: p.durata_totale || 30,
-            prezzo: p.prezzo || 0,
-            data: p.data,
-            ora: p.ora?.slice(0, 5) || "",
-            stato: p.stato || "confermato",
-            pagamento: "salone",
-            staffId: p.staff_id || 1,
-            nuovo: true,
-            note: p.note || "",
-          };
-          setPrenotazioni(prev => [nuovaPren, ...prev]);
-          suonaCampanella();
-        }
-      )
-      .subscribe();
-
-    return () => { supabase.removeChannel(channel); };
-  }, [salone.dbId]);
-
   const [suggerimentiIndirizzo, setSuggerimentiIndirizzo] = useState([]);
 
   // DATI SALONE (modificabili in impostazioni → così l'app serve per qualsiasi attività beauty)
@@ -666,6 +625,47 @@ useEffect(() => {
     if (nuoveNotifiche > prevNotifiche.current) suonaCampanella();
     prevNotifiche.current = nuoveNotifiche;
   }, [nuoveNotifiche]);
+
+  // REALTIME — ascolta nuove prenotazioni senza ricaricare la pagina
+  useEffect(() => {
+    if (!salone.dbId) return;
+
+    const channel = supabase
+      .channel(`prenotazioni-salone-${salone.dbId}`)
+      .on(
+        "postgres_changes",
+        {
+          event: "INSERT",
+          schema: "public",
+          table: "prenotazioni",
+          filter: `salone_id=eq.${salone.dbId}`,
+        },
+        (payload) => {
+          const p = payload.new;
+          const nuovaPren = {
+            id: p.id,
+            cliente: p.nome_cliente,
+            tel: p.telefono_cliente,
+            email: p.email_cliente || "",
+            servizio: p.nomi_servizi || "Servizio",
+            durata: p.durata_totale || 30,
+            prezzo: p.prezzo || 0,
+            data: p.data,
+            ora: p.ora?.slice(0, 5) || "",
+            stato: p.stato || "confermato",
+            pagamento: "salone",
+            staffId: p.staff_id || 1,
+            nuovo: true,
+            note: p.note || "",
+          };
+          setPrenotazioni(prev => [nuovaPren, ...prev]);
+          suonaCampanella();
+        }
+      )
+      .subscribe();
+
+    return () => { supabase.removeChannel(channel); };
+  }, [salone.dbId]);
 
   // Segna notifica come letta — salva in saloni.notifiche_lette (cross-device) + localStorage
   const segnaLetta = async (id) => {
