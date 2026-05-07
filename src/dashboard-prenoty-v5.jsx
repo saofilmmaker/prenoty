@@ -766,11 +766,14 @@ useEffect(() => {
   const staffDi = (id) => staff.find(s => s.id === id);
   const visibili = filtraPrenotazioni();
 
+  const staffIconPerTipo = { parrucchiere: Scissors, estetista: Sparkles, spa: Flower2, generico: Users };
+  const staffIcon = staffIconPerTipo[tipoAttivita] || Users;
+
   const menuItems = [
     { id: "agenda", label: "Agenda", icon: Calendar },
     { id: "clienti", label: "Clienti", icon: Users },
     { id: "servizi", label: "Servizi", icon: Package },
-    { id: "staff", label: "Staff", icon: Scissors },
+    { id: "staff", label: "Staff", icon: staffIcon },
     { id: "recensioni", label: "Recensioni", icon: Star },
     { id: "report", label: "Report", icon: BarChart3 },
     { id: "impostazioni", label: "Impostazioni", icon: Settings },
