@@ -1,6 +1,6 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves } from "lucide-react";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza"; 
 import { supabase } from "./supabase";
 
@@ -425,6 +425,7 @@ useEffect(() => {
   // SALVATAGGIO IMPOSTAZIONI SALONE
   const [salvataggioStato, setSalvataggioStato] = useState(null);
   const [salvataggioVetrinaStato, setSalvataggioVetrinaStato] = useState(null);
+  const [linkCopiato, setLinkCopiato] = useState(false);
   const salvaSalone = async () => {
     const { data: { session } } = await supabase.auth.getSession();
     if (!session) return;
@@ -1699,7 +1700,9 @@ useEffect(() => {
               {/* IL TUO LINK DI PRENOTAZIONE */}
               {salone.slug && (
                 <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
-                  <h3 className="text-sm tracking-widest mb-1" style={{ color: T.accent, letterSpacing: "0.15em" }}>🔗 IL TUO LINK DI PRENOTAZIONE</h3>
+                  <h3 className="text-sm tracking-widest mb-1 flex items-center gap-2" style={{ color: T.accent, letterSpacing: "0.15em" }}>
+                    <Link className="w-4 h-4" /> IL TUO LINK DI PRENOTAZIONE
+                  </h3>
                   <p className="text-xs mb-3" style={{ color: T.textMuted }}>Condividi questo link con i tuoi clienti per ricevere prenotazioni online</p>
                   <div className="flex items-center gap-2">
                     <div className="flex-1 p-3 text-sm" style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.accent, fontFamily: "monospace", borderRadius: 8, wordBreak: "break-all" }}>
@@ -1708,11 +1711,13 @@ useEffect(() => {
                     <button
                       onClick={() => {
                         navigator.clipboard.writeText(`https://prenoty.com/${salone.slug}`);
+                        setLinkCopiato(true);
+                        setTimeout(() => setLinkCopiato(false), 2500);
                       }}
-                      className="px-4 py-3 text-xs tracking-widest flex-shrink-0"
-                      style={{ background: T.accent, color: "#fff", border: "none", cursor: "pointer", borderRadius: 8, letterSpacing: "0.15em" }}
+                      className="px-4 py-3 text-xs tracking-widest flex-shrink-0 flex items-center gap-1.5"
+                      style={{ background: linkCopiato ? "#27ae60" : T.accent, color: "#fff", border: "none", cursor: "pointer", borderRadius: 8, letterSpacing: "0.15em", transition: "background 0.2s" }}
                     >
-                      COPIA
+                      {linkCopiato ? <><Check className="w-3.5 h-3.5" /> COPIATO</> : <><Copy className="w-3.5 h-3.5" /> COPIA</>}
                     </button>
                   </div>
                 </div>
