@@ -112,7 +112,7 @@ export default function AppCliente() {
   const [salone, setSalone] = useState({
     nome: "", tipoAttivita: "generico", indirizzo: "", telefono: "", email: "",
     logo: null, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
-    orari: { Lunedì: "09:00–19:00", Martedì: "09:00–19:00", Mercoledì: "09:00–19:00", Giovedì: "09:00–19:00", Venerdì: "09:00–19:00", Sabato: "09:00–18:00", Domenica: "Chiuso" },
+    orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
     mostraRecensioni: true, mostraMappa: true, mostraOrari: true, mostraGalleria: true, mostraSocial: true,
     metodiPagamento: { carta: true, applePay: true, googlePay: true, nexi: true, paypal: false, bonifico: false, inSalone: true },
   });
