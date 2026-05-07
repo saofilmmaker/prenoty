@@ -1306,36 +1306,42 @@ useEffect(() => {
                     <div key={s.id} className="p-5 border text-center relative" style={{ backgroundColor: T.card, borderColor: T.border }}>
                       {/* Bottone elimina (in alto a destra) */}
                       <button
-                        onClick={() => eliminaStaff(s.id)}
+                        onClick={(e) => { e.stopPropagation(); eliminaStaff(s.id); }}
                         className="absolute top-2 right-2 p-1.5 rounded transition"
-                        style={{ color: T.danger }}
+                        style={{ color: T.danger, zIndex: 10 }}
                         title="Elimina operatore"
                       >
                         <Trash2 className="w-4 h-4" />
                       </button>
 
-                      {/* Foto o iniziali — clicca per caricare foto */}
-                      <label className="cursor-pointer block relative group">
-                        <input
-                          type="file"
-                          accept="image/*"
-                          className="hidden"
-                          onChange={(e) => {
-                            uploadFoto(e.target.files[0], (dataUrl) => {
-                              setStaff(staff.map(x => x.id === s.id ? { ...x, foto: dataUrl } : x));
-                            });
-                          }}
-                        />
-                        {s.foto ? (
-                          <div className="w-20 h-20 rounded-full mx-auto mb-3 overflow-hidden border-2" style={{ borderColor: s.colore }}>
-                            <img src={s.foto} alt={s.nome} className="w-full h-full object-cover" />
+                      {/* Foto o iniziali — clicca SOLO sul cerchio per caricare foto */}
+                      <div className="flex justify-center mb-3">
+                        <label className="cursor-pointer relative group" style={{ display: "inline-block" }}>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              uploadFoto(e.target.files[0], (dataUrl) => {
+                                setStaff(staff.map(x => x.id === s.id ? { ...x, foto: dataUrl } : x));
+                              });
+                            }}
+                          />
+                          {s.foto ? (
+                            <div className="w-20 h-20 rounded-full overflow-hidden border-2" style={{ borderColor: s.colore }}>
+                              <img src={s.foto} alt={s.nome} className="w-full h-full object-cover" />
+                            </div>
+                          ) : (
+                            <div className="w-20 h-20 rounded-full flex items-center justify-center text-white text-2xl" style={{ backgroundColor: s.colore }}>
+                              {s.nome.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                            </div>
+                          )}
+                          {/* Overlay camera visibile solo su hover */}
+                          <div className="absolute inset-0 rounded-full flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity" style={{ background: "rgba(0,0,0,0.35)" }}>
+                            <Camera className="w-5 h-5 text-white" />
                           </div>
-                        ) : (
-                          <div className="w-20 h-20 rounded-full mx-auto mb-3 flex items-center justify-center text-white text-2xl" style={{ backgroundColor: s.colore }}>
-                            {s.nome.split(" ").map(n => n[0]).join("").slice(0, 2)}
-                          </div>
-                        )}
-                      </label>
+                        </label>
+                      </div>
 
                       {/* NOME — clic per modificare */}
                       {inMod("nome") ? (
