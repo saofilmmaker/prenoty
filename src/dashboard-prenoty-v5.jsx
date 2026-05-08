@@ -1152,7 +1152,7 @@ useEffect(() => {
               {bannerStripe === "success" && (
                 <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{ backgroundColor: "#e6faf6", border: "1px solid #00b894", borderRadius: 10, color: "#00b894" }}>
                   <div className="flex items-center gap-2">
-                    <CheckCircle className="w-4 h-4" /> 🎉 Abbonamento attivato! Benvenuto in Prenoty.
+                    <CheckCircle className="w-4 h-4" /> 🎉 Pagamento completato! Benvenuto in Prenoty.
                   </div>
                   <button onClick={() => setBannerStripe(null)} className="text-xs opacity-60">✕</button>
                 </div>
@@ -1160,7 +1160,7 @@ useEffect(() => {
               {bannerStripe === "cancel" && (
                 <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{ backgroundColor: "#fdecea", border: "1px solid #c0392b", borderRadius: 10, color: "#c0392b" }}>
                   <div className="flex items-center gap-2">
-                    ⚠️ Pagamento annullato. Puoi riprovare da Impostazioni → Abbonamento.
+                    ⚠️ Pagamento annullato. Puoi riprovare da Impostazioni → Piano Prenoty.
                   </div>
                   <button onClick={() => setBannerStripe(null)} className="text-xs opacity-60">✕</button>
                 </div>
@@ -2528,12 +2528,12 @@ useEffect(() => {
                 </div>
               )}
 
-              {/* ABBONAMENTO */}
+              {/* PIANO PRENOTY */}
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-1 flex items-center gap-2" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
-                  <CreditCard className="w-4 h-4" /> ABBONAMENTO
+                  <CreditCard className="w-4 h-4" /> PIANO PRENOTY
                 </h3>
-                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Gestisci il tuo piano Prenoty</p>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Attiva il tuo accesso completo a Prenoty</p>
 
                 {salone.abbonamentoAttivo ? (
                   <div className="p-4 border flex items-center gap-3" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, borderRadius: 10 }}>
