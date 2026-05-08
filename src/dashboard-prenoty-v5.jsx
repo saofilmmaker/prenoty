@@ -819,7 +819,13 @@ useEffect(() => {
   const meseSucc = () => setMeseReport(m => m.mese === 11 ? { mese: 0, anno: m.anno + 1 } : { mese: m.mese + 1, anno: m.anno });
   const isMeseCorrente = meseReport.mese === oggi.getMonth() && meseReport.anno === oggi.getFullYear();
 
-  const cancella = (id) => { setPrenotazioni(prenotazioni.filter(p => p.id !== id)); setDettaglio(null); };
+  const cancella = async (id) => {
+    // Rimuove subito dalla UI
+    setPrenotazioni(prenotazioni.filter(p => p.id !== id));
+    setDettaglio(null);
+    // Elimina da Supabase (permanente)
+    await supabase.from("prenotazioni").delete().eq("id", id);
+  };
 
   const fmtData = (d) => {
     const date = new Date(d);
