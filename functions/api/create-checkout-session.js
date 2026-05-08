@@ -23,9 +23,9 @@ export async function onRequestPost(context) {
       });
     }
 
-    // Crea Stripe Checkout Session
+    // Crea Stripe Checkout Session — pagamento unico
     const params = new URLSearchParams({
-      "mode": "subscription",
+      "mode": "payment",
       "line_items[0][price]": env.STRIPE_PRICE_ID,
       "line_items[0][quantity]": "1",
       "customer_email": email,
@@ -33,7 +33,6 @@ export async function onRequestPost(context) {
       "cancel_url": `https://prenoty.com/dashboard?abbonamento=cancel`,
       "metadata[salone_id]": saloneId,
       "metadata[nome_negozio]": nomeNegozio || "",
-      "subscription_data[metadata][salone_id]": saloneId,
       "allow_promotion_codes": "true",
       "locale": "it",
     });

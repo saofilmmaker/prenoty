@@ -2540,11 +2540,7 @@ useEffect(() => {
                     <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: T.accent }} />
                     <div>
                       <div className="text-sm font-medium" style={{ color: T.accent }}>Piano attivo ✓</div>
-                      {salone.abbonamentoScade && (
-                        <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
-                          Rinnovo il {new Date(salone.abbonamentoScade).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
-                        </div>
-                      )}
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>Accesso completo — pagamento unico effettuato</div>
                     </div>
                   </div>
                 ) : (
@@ -2552,8 +2548,9 @@ useEffect(() => {
                     <div className="p-4 border" style={{ backgroundColor: T.bg, borderColor: T.border, borderRadius: 10 }}>
                       <div className="flex items-baseline gap-2 mb-1">
                         <span className="text-3xl font-bold" style={{ color: T.text }}>€299</span>
-                        <span className="text-sm" style={{ color: T.textMuted }}>/anno</span>
+                        <span className="text-sm" style={{ color: T.textMuted }}>pagamento unico</span>
                       </div>
+                      <p className="text-xs mb-3" style={{ color: T.textMuted }}>Accesso completo alla piattaforma, senza canoni mensili</p>
                       <ul className="space-y-1 mt-3">
                         {["Prenotazioni illimitate","Link personalizzato","Notifiche in tempo reale","Report mensili","Supporto prioritario"].map(f => (
                           <li key={f} className="text-xs flex items-center gap-2" style={{ color: T.textSoft }}>
@@ -2585,7 +2582,7 @@ useEffect(() => {
                       className="w-full py-3 text-sm tracking-widest"
                       style={{ backgroundColor: T.accent, color: "#fff", border: "none", letterSpacing: "0.15em", borderRadius: 8, cursor: "pointer" }}
                     >
-                      ABBONATI ORA — €299/ANNO
+                      ACQUISTA ORA — €299
                     </button>
                   </div>
                 )}

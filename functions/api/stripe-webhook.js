@@ -45,15 +45,11 @@ async function handleCheckoutCompleted(session, env) {
   const saloneId = session.metadata?.salone_id;
   if (!saloneId) return;
 
-  // Calcola scadenza: oggi + 1 anno
-  const scadenza = new Date();
-  scadenza.setFullYear(scadenza.getFullYear() + 1);
-
+  // Pagamento unico: accesso a vita (nessuna scadenza)
   await supabaseUpdate(env, saloneId, {
     abbonamento_attivo: true,
-    abbonamento_scade_il: scadenza.toISOString(),
+    abbonamento_scade_il: null,
     stripe_customer_id: session.customer,
-    stripe_subscription_id: session.subscription,
   });
 }
 
