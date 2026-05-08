@@ -100,7 +100,14 @@ export default function Registrazione() {
 
             {successo ? (
               <div style={{ textAlign:"center" }}>
-                <div style={{ fontSize:36, marginBottom:12 }}>🎉</div>
+                <div style={{ marginBottom:16, display:"flex", justifyContent:"center" }}>
+                  <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(108,92,231,0.1)", border:"1.5px solid rgba(108,92,231,0.25)", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#4a3cb5" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
+                      <path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>
+                    </svg>
+                  </div>
+                </div>
                 <h3 style={{ color:"#4a3cb5", fontWeight:700, marginBottom:8 }}>Benvenuto!</h3>
                 <p style={{ color:"#9b96c8", fontSize:13, marginBottom:20 }}>Account creato. Accedi per personalizzare {tipoAttivita === "generico" ? "la tua attività" : "il tuo salone"}.</p>
                 <a href="/login" style={{ display:"block", background:"#6c5ce7", color:"#fff", padding:"12px", borderRadius:10, textDecoration:"none", fontWeight:600, fontSize:14 }}>Vai alla dashboard →</a>
