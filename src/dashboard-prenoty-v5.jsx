@@ -1778,7 +1778,7 @@ useEffect(() => {
                     <select
                       value={meseReport.mese}
                       onChange={e => setMeseReport(m => ({ ...m, mese: Number(e.target.value) }))}
-                      className="flex-1 min-w-[130px] px-3 py-2 text-sm border outline-none"
+                      className="flex-1 md:flex-none md:w-auto min-w-[130px] px-3 py-2 text-sm border outline-none"
                       style={{ borderColor: T.border, background: T.card, color: T.text, borderRadius: 8 }}
                     >
                       {nomiMesi.map((n, i) => <option key={i} value={i}>{n}</option>)}
