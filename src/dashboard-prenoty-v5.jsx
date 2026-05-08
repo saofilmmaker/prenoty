@@ -1772,17 +1772,41 @@ useEffect(() => {
             return (
               <div className="space-y-6">
                 {/* Navigazione mese */}
-                <div className="flex items-center justify-between">
-                  <button onClick={mesePrec} className="flex items-center gap-2 px-4 py-2 border text-sm transition" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
-                    <ChevronLeft className="w-4 h-4" /> Prec.
-                  </button>
-                  <div className="text-center">
-                    <div className="text-lg font-semibold" style={{ color: T.text }}>{nomiMesi[meseReport.mese]} {meseReport.anno}</div>
-                    {isMeseCorrente && <div className="text-xs mt-0.5" style={{ color: T.accent }}>mese in corso</div>}
+                <div className="flex flex-col gap-3">
+                  {/* Selettori mese + anno */}
+                  <div className="flex items-center gap-2 flex-wrap">
+                    <select
+                      value={meseReport.mese}
+                      onChange={e => setMeseReport(m => ({ ...m, mese: Number(e.target.value) }))}
+                      className="flex-1 min-w-[130px] px-3 py-2 text-sm border outline-none"
+                      style={{ borderColor: T.border, background: T.card, color: T.text, borderRadius: 8 }}
+                    >
+                      {nomiMesi.map((n, i) => <option key={i} value={i}>{n}</option>)}
+                    </select>
+                    <select
+                      value={meseReport.anno}
+                      onChange={e => setMeseReport(m => ({ ...m, anno: Number(e.target.value) }))}
+                      className="px-3 py-2 text-sm border outline-none"
+                      style={{ borderColor: T.border, background: T.card, color: T.text, borderRadius: 8 }}
+                    >
+                      {Array.from({ length: 5 }, (_, i) => oggi.getFullYear() - 4 + i).map(y => (
+                        <option key={y} value={y}>{y}</option>
+                      ))}
+                    </select>
+                    {isMeseCorrente && <span className="text-xs px-2 py-1 rounded-full" style={{ background: T.accentSoft, color: T.accent }}>mese in corso</span>}
                   </div>
-                  <button onClick={meseSucc} disabled={isMeseCorrente} className="flex items-center gap-2 px-4 py-2 border text-sm transition disabled:opacity-30" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
-                    Succ. <ChevronRight className="w-4 h-4" />
-                  </button>
+                  {/* Frecce navigazione */}
+                  <div className="flex items-center justify-between">
+                    <button onClick={mesePrec} className="flex items-center gap-2 px-4 py-2 border text-sm transition" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
+                      <ChevronLeft className="w-4 h-4" /> Prec.
+                    </button>
+                    <div className="text-center">
+                      <div className="text-lg font-semibold" style={{ color: T.text }}>{nomiMesi[meseReport.mese]} {meseReport.anno}</div>
+                    </div>
+                    <button onClick={meseSucc} disabled={isMeseCorrente} className="flex items-center gap-2 px-4 py-2 border text-sm transition disabled:opacity-30" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
+                      Succ. <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
                 </div>
 
                 {/* KPI mese selezionato */}
