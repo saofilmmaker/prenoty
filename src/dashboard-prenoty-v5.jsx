@@ -584,17 +584,17 @@ useEffect(() => {
   // PRENOTAZIONI
   const [prenotazioni, setPrenotazioni] = useState([]);
 
-  const oggi = new Date().toISOString().split("T")[0];
+  const oggiStr = new Date().toISOString().split("T")[0];
 
   const filtraPrenotazioni = () => {
     let f = prenotazioni;
-    if (vista === "oggi") f = f.filter(p => p.data === oggi);
-    if (vista === "settimana") f = f.filter(p => p.data >= oggi);
+    if (vista === "oggi") f = f.filter(p => p.data === oggiStr);
+    if (vista === "settimana") f = f.filter(p => p.data >= oggiStr);
     if (filtro) f = f.filter(p => p.cliente.toLowerCase().includes(filtro.toLowerCase()) || p.servizio.toLowerCase().includes(filtro.toLowerCase()));
     return f.sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora));
   };
 
-  const prenOggi = prenotazioni.filter(p => p.data === oggi);
+  const prenOggi = prenotazioni.filter(p => p.data === oggiStr);
   const incassoOggi = prenOggi.reduce((s, p) => s + p.prezzo, 0);
   const pagatiOggi = prenOggi.filter(p => p.pagamento === "pagato").reduce((s, p) => s + p.prezzo, 0);
   const nuoveNotifiche = prenotazioni.filter(p => p.nuovo).length;
