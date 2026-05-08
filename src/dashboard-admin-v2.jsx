@@ -50,7 +50,8 @@ function CambioPasswordAdmin({ T }) {
 }
 
 export default function DashboardAdmin() {
-  const [tema, setTema] = useState("chiaro");
+  const [tema, setTema] = useState(() => localStorage.getItem("prenoty-tema") || "chiaro");
+  useEffect(() => { localStorage.setItem("prenoty-tema", tema); }, [tema]);
   const T = tema === "chiaro" ? {
     bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff", borderStrong: "#c4bdf8",
     text: "#1e1b3a", textSoft: "#4a4580", textMuted: "#9b96c8",

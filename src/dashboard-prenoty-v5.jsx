@@ -140,7 +140,7 @@ function CambioPassword({ T }) {
 
 export default function DashboardPrenoty() {
   // TEMA
-  const [tema, setTema] = useState("chiaro"); // chiaro | scuro
+  const [tema, setTema] = useState(() => localStorage.getItem("prenoty-tema") || "chiaro"); // chiaro | scuro
   const T = tema === "chiaro" ? {
     bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff", borderStrong: "#c4bdf8",
     text: "#1e1b3a", textSoft: "#4a4580", textMuted: "#9b96c8",
@@ -165,7 +165,10 @@ export default function DashboardPrenoty() {
   // In produzione viene salvato in Supabase al primo accesso.
   const [tipoAttivita, setTipoAttivita] = useState("parrucchiere");
   const config = CONFIG_ATTIVITA[tipoAttivita];
-  const IconaAttivita = config.icona; 
+  const IconaAttivita = config.icona;
+
+  // Persisti tema in localStorage
+  useEffect(() => { localStorage.setItem("prenoty-tema", tema); }, [tema]);
 
 useEffect(() => {
     const caricaDati = async () => {

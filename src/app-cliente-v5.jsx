@@ -49,7 +49,8 @@ const CONFIG_ATTIVITA = {
 
 export default function AppCliente() {
   // TEMA (il cliente può scegliere; il salone ha un default)
-  const [tema, setTema] = useState("chiaro");
+  const [tema, setTema] = useState(() => localStorage.getItem("prenoty-tema") || "chiaro");
+  useEffect(() => { localStorage.setItem("prenoty-tema", tema); }, [tema]);
 
   // Modal "Aggiungi alla home" — banner istruzioni PWA su mobile
   const [pwaModalAperto, setPwaModalAperto] = useState(false);
