@@ -824,7 +824,11 @@ useEffect(() => {
     setPrenotazioni(prenotazioni.filter(p => p.id !== id));
     setDettaglio(null);
     // Elimina da Supabase (permanente)
-    await supabase.from("prenotazioni").delete().eq("id", id);
+    const { error } = await supabase.from("prenotazioni").delete().eq("id", id);
+    if (error) {
+      console.error("Errore cancellazione:", error);
+      alert(`Errore: ${error.message}`);
+    }
   };
 
   const fmtData = (d) => {
