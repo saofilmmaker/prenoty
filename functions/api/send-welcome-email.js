@@ -13,7 +13,7 @@ export async function onRequestPost(context) {
   };
 
   try {
-    const { email, nomeNegozio } = await request.json();
+    const { email, nomeNegozio, tipoAttivita } = await request.json();
 
     if (!email) {
       return new Response(JSON.stringify({ error: "email obbligatoria" }), {
@@ -22,7 +22,10 @@ export async function onRequestPost(context) {
       });
     }
 
-    const nome = nomeNegozio || "il tuo salone";
+    const isGenerico = tipoAttivita === "generico";
+    const parolaAttivita = isGenerico ? "attività" : "salone";
+    const parolaAttivitaMaiusc = isGenerico ? "Attività" : "Salone";
+    const nome = nomeNegozio || (isGenerico ? "la tua attività" : "il tuo salone");
 
     const html = `
       <div style="font-family: sans-serif; max-width: 600px; margin: 0 auto; padding: 32px 24px; background: #ffffff;">
@@ -43,14 +46,14 @@ export async function onRequestPost(context) {
         <!-- Box principale -->
         <div style="background: #f4f3ff; border-radius: 16px; padding: 28px; margin-bottom: 28px;">
           <p style="color: #1a1730; font-size: 16px; line-height: 1.7; margin: 0 0 16px;">
-            Ciao! Il tuo salone <strong>${nome}</strong> è stato creato con successo.<br/>
+            Ciao! La tua ${parolaAttivita} <strong>${nome}</strong> è stata creata con successo.<br/>
             Hai <strong>30 giorni gratuiti</strong> per provare tutte le funzionalità di Prenoty.
           </p>
           <p style="color: #555; font-size: 14px; line-height: 1.7; margin: 0;">
             Accedi alla dashboard per:
           </p>
           <ul style="color: #555; font-size: 14px; line-height: 2; margin: 8px 0 0; padding-left: 20px;">
-            <li>Personalizzare il nome e i servizi del tuo salone</li>
+            <li>Personalizzare il nome e i servizi della tua ${parolaAttivita}</li>
             <li>Impostare i tuoi orari di disponibilità</li>
             <li>Condividere il tuo link prenotazioni ai clienti</li>
           </ul>
@@ -74,7 +77,7 @@ export async function onRequestPost(context) {
               <span style="background: #6c5ce7; color: white; border-radius: 50%; width: 24px; height: 24px; display: inline-flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; flex-shrink: 0;">1</span>
               <div>
                 <strong style="color: #1a1730; font-size: 14px;">Aggiungi i tuoi servizi</strong><br/>
-                <span style="color: #888; font-size: 13px;">Es. "Taglio donna", "Colore", "Piega" con durata e prezzo</span>
+                <span style="color: #888; font-size: 13px;">Inserisci i servizi che offri con durata e prezzo</span>
               </div>
             </div>
             <div style="display: flex; align-items: flex-start; gap: 12px;">

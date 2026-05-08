@@ -12,9 +12,17 @@ const benefit = [
   { ico:<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>, titolo:"30 giorni gratis", testo:"Nessuna carta richiesta. Provi senza impegno." },
 ];
 
+const TIPI_ATTIVITA = [
+  { key: "parrucchiere", label: "Parrucchiere", emoji: "✂️" },
+  { key: "estetista",    label: "Estetista",    emoji: "✨" },
+  { key: "spa",          label: "SPA",           emoji: "🌿" },
+  { key: "generico",     label: "Altro",         emoji: "🏢" },
+];
+
 export default function Registrazione() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [tipoAttivita, setTipoAttivita] = useState("parrucchiere");
   const [loading, setLoading] = useState(false);
   const [errore, setErrore] = useState("");
   const [successo, setSuccesso] = useState(false);
@@ -32,13 +40,14 @@ export default function Registrazione() {
     if (error) { setErrore(error.message.includes('already') ? 'Questa email è già registrata. Accedi invece di registrarti.' : error.message); setLoading(false); return; }
     if (!data.user) { setErrore('Questa email è già registrata. Accedi invece di registrarti.'); setLoading(false); return; }
     const slug = "salone-" + data.user.id.slice(0, 8);
-    await supabase.from("saloni").insert({ user_id: data.user.id, nome: "Il mio salone", slug, email });
+    const nomeDefault = tipoAttivita === "generico" ? "La mia attività" : "Il mio salone";
+    await supabase.from("saloni").insert({ user_id: data.user.id, nome: nomeDefault, slug, email, tipo: tipoAttivita });
 
     // Invia email di benvenuto (fire & forget — non blocca la registrazione)
     fetch("/api/send-welcome-email", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, nomeNegozio: "Il mio salone" }),
+      body: JSON.stringify({ email, nomeNegozio: nomeDefault, tipoAttivita }),
     }).catch(() => {}); // ignora errori silenziosamente
 
     setSuccesso(true);
@@ -94,11 +103,38 @@ export default function Registrazione() {
               <div style={{ textAlign:"center" }}>
                 <div style={{ fontSize:36, marginBottom:12 }}>🎉</div>
                 <h3 style={{ color:"#4a3cb5", fontWeight:700, marginBottom:8 }}>Benvenuto!</h3>
-                <p style={{ color:"#9b96c8", fontSize:13, marginBottom:20 }}>Account creato. Accedi per personalizzare il tuo salone.</p>
+                <p style={{ color:"#9b96c8", fontSize:13, marginBottom:20 }}>Account creato. Accedi per personalizzare {tipoAttivita === "generico" ? "la tua attività" : "il tuo salone"}.</p>
                 <a href="/login" style={{ display:"block", background:"#6c5ce7", color:"#fff", padding:"12px", borderRadius:10, textDecoration:"none", fontWeight:600, fontSize:14 }}>Vai alla dashboard →</a>
               </div>
             ) : (
               <>
+                {/* Tipo attività */}
+                <div style={{ marginBottom:16 }}>
+                  <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase", display:"block", marginBottom:8 }}>Tipo di attività</label>
+                  <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
+                    {TIPI_ATTIVITA.map(({ key, label, emoji }) => (
+                      <button
+                        key={key}
+                        type="button"
+                        onClick={() => setTipoAttivita(key)}
+                        style={{
+                          padding:"8px 6px",
+                          borderRadius:8,
+                          border: tipoAttivita === key ? "2px solid #6c5ce7" : "1px solid #e0dcff",
+                          background: tipoAttivita === key ? "rgba(108,92,231,0.1)" : "#fff",
+                          color: tipoAttivita === key ? "#4a3cb5" : "#9b96c8",
+                          fontWeight: tipoAttivita === key ? 700 : 400,
+                          fontSize:13,
+                          cursor:"pointer",
+                          transition:"all 0.15s",
+                        }}
+                      >
+                        {emoji} {label}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
                 <div style={{ marginBottom:12 }}>
                   <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase" }}>Email</label>
                   <input type="email" placeholder="la-tua@email.com" value={email} onChange={e => setEmail(e.target.value)} className="reg-input" />
