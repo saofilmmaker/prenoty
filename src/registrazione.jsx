@@ -49,13 +49,6 @@ export default function Registrazione() {
     const nomeDefault = tipoAttivita === "generico" ? "La mia attività" : "Il mio salone";
     await supabase.from("saloni").insert({ user_id: data.user.id, nome: nomeDefault, slug, email, tipo: tipoAttivita });
 
-    // Invia email di benvenuto (fire & forget — non blocca la registrazione)
-    fetch("/api/send-welcome-email", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email, nomeNegozio: nomeDefault, tipoAttivita }),
-    }).catch(() => {}); // ignora errori silenziosamente
-
     setSuccesso(true);
     setLoading(false);
   };
