@@ -204,6 +204,8 @@ useEffect(() => {
           mostraGalleria: saloneDb.mostra_galleria ?? true,
           mostraSocial: saloneDb.mostra_social ?? true,
           suonoNotifica: saloneDb.suono_notifica || "ding",
+          abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
+          abbonamentoScade: saloneDb.abbonamento_scade_il || null,
         }));
         if (saloneDb.metodi_pagamento) {
           setMetodiPagamento(saloneDb.metodi_pagamento);
@@ -290,6 +292,8 @@ useEffect(() => {
     mostraGalleria: true,
     mostraSocial: true,
     suonoNotifica: "ding",
+    abbonamentoAttivo: false,
+    abbonamentoScade: null,
   });
 
   // RECENSIONI (in produzione arriveranno da Supabase, qui mock per la demo)
@@ -659,6 +663,22 @@ useEffect(() => {
       if (suono === "pop")      { nota(300, 0, 0.08, 0.3, "sine"); nota(200, 0.08, 0.1, 0.15); }
     } catch(e) {}
   };
+
+  // Banner successo pagamento Stripe
+  const [bannerStripe, setBannerStripe] = useState(() => {
+    const p = new URLSearchParams(window.location.search);
+    return p.get("abbonamento") === "success" ? "success" : p.get("abbonamento") === "cancel" ? "cancel" : null;
+  });
+  useEffect(() => {
+    if (bannerStripe) {
+      // Pulisce il parametro dall'URL senza reload
+      const url = new URL(window.location.href);
+      url.searchParams.delete("abbonamento");
+      window.history.replaceState({}, "", url.toString());
+      const t = setTimeout(() => setBannerStripe(null), 6000);
+      return () => clearTimeout(t);
+    }
+  }, [bannerStripe]);
 
   // Ref per salone.dbId — usato in handler asincroni senza stale closure
   const saloneIdRef = useRef(null);
@@ -1128,6 +1148,24 @@ useEffect(() => {
               </div>
 
               {/* Banner filtro pagati attivo */}
+              {/* Banner Stripe success / cancel */}
+              {bannerStripe === "success" && (
+                <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{ backgroundColor: "#e6faf6", border: "1px solid #00b894", borderRadius: 10, color: "#00b894" }}>
+                  <div className="flex items-center gap-2">
+                    <CheckCircle className="w-4 h-4" /> 🎉 Abbonamento attivato! Benvenuto in Prenoty.
+                  </div>
+                  <button onClick={() => setBannerStripe(null)} className="text-xs opacity-60">✕</button>
+                </div>
+              )}
+              {bannerStripe === "cancel" && (
+                <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{ backgroundColor: "#fdecea", border: "1px solid #c0392b", borderRadius: 10, color: "#c0392b" }}>
+                  <div className="flex items-center gap-2">
+                    ⚠️ Pagamento annullato. Puoi riprovare da Impostazioni → Abbonamento.
+                  </div>
+                  <button onClick={() => setBannerStripe(null)} className="text-xs opacity-60">✕</button>
+                </div>
+              )}
+
               {filtroCard === "pagati" && (
                 <div className="flex items-center justify-between mb-3 px-4 py-2.5 text-sm" style={{ backgroundColor: T.accentSoft, border: `1px solid ${T.accent}`, borderRadius: 10 }}>
                   <div className="flex items-center gap-2" style={{ color: T.accent }}>
@@ -2489,6 +2527,69 @@ useEffect(() => {
                   )}
                 </div>
               )}
+
+              {/* ABBONAMENTO */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1 flex items-center gap-2" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
+                  <CreditCard className="w-4 h-4" /> ABBONAMENTO
+                </h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Gestisci il tuo piano Prenoty</p>
+
+                {salone.abbonamentoAttivo ? (
+                  <div className="p-4 border flex items-center gap-3" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, borderRadius: 10 }}>
+                    <CheckCircle className="w-5 h-5 flex-shrink-0" style={{ color: T.accent }} />
+                    <div>
+                      <div className="text-sm font-medium" style={{ color: T.accent }}>Piano attivo ✓</div>
+                      {salone.abbonamentoScade && (
+                        <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                          Rinnovo il {new Date(salone.abbonamentoScade).toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                ) : (
+                  <div className="space-y-4">
+                    <div className="p-4 border" style={{ backgroundColor: T.bg, borderColor: T.border, borderRadius: 10 }}>
+                      <div className="flex items-baseline gap-2 mb-1">
+                        <span className="text-3xl font-bold" style={{ color: T.text }}>€299</span>
+                        <span className="text-sm" style={{ color: T.textMuted }}>/anno</span>
+                      </div>
+                      <ul className="space-y-1 mt-3">
+                        {["Prenotazioni illimitate","Link personalizzato","Notifiche in tempo reale","Report mensili","Supporto prioritario"].map(f => (
+                          <li key={f} className="text-xs flex items-center gap-2" style={{ color: T.textSoft }}>
+                            <CheckCircle className="w-3 h-3 flex-shrink-0" style={{ color: T.accent }} /> {f}
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <button
+                      onClick={async () => {
+                        try {
+                          const { data: { session } } = await supabase.auth.getSession();
+                          const res = await fetch("/api/create-checkout-session", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                              saloneId: salone.dbId,
+                              email: session?.user?.email || "",
+                              nomeNegozio: salone.nome,
+                            }),
+                          });
+                          const { url, error } = await res.json();
+                          if (error) throw new Error(error);
+                          window.location.href = url;
+                        } catch (e) {
+                          alert("Errore: " + e.message);
+                        }
+                      }}
+                      className="w-full py-3 text-sm tracking-widest"
+                      style={{ backgroundColor: T.accent, color: "#fff", border: "none", letterSpacing: "0.15em", borderRadius: 8, cursor: "pointer" }}
+                    >
+                      ABBONATI ORA — €299/ANNO
+                    </button>
+                  </div>
+                )}
+              </div>
 
               {/* SICUREZZA */}
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
