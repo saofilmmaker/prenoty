@@ -29,7 +29,7 @@ async function runTrialEmailCheck(env) {
 
     // Cerca saloni con prova che scade esattamente tra N giorni
     const res = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/saloni?prova_scade_il=eq.${dataStr}&abbonamento_attivo=eq.false&select=id,nome_negozio,email`,
+      `${env.SUPABASE_URL}/rest/v1/saloni?prova_scade_il=eq.${dataStr}&abbonamento_attivo=eq.false&select=id,nome,email`,
       {
         headers: {
           "apikey": env.SUPABASE_SERVICE_KEY,
@@ -50,9 +50,9 @@ async function runTrialEmailCheck(env) {
 
       try {
         await inviaEmailScadenza(salone, giorni, env);
-        risultati.inviati.push({ salone: salone.nome_negozio, giorni });
+        risultati.inviati.push({ salone: salone.nome, giorni });
       } catch (err) {
-        risultati.errori.push({ salone: salone.nome_negozio, giorni, errore: err.message });
+        risultati.errori.push({ salone: salone.nome, giorni, errore: err.message });
       }
     }
   }
@@ -62,7 +62,7 @@ async function runTrialEmailCheck(env) {
 }
 
 async function inviaEmailScadenza(salone, giorniRimasti, env) {
-  const nomeNegozio = salone.nome_negozio || "il tuo negozio";
+  const nomeNegozio = salone.nome || "il tuo negozio";
 
   let oggetto, messaggioHtml;
 
