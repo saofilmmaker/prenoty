@@ -156,6 +156,7 @@ export default function DashboardPrenoty() {
   const [sezione, setSezione] = useState("agenda"); // agenda, clienti, servizi, staff, report, impostazioni
   const [vista, setVista] = useState("oggi");
   const [filtro, setFiltro] = useState("");
+  const [filtroCard, setFiltroCard] = useState(null); // null | "pagati"
   const [dettaglio, setDettaglio] = useState(null);
   const [menuAperto, setMenuAperto] = useState(false);
 
@@ -588,6 +589,7 @@ useEffect(() => {
 
   const filtraPrenotazioni = () => {
     let f = prenotazioni;
+    if (filtroCard === "pagati") { return f.filter(p => p.pagamento === "pagato").sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora)); }
     if (vista === "oggi") f = f.filter(p => p.data === oggiStr);
     if (vista === "settimana") f = f.filter(p => p.data >= oggiStr);
     if (filtro) f = f.filter(p => p.cliente.toLowerCase().includes(filtro.toLowerCase()) || p.servizio.toLowerCase().includes(filtro.toLowerCase()));
@@ -807,7 +809,7 @@ useEffect(() => {
   ];
   const oggi = new Date();
   const incassoMese = prenotazioni
-    .filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === oggi.getMonth() && d.getFullYear() === oggi.getFullYear(); })
+    .filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === oggi.getMonth() && d.getFullYear() === oggi.getFullYear() && p.stato !== "annullato"; })
     .reduce((s, p) => s + (p.prezzo || 0), 0);
 
   // Stato navigazione mesi nel Report
@@ -1073,17 +1075,32 @@ useEffect(() => {
           {sezione === "agenda" && (
             <div>
               {/* STATS */}
+              {/* Animazione pulse per notifiche */}
+              <style>{`@keyframes prenoty-glow{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.0)}50%{box-shadow:0 0 0 6px rgba(108,92,231,0.35)}}`}</style>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
                 {[
-                  { lbl: "OGGI", val: prenOggi.length, sub: "appuntamenti", icon: Calendar, bg: T.accent, light: false },
-                  { lbl: "INCASSO", val: `€${incassoOggi}`, sub: "previsto oggi", icon: Euro, bg: "#00b894", light: false },
-                  { lbl: "MESE", val: `€${incassoMese}`, sub: "incassato", icon: TrendingUp, bg: T.card, light: true },
-                  { lbl: "PAGATO", val: `€${pagatiOggi}`, sub: "online", icon: CreditCard, bg: T.card, light: true },
-                  { lbl: "NUOVE", val: nuoveNotifiche, sub: "da controllare", icon: Bell, bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true },
+                  { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
+                  { lbl: "INCASSO",  val: `€${incassoOggi}`,sub: "da incassare oggi",   icon: Euro,       bg: "#00b894",  light: false, onClick: null },
+                  { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotato (confermati)",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
+                  { lbl: "PAGATO",   val: `€${pagatiOggi}`, sub: "cliccaper vedere chi",icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
+                  { lbl: "NUOVE",    val: nuoveNotifiche,   sub: "da controllare",      icon: Bell,       bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true, onClick: null, pulse: nuoveNotifiche > 0 },
                 ].map((s, i) => {
                   const Ic = s.icon;
                   return (
-                    <div key={i} className="p-4" style={{ backgroundColor: s.bg, borderRadius: 14, border: s.light ? `1px solid ${T.border}` : "none", boxShadow: s.light ? "none" : "0 4px 16px rgba(108,92,231,0.25)" }}>
+                    <div
+                      key={i}
+                      onClick={s.onClick || undefined}
+                      className="p-4"
+                      style={{
+                        backgroundColor: s.bg,
+                        borderRadius: 14,
+                        border: s.light ? `1.5px solid ${filtroCard === "pagati" && i === 3 ? T.accent : s.pulse ? T.accent : T.border}` : "none",
+                        boxShadow: s.light ? "none" : "0 4px 16px rgba(108,92,231,0.25)",
+                        cursor: s.onClick ? "pointer" : "default",
+                        animation: s.pulse ? "prenoty-glow 1.4s ease-in-out infinite" : "none",
+                        transition: "background 0.2s",
+                      }}
+                    >
                       <div className="flex items-center justify-between mb-2">
                         <div style={{ width: 32, height: 32, borderRadius: 14, background: s.light ? T.accentSoft : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <Ic className="w-4 h-4" style={{ color: s.light ? T.accent : "#fff" }} />
@@ -1091,11 +1108,21 @@ useEffect(() => {
                         <span className="text-xs tracking-widest" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em" }}>{s.lbl}</span>
                       </div>
                       <div className="text-2xl md:text-3xl font-semibold" style={{ color: s.light ? T.text : "#fff" }}>{s.val}</div>
-                      <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{s.sub}</div>
+                      <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{i === 3 ? (filtroCard === "pagati" ? "▸ filtro attivo — clicca per togliere" : "clicca per vedere chi") : s.sub}</div>
                     </div>
                   );
                 })}
               </div>
+
+              {/* Banner filtro pagati attivo */}
+              {filtroCard === "pagati" && (
+                <div className="flex items-center justify-between mb-3 px-4 py-2.5 text-sm" style={{ backgroundColor: T.accentSoft, border: `1px solid ${T.accent}`, borderRadius: 10 }}>
+                  <div className="flex items-center gap-2" style={{ color: T.accent }}>
+                    <CreditCard className="w-4 h-4" /> Stai vedendo solo chi ha pagato online
+                  </div>
+                  <button onClick={() => setFiltroCard(null)} className="text-xs" style={{ color: T.accent }}>✕ Rimuovi filtro</button>
+                </div>
+              )}
 
               {/* FILTRI */}
               <div className="flex flex-col md:flex-row gap-3 mb-5">
@@ -1103,7 +1130,7 @@ useEffect(() => {
                   {["oggi", "settimana", "tutti"].map(v => (
                     <button
                       key={v}
-                      onClick={() => setVista(v)}
+                      onClick={() => { setVista(v); setFiltroCard(null); }}
                       className="px-4 py-2 text-xs tracking-widest transition"
                       style={{
                         backgroundColor: vista === v ? T.dark : "transparent",
