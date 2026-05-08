@@ -1,7 +1,8 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check } from "lucide-react";
-import WhatsAppAssistenza from "./whatsapp-assistenza"; 
+import { useNavigate } from "react-router-dom";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle } from "lucide-react";
+import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
 
 // =============================================================
@@ -137,6 +138,8 @@ function CambioPassword({ T }) {
 }
 
 export default function DashboardPrenoty() {
+  const navigate = useNavigate();
+
   // TEMA
   const [tema, setTema] = useState(() => localStorage.getItem("prenoty-tema") || "chiaro"); // chiaro | scuro
   const T = tema === "chiaro" ? {
@@ -204,6 +207,7 @@ useEffect(() => {
           suonoNotifica: saloneDb.suono_notifica || "ding",
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
+          provaScadeIl: saloneDb.prova_scade_il || null,
         }));
         if (saloneDb.metodi_pagamento) {
           setMetodiPagamento(saloneDb.metodi_pagamento);
@@ -292,6 +296,7 @@ useEffect(() => {
     suonoNotifica: "ding",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
+    provaScadeIl: null,
   });
 
   // RECENSIONI (in produzione arriveranno da Supabase, qui mock per la demo)
@@ -677,6 +682,23 @@ useEffect(() => {
       return () => clearTimeout(t);
     }
   }, [bannerStripe]);
+
+  // PERIODO DI PROVA — calcola giorni rimasti e gestisce blocco/banner
+  const giorniProvaRimasti = (() => {
+    if (salone.abbonamentoAttivo) return null; // già pagato, non serve
+    if (!salone.provaScadeIl) return null;
+    const diff = new Date(salone.provaScadeIl) - new Date();
+    return Math.ceil(diff / (1000 * 60 * 60 * 24));
+  })();
+
+  // Redirect a /blocco se la prova è scaduta e non ha pagato
+  useEffect(() => {
+    if (!salone.dbId) return; // aspetta che i dati siano caricati
+    if (salone.abbonamentoAttivo) return; // ha pagato, ok
+    if (giorniProvaRimasti !== null && giorniProvaRimasti <= 0) {
+      navigate("/blocco");
+    }
+  }, [salone.dbId, salone.abbonamentoAttivo, giorniProvaRimasti, navigate]);
 
   // Ref per salone.dbId — usato in handler asincroni senza stale closure
   const saloneIdRef = useRef(null);
@@ -1146,6 +1168,31 @@ useEffect(() => {
               </div>
 
               {/* Banner filtro pagati attivo */}
+              {/* Banner periodo di prova in scadenza */}
+              {!salone.abbonamentoAttivo && giorniProvaRimasti !== null && giorniProvaRimasti > 0 && giorniProvaRimasti <= 7 && (
+                <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{
+                  backgroundColor: giorniProvaRimasti <= 3 ? "#fff3e0" : "#fffde7",
+                  border: `1px solid ${giorniProvaRimasti <= 3 ? "#e67e22" : "#f39c12"}`,
+                  borderRadius: 10,
+                  color: giorniProvaRimasti <= 3 ? "#e67e22" : "#f39c12"
+                }}>
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 flex-shrink-0" />
+                    <span>
+                      {giorniProvaRimasti === 1
+                        ? "⚠️ Ultimo giorno di prova! Acquista Prenoty per continuare ad usarlo."
+                        : `⏳ Il tuo periodo di prova scade tra ${giorniProvaRimasti} giorni.`}
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => setSezione("impostazioni")}
+                    className="ml-3 text-xs font-semibold underline flex-shrink-0"
+                  >
+                    Acquista ora
+                  </button>
+                </div>
+              )}
+
               {/* Banner Stripe success / cancel */}
               {bannerStripe === "success" && (
                 <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{ backgroundColor: "#e6faf6", border: "1px solid #00b894", borderRadius: 10, color: "#00b894" }}>
