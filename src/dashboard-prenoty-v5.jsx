@@ -111,11 +111,9 @@ function CambioPassword({ T }) {
     if (nuova.length < 8) { setMsg({ tipo: "errore", testo: "La password deve avere almeno 8 caratteri" }); return; }
     setLoading(true);
     try {
-      const { createClient } = await import("@supabase/supabase-js");
-      const sb = createClient("https://lievvbydmynrdrmgxljm.supabase.co", "sb_publishable_5F_dQ3i8fsEuNmS9kXazcA_CWONTYqF");
-      const { error } = await sb.auth.updateUser({ password: nuova });
+      const { error } = await supabase.auth.updateUser({ password: nuova });
       if (error) setMsg({ tipo: "errore", testo: error.message });
-      else { setMsg({ tipo: "ok", testo: "Password aggiornata con successo!" }); setVecchia(""); setNuova(""); setConferma(""); }
+      else { setMsg({ tipo: "ok", testo: "Password aggiornata con successo!" }); setNuova(""); setConferma(""); }
     } catch(e) { setMsg({ tipo: "errore", testo: "Errore imprevisto" }); }
     setLoading(false);
   };
