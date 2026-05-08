@@ -805,7 +805,17 @@ useEffect(() => {
       onClick: () => { setSezione("recensioni"); setNotificheAperte(false); },
     })),
   ];
-  const incassoMese = prenotazioni.reduce((s, p) => s + p.prezzo, 0);
+  const oggi = new Date();
+  const incassoMese = prenotazioni
+    .filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === oggi.getMonth() && d.getFullYear() === oggi.getFullYear(); })
+    .reduce((s, p) => s + (p.prezzo || 0), 0);
+
+  // Stato navigazione mesi nel Report
+  const [meseReport, setMeseReport] = useState({ mese: oggi.getMonth(), anno: oggi.getFullYear() });
+  const nomiMesi = ["Gennaio","Febbraio","Marzo","Aprile","Maggio","Giugno","Luglio","Agosto","Settembre","Ottobre","Novembre","Dicembre"];
+  const mesePrec = () => setMeseReport(m => m.mese === 0 ? { mese: 11, anno: m.anno - 1 } : { mese: m.mese - 1, anno: m.anno });
+  const meseSucc = () => setMeseReport(m => m.mese === 11 ? { mese: 0, anno: m.anno + 1 } : { mese: m.mese + 1, anno: m.anno });
+  const isMeseCorrente = meseReport.mese === oggi.getMonth() && meseReport.anno === oggi.getFullYear();
 
   const cancella = (id) => { setPrenotazioni(prenotazioni.filter(p => p.id !== id)); setDettaglio(null); };
 
@@ -1063,12 +1073,13 @@ useEffect(() => {
           {sezione === "agenda" && (
             <div>
               {/* STATS */}
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
+              <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
                 {[
                   { lbl: "OGGI", val: prenOggi.length, sub: "appuntamenti", icon: Calendar, bg: T.accent, light: false },
-                  { lbl: "INCASSO", val: `€${incassoOggi}`, sub: "previsto", icon: Euro, bg: "#00b894", light: false },
+                  { lbl: "INCASSO", val: `€${incassoOggi}`, sub: "previsto oggi", icon: Euro, bg: "#00b894", light: false },
+                  { lbl: "MESE", val: `€${incassoMese}`, sub: "incassato", icon: TrendingUp, bg: T.card, light: true },
                   { lbl: "PAGATO", val: `€${pagatiOggi}`, sub: "online", icon: CreditCard, bg: T.card, light: true },
-                  { lbl: "NUOVE", val: nuoveNotifiche, sub: "da vedere", icon: TrendingUp, bg: T.card, light: true },
+                  { lbl: "NUOVE", val: nuoveNotifiche, sub: "da controllare", icon: Bell, bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true },
                 ].map((s, i) => {
                   const Ic = s.icon;
                   return (
@@ -1701,34 +1712,66 @@ useEffect(() => {
 
           {/* REPORT */}
           {sezione === "report" && (() => {
-            const conteggioServizi = prenotazioni.reduce((acc, p) => {
+            // Filtra per mese selezionato (usa data appuntamento)
+            const prenMese = prenotazioni.filter(p => {
+              if (!p.data) return false;
+              const d = new Date(p.data);
+              return d.getMonth() === meseReport.mese && d.getFullYear() === meseReport.anno;
+            });
+            const incassoSelMese = prenMese.reduce((s, p) => s + (p.prezzo || 0), 0);
+            const clientiMese = new Set(prenMese.map(p => p.tel)).size;
+
+            const conteggioServizi = prenMese.reduce((acc, p) => {
               const nome = p.servizio || "—";
               acc[nome] = (acc[nome] || 0) + 1;
               return acc;
             }, {});
-            const serviziOrdinati = Object.entries(conteggioServizi).sort((a, b) => b[1] - a[1]).slice(0, 4);
+            const serviziOrdinati = Object.entries(conteggioServizi).sort((a, b) => b[1] - a[1]).slice(0, 5);
             const maxCount = serviziOrdinati[0]?.[1] || 1;
+
             return (
-              <div>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-3 mb-6">
-                  {[
-                    { lbl: "INCASSO MESE", val: `€${incassoMese}` },
-                    { lbl: "APPUNTAMENTI", val: prenotazioni.length },
-                    { lbl: "CLIENTI TOTALI", val: clienti.length },
-                  ].map((s, i) => (
-                    <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                      <div className="text-xs tracking-widest mb-2" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
-                      <div className="text-3xl" style={{ color: T.accent }}>{s.val}</div>
-                    </div>
-                  ))}
+              <div className="space-y-6">
+                {/* Navigazione mese */}
+                <div className="flex items-center justify-between">
+                  <button onClick={mesePrec} className="flex items-center gap-2 px-4 py-2 border text-sm transition" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
+                    <ChevronLeft className="w-4 h-4" /> Prec.
+                  </button>
+                  <div className="text-center">
+                    <div className="text-lg font-semibold" style={{ color: T.text }}>{nomiMesi[meseReport.mese]} {meseReport.anno}</div>
+                    {isMeseCorrente && <div className="text-xs mt-0.5" style={{ color: T.accent }}>mese in corso</div>}
+                  </div>
+                  <button onClick={meseSucc} disabled={isMeseCorrente} className="flex items-center gap-2 px-4 py-2 border text-sm transition disabled:opacity-30" style={{ borderColor: T.border, color: T.text, borderRadius: 8 }}>
+                    Succ. <ChevronRight className="w-4 h-4" />
+                  </button>
                 </div>
 
+                {/* KPI mese selezionato */}
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
+                  {[
+                    { lbl: "INCASSO MESE", val: `€${incassoSelMese}`, icon: Euro },
+                    { lbl: "APPUNTAMENTI", val: prenMese.length, icon: Calendar },
+                    { lbl: "CLIENTI UNICI", val: clientiMese, icon: Users },
+                  ].map((s, i) => {
+                    const Ic = s.icon;
+                    return (
+                      <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                        <div className="flex items-center gap-2 mb-3">
+                          <Ic className="w-4 h-4" style={{ color: T.accent }} />
+                          <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
+                        </div>
+                        <div className="text-3xl font-semibold" style={{ color: T.accent }}>{s.val}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* Servizi più richiesti nel mese */}
                 <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                   <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SERVIZI PIÙ RICHIESTI</h3>
                   <div className="space-y-3">
                     {serviziOrdinati.length === 0 ? (
                       <p className="text-sm text-center py-8" style={{ color: T.textMuted, fontStyle: "italic" }}>
-                        Nessuna prenotazione ancora. I dati appariranno qui man mano che arrivano.
+                        Nessuna prenotazione in {nomiMesi[meseReport.mese]} {meseReport.anno}.
                       </p>
                     ) : (
                       serviziOrdinati.map(([nome, count]) => (
@@ -1738,13 +1781,41 @@ useEffect(() => {
                             <span style={{ color: T.textMuted }}>{count} {count === 1 ? "prenotazione" : "prenotazioni"}</span>
                           </div>
                           <div className="h-2 rounded-full overflow-hidden" style={{ backgroundColor: T.border }}>
-                            <div className="h-full rounded-full" style={{ width: `${Math.round((count / maxCount) * 100)}%`, backgroundColor: T.accent }} />
+                            <div className="h-full rounded-full transition-all" style={{ width: `${Math.round((count / maxCount) * 100)}%`, backgroundColor: T.accent }} />
                           </div>
                         </div>
                       ))
                     )}
                   </div>
                 </div>
+
+                {/* Confronto mesi — ultimi 6 */}
+                {(() => {
+                  const ultimi6 = Array.from({ length: 6 }, (_, i) => {
+                    const d = new Date(oggi.getFullYear(), oggi.getMonth() - (5 - i), 1);
+                    return { mese: d.getMonth(), anno: d.getFullYear(), label: nomiMesi[d.getMonth()].slice(0, 3) };
+                  });
+                  const maxInc = Math.max(...ultimi6.map(m => prenotazioni.filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === m.mese && d.getFullYear() === m.anno; }).reduce((s, p) => s + (p.prezzo || 0), 0)), 1);
+                  return (
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                      <h3 className="text-sm tracking-widest mb-5" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CONFRONTO ULTIMI 6 MESI</h3>
+                      <div className="flex items-end gap-2 h-24">
+                        {ultimi6.map((m, i) => {
+                          const inc = prenotazioni.filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === m.mese && d.getFullYear() === m.anno; }).reduce((s, p) => s + (p.prezzo || 0), 0);
+                          const isSelected = m.mese === meseReport.mese && m.anno === meseReport.anno;
+                          const h = Math.max(Math.round((inc / maxInc) * 80), inc > 0 ? 8 : 2);
+                          return (
+                            <button key={i} onClick={() => setMeseReport({ mese: m.mese, anno: m.anno })} className="flex-1 flex flex-col items-center gap-1" title={`${nomiMesi[m.mese]} ${m.anno}: €${inc}`}>
+                              <span className="text-xs" style={{ color: T.textMuted }}>€{inc > 999 ? `${Math.round(inc/1000)}k` : inc}</span>
+                              <div className="w-full rounded-t-sm transition-all" style={{ height: h, backgroundColor: isSelected ? T.accent : T.border }} />
+                              <span className="text-xs" style={{ color: isSelected ? T.accent : T.textMuted, fontWeight: isSelected ? 700 : 400 }}>{m.label}</span>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
               </div>
             );
           })()}
