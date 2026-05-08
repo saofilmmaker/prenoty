@@ -1,9 +1,15 @@
 import { useState } from "react";
 import { supabase } from "./supabase";
 
-function Ico({d}){
-  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
+function Ico({ d, color = "#6c5ce7" }){
+  return <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 }
+
+// Icone stile lucide — stesse della dashboard
+const ICO_SCISSORS = <><circle cx="6" cy="6" r="3"/><circle cx="6" cy="18" r="3"/><line x1="20" y1="4" x2="8.12" y2="15.88"/><line x1="14.47" y1="14.48" x2="20" y2="20"/><line x1="8.12" y1="8.12" x2="12" y2="12"/></>;
+const ICO_SPARKLES = <><path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/><path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/></>;
+const ICO_FLOWER  = <><path d="M12 7.5a4.5 4.5 0 1 1 4.5 4.5M12 7.5A4.5 4.5 0 1 0 7.5 12M12 7.5V9m-4.5 3H9m7.5 0H15m-3 4.5V15"/><circle cx="12" cy="12" r="3"/><path d="m8 16 1.5-1.5"/><path d="M14.5 9.5 16 8"/><path d="m8 8 1.5 1.5"/><path d="M14.5 14.5 16 16"/></>;
+const ICO_USERS   = <><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M22 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></>;
 
 const benefit = [
   { ico:<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>, titolo:"Prenotazioni 24/7", testo:"I clienti prenotano quando vogliono, anche di notte." },
@@ -13,10 +19,10 @@ const benefit = [
 ];
 
 const TIPI_ATTIVITA = [
-  { key: "parrucchiere", label: "Parrucchiere", emoji: "✂️" },
-  { key: "estetista",    label: "Estetista",    emoji: "✨" },
-  { key: "spa",          label: "SPA",           emoji: "🌿" },
-  { key: "generico",     label: "Altro",         emoji: "🏢" },
+  { key: "parrucchiere", label: "Parrucchiere", ico: ICO_SCISSORS },
+  { key: "estetista",    label: "Estetista",    ico: ICO_SPARKLES },
+  { key: "spa",          label: "SPA",           ico: ICO_FLOWER   },
+  { key: "generico",     label: "Altro",         ico: ICO_USERS    },
 ];
 
 export default function Registrazione() {
@@ -112,26 +118,31 @@ export default function Registrazione() {
                 <div style={{ marginBottom:16 }}>
                   <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase", display:"block", marginBottom:8 }}>Tipo di attività</label>
                   <div style={{ display:"grid", gridTemplateColumns:"1fr 1fr", gap:6 }}>
-                    {TIPI_ATTIVITA.map(({ key, label, emoji }) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setTipoAttivita(key)}
-                        style={{
-                          padding:"8px 6px",
-                          borderRadius:8,
-                          border: tipoAttivita === key ? "2px solid #6c5ce7" : "1px solid #e0dcff",
-                          background: tipoAttivita === key ? "rgba(108,92,231,0.1)" : "#fff",
-                          color: tipoAttivita === key ? "#4a3cb5" : "#9b96c8",
-                          fontWeight: tipoAttivita === key ? 700 : 400,
-                          fontSize:13,
-                          cursor:"pointer",
-                          transition:"all 0.15s",
-                        }}
-                      >
-                        {emoji} {label}
-                      </button>
-                    ))}
+                    {TIPI_ATTIVITA.map(({ key, label, ico }) => {
+                      const attivo = tipoAttivita === key;
+                      return (
+                        <button
+                          key={key}
+                          type="button"
+                          onClick={() => setTipoAttivita(key)}
+                          style={{
+                            display:"flex", alignItems:"center", gap:7,
+                            padding:"9px 12px",
+                            borderRadius:8,
+                            border: attivo ? "2px solid #6c5ce7" : "1px solid #e0dcff",
+                            background: attivo ? "rgba(108,92,231,0.08)" : "#fff",
+                            color: attivo ? "#4a3cb5" : "#9b96c8",
+                            fontWeight: attivo ? 700 : 500,
+                            fontSize:13,
+                            cursor:"pointer",
+                            transition:"all 0.15s",
+                          }}
+                        >
+                          <Ico d={ico} color={attivo ? "#4a3cb5" : "#9b96c8"} />
+                          {label}
+                        </button>
+                      );
+                    })}
                   </div>
                 </div>
 
