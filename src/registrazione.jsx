@@ -33,6 +33,14 @@ export default function Registrazione() {
     if (!data.user) { setErrore('Questa email è già registrata. Accedi invece di registrarti.'); setLoading(false); return; }
     const slug = "salone-" + data.user.id.slice(0, 8);
     await supabase.from("saloni").insert({ user_id: data.user.id, nome: "Il mio salone", slug, email });
+
+    // Invia email di benvenuto (fire & forget — non blocca la registrazione)
+    fetch("/api/send-welcome-email", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ email, nomeNegozio: "Il mio salone" }),
+    }).catch(() => {}); // ignora errori silenziosamente
+
     setSuccesso(true);
     setLoading(false);
   };
