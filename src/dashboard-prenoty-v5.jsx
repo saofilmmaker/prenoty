@@ -451,6 +451,7 @@ useEffect(() => {
       telefono: salone.telefono,
       email: salone.email,
       tipo: tipoAttivita,
+      logo: salone.logo,
     };
 
     let error;
