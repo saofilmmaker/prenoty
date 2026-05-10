@@ -556,23 +556,38 @@ useEffect(() => {
   const [clienti, setClienti] = useState([]);
 
   const caricaClienti = async (saloneId) => {
-    const { data: clientiDb } = await supabase
-      .from("clienti")
-      .select("*")
-      .eq("salone_id", saloneId)
-      .order("ultima_visita", { ascending: false });
+    const oggi = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
+
+    const [{ data: clientiDb }, { data: prenDb }] = await Promise.all([
+      supabase.from("clienti").select("*").eq("salone_id", saloneId).order("ultima_visita", { ascending: false }),
+      // Solo appuntamenti PASSATI (data < oggi) e NON annullati → visite effettive
+      supabase.from("prenotazioni").select("telefono_cliente, data, prezzo").eq("salone_id", saloneId).neq("stato", "annullato").lt("data", oggi),
+    ]);
+
+    // Conta visite e spesa per numero di telefono
+    const visitMap = {}, spesaMap = {};
+    (prenDb || []).forEach(p => {
+      const tel = p.telefono_cliente;
+      if (!tel) return;
+      visitMap[tel] = (visitMap[tel] || 0) + 1;
+      spesaMap[tel] = (spesaMap[tel] || 0) + (p.prezzo || 0);
+    });
+
     if (clientiDb) {
-      setClienti(clientiDb.map(c => ({
-        id: c.id,
-        nome: c.nome || "",
-        tel: c.telefono || "",
-        email: c.email || "",
-        visite: c.visite || 0,
-        totaleSpeso: 0,
-        ultimaVisita: c.ultima_visita || null,
-        note: c.note || "",
-        fedelta: Math.floor((c.visite || 0) / 2),
-      })));
+      setClienti(clientiDb.map(c => {
+        const visite = visitMap[c.telefono] || 0;
+        return {
+          id: c.id,
+          nome: c.nome || "",
+          tel: c.telefono || "",
+          email: c.email || "",
+          visite,
+          totaleSpeso: spesaMap[c.telefono] || 0,
+          ultimaVisita: c.ultima_visita || null,
+          note: c.note || "",
+          fedelta: Math.floor(visite / 2),
+        };
+      }));
     }
   };
 
