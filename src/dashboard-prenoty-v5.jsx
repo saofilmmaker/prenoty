@@ -1070,7 +1070,11 @@ useEffect(() => {
               >
                 <Bell className="w-5 h-5" />
                 {listaNotifiche.length > 0 && (
-                  <span className="absolute top-1 right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full text-white" style={{ backgroundColor: T.accent }}>
+                  <span className="absolute top-1 right-1 w-4 h-4 text-[10px] flex items-center justify-center rounded-full font-bold"
+                    style={{
+                      backgroundColor: tema === "scuro" ? "#5de279" : T.accent,
+                      color: tema === "scuro" ? "#1a1730" : "#fff",
+                    }}>
                     {listaNotifiche.length}
                   </span>
                 )}
