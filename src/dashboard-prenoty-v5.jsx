@@ -1134,7 +1134,7 @@ useEffect(() => {
                   { lbl: "INCASSO",  val: `€${incassoOggi}`,sub: "da incassare oggi",   icon: Euro,       bg: "#00b894",  light: false, onClick: null },
                   { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotato (confermati)",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
                   { lbl: "PAGATO",   val: `€${pagatiOggi}`, sub: "cliccaper vedere chi",icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
-                  { lbl: "NUOVE",    val: nuoveNotifiche,   sub: "da controllare",      icon: Bell,       bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true, onClick: null, pulse: nuoveNotifiche > 0 },
+                  { lbl: "NUOVE",    val: nuoveNotifiche,   sub: "da controllare",      icon: Bell,       bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true, onClick: nuoveNotifiche > 0 ? () => setNotificheAperte(true) : null, pulse: nuoveNotifiche > 0 },
                 ].map((s, i) => {
                   const Ic = s.icon;
                   return (
