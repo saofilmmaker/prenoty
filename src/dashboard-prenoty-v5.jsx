@@ -1812,7 +1812,7 @@ useEffect(() => {
                   </div>
                 ) : (
                   recensioni.map(r => (
-                    <div key={r.id} className="p-5 border" style={{ backgroundColor: T.card, borderColor: r.segnalata ? T.danger : T.border, borderWidth: r.segnalata ? "2px" : "1px" }}>
+                    <div key={r.id} className="p-5 border" style={{ backgroundColor: r.nascosta ? "rgba(150,150,150,0.05)" : T.card, borderColor: r.segnalata ? T.danger : T.border, borderWidth: r.segnalata ? "2px" : "1px", opacity: r.nascosta ? 0.65 : 1 }}>
                       {/* Header recensione */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -1826,7 +1826,12 @@ useEffect(() => {
                             <span className="text-xs" style={{ color: T.textMuted }}>{r.data}</span>
                           </div>
                         </div>
-                        {r.segnalata && (
+                        {r.nascosta && (
+                          <div className="text-xs px-2 py-1" style={{ backgroundColor: "rgba(100,100,100,0.1)", color: T.textMuted, border: `1px solid ${T.border}` }}>
+                            🚫 NASCOSTA DA PRENOTY
+                          </div>
+                        )}
+                        {r.segnalata && !r.nascosta && (
                           <div className="text-xs px-2 py-1" style={{ backgroundColor: T.dangerSoft, color: T.danger, border: `1px solid ${T.danger}` }}>
                             ⚠ SEGNALATA
                           </div>

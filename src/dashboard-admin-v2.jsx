@@ -175,8 +175,33 @@ export default function DashboardAdmin() {
     setConfermaAzione({ tipo: "nascondi", id });
   };
 
-  const eseguiAzioneRecensione = () => {
+  const eseguiAzioneRecensione = async () => {
     if (!confermaAzione) return;
+
+    const recensione = recensioniSegnalate.find(r => r.id === confermaAzione.id);
+    if (recensione?.saloneId) {
+      // Carica l'array recensioni attuale del salone
+      const { data: saloneData } = await supabase
+        .from("saloni")
+        .select("recensioni")
+        .eq("id", recensione.saloneId)
+        .single();
+
+      if (Array.isArray(saloneData?.recensioni)) {
+        const nuovaLista = saloneData.recensioni.map(r => {
+          if (r.id !== confermaAzione.id) return r;
+          if (confermaAzione.tipo === "nascondi") {
+            // Nasconde la recensione dalla vetrina e rimuove la segnalazione
+            return { ...r, nascosta: true, segnalata: false, segnalataIl: null };
+          } else {
+            // Mantieni: rimuove solo la segnalazione, la recensione rimane visibile
+            return { ...r, segnalata: false, segnalataIl: null };
+          }
+        });
+        await supabase.from("saloni").update({ recensioni: nuovaLista }).eq("id", recensione.saloneId);
+      }
+    }
+
     setRecensioniSegnalate(recensioniSegnalate.filter(r => r.id !== confermaAzione.id));
     setConfermaAzione(null);
   };
