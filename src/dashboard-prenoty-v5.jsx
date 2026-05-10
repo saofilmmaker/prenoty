@@ -1595,8 +1595,12 @@ useEffect(() => {
                             accept="image/*"
                             className="hidden"
                             onChange={(e) => {
-                              uploadFoto(e.target.files[0], (dataUrl) => {
-                                setStaff(staff.map(x => x.id === s.id ? { ...x, foto: dataUrl } : x));
+                              uploadFoto(e.target.files[0], async (dataUrl) => {
+                                const nuovoStaff = staff.map(x => x.id === s.id ? { ...x, foto: dataUrl } : x);
+                                setStaff(nuovoStaff);
+                                if (salone.dbId) {
+                                  await supabase.from("saloni").update({ staff: nuovoStaff }).eq("id", salone.dbId);
+                                }
                               });
                             }}
                           />
@@ -1687,7 +1691,13 @@ useEffect(() => {
                       {/* Bottone rimuovi foto (solo se c'è una foto) */}
                       {s.foto && (
                         <button
-                          onClick={() => setStaff(staff.map(x => x.id === s.id ? { ...x, foto: null } : x))}
+                          onClick={async () => {
+                            const nuovoStaff = staff.map(x => x.id === s.id ? { ...x, foto: null } : x);
+                            setStaff(nuovoStaff);
+                            if (salone.dbId) {
+                              await supabase.from("saloni").update({ staff: nuovoStaff }).eq("id", salone.dbId);
+                            }
+                          }}
                           className="text-xs tracking-widest mt-3"
                           style={{ color: T.textMuted, letterSpacing: "0.15em" }}
                         >
