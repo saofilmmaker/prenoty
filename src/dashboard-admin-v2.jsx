@@ -167,42 +167,47 @@ export default function DashboardAdmin() {
   // Modal conferma azioni moderazione (in-app, funziona ovunque)
   const [confermaAzione, setConfermaAzione] = useState(null); // { tipo: "mantieni"|"nascondi", id: number }
 
-  const mantieniPubblicata = (id) => {
-    setConfermaAzione({ tipo: "mantieni", id });
+  // Passa l'oggetto recensione completo (con saloneId già incluso)
+  const mantieniPubblicata = (r) => {
+    setConfermaAzione({ tipo: "mantieni", reviewId: r.id, saloneId: r.saloneId });
   };
 
-  const nascondiRecensione = (id) => {
-    setConfermaAzione({ tipo: "nascondi", id });
+  const nascondiRecensione = (r) => {
+    setConfermaAzione({ tipo: "nascondi", reviewId: r.id, saloneId: r.saloneId });
   };
 
   const eseguiAzioneRecensione = async () => {
     if (!confermaAzione) return;
+    const { tipo, reviewId, saloneId } = confermaAzione;
 
-    const recensione = recensioniSegnalate.find(r => r.id === confermaAzione.id);
-    if (recensione?.saloneId) {
-      // Carica l'array recensioni attuale del salone
-      const { data: saloneData } = await supabase
+    if (saloneId) {
+      // Carica l'array recensioni attuale del salone da Supabase
+      const { data: saloneData, error: fetchErr } = await supabase
         .from("saloni")
         .select("recensioni")
-        .eq("id", recensione.saloneId)
+        .eq("id", saloneId)
         .single();
 
-      if (Array.isArray(saloneData?.recensioni)) {
+      if (fetchErr) {
+        console.error("Errore fetch recensioni:", fetchErr);
+      } else if (Array.isArray(saloneData?.recensioni)) {
         const nuovaLista = saloneData.recensioni.map(r => {
-          if (r.id !== confermaAzione.id) return r;
-          if (confermaAzione.tipo === "nascondi") {
-            // Nasconde la recensione dalla vetrina e rimuove la segnalazione
-            return { ...r, nascosta: true, segnalata: false, segnalataIl: null };
-          } else {
-            // Mantieni: rimuove solo la segnalazione, la recensione rimane visibile
-            return { ...r, segnalata: false, segnalataIl: null };
-          }
+          if (String(r.id) !== String(reviewId)) return r;
+          return tipo === "nascondi"
+            ? { ...r, nascosta: true, segnalata: false, segnalataIl: null }
+            : { ...r, segnalata: false, segnalataIl: null };
         });
-        await supabase.from("saloni").update({ recensioni: nuovaLista }).eq("id", recensione.saloneId);
+
+        const { error: updateErr } = await supabase
+          .from("saloni")
+          .update({ recensioni: nuovaLista })
+          .eq("id", saloneId);
+
+        if (updateErr) console.error("Errore update recensioni:", updateErr);
       }
     }
 
-    setRecensioniSegnalate(recensioniSegnalate.filter(r => r.id !== confermaAzione.id));
+    setRecensioniSegnalate(prev => prev.filter(r => String(r.id) !== String(reviewId)));
     setConfermaAzione(null);
   };
 
@@ -905,7 +910,7 @@ export default function DashboardAdmin() {
                     {/* Azioni */}
                     <div style={{ display: "flex", gap: 8, flexWrap: "wrap" }}>
                       <button
-                        onClick={() => mantieniPubblicata(r.id)}
+                        onClick={() => mantieniPubblicata(r)}
                         style={{
                           flex: 1,
                           minWidth: 140,
@@ -926,7 +931,7 @@ export default function DashboardAdmin() {
                         <CheckCircle size={14} /> MANTIENI PUBBLICATA
                       </button>
                       <button
-                        onClick={() => nascondiRecensione(r.id)}
+                        onClick={() => nascondiRecensione(r)}
                         style={{
                           flex: 1,
                           minWidth: 140,
