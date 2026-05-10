@@ -1159,7 +1159,7 @@ useEffect(() => {
                         <span className="text-xs tracking-widest" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em" }}>{s.lbl}</span>
                       </div>
                       <div className="text-2xl md:text-3xl font-semibold" style={{ color: s.light ? T.text : "#fff" }}>{s.val}</div>
-                      <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{i === 3 ? (filtroCard === "pagati" ? "▸ filtro attivo — clicca per togliere" : "clicca per vedere chi") : s.sub}</div>
+                      <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{i === 3 ? (filtroCard === "pagati" ? "▸ filtro attivo — clicca per togliere" : "ricevuto oggi online") : s.sub}</div>
                     </div>
                   );
                 })}
