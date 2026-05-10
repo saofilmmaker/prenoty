@@ -1127,7 +1127,7 @@ useEffect(() => {
             <div>
               {/* STATS */}
               {/* Animazione pulse per notifiche */}
-              <style>{`@keyframes prenoty-glow{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0.0)}50%{box-shadow:0 0 0 6px rgba(108,92,231,0.35)}}`}</style>
+              <style>{`@keyframes prenoty-glow{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0)}50%{box-shadow:0 0 0 8px rgba(108,92,231,0.6)}}`}</style>
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
