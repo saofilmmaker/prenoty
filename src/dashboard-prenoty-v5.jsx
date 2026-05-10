@@ -626,18 +626,20 @@ useEffect(() => {
   // Dropdown notifiche (campanella)
   const [notificheAperte, setNotificheAperte] = useState(false);
 
-  // AudioContext persistente — si sblocca al primo click sulla pagina
+  // AudioContext persistente — ogni click sulla pagina lo mantiene "running"
+  // (il browser lo auto-sospende dopo ~1 min di silenzio; senza gesto utente
+  //  ctx.resume() fallisce silenziosamente e la notifica real-time non suona)
   const audioCtxRef = useRef(null);
   useEffect(() => {
-    const sblocca = () => {
+    const sblocca = async () => {
       if (!audioCtxRef.current) {
         audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
       }
       if (audioCtxRef.current.state === "suspended") {
-        audioCtxRef.current.resume();
+        await audioCtxRef.current.resume();
       }
     };
-    document.addEventListener("click", sblocca, { once: true });
+    document.addEventListener("click", sblocca);
     return () => document.removeEventListener("click", sblocca);
   }, []);
 
@@ -786,9 +788,9 @@ useEffect(() => {
           const nuoveRecensioni = payload.new?.recensioni;
           if (!Array.isArray(nuoveRecensioni)) return;
           setRecensioni(prev => {
-            // Aggiorna solo se è arrivata una recensione nuova
             if (nuoveRecensioni.length > prev.length) {
-              suonaCampanella(suonoRef.current);
+              // setTimeout per uscire dal ciclo di render prima di suonare
+              setTimeout(() => suonaCampanella(suonoRef.current), 0);
             }
             return nuoveRecensioni;
           });
