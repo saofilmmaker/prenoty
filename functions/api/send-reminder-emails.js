@@ -86,10 +86,8 @@ async function runReminderCheck(env) {
     <div style="background:#ffffff;border-radius:20px;overflow:hidden;box-shadow:0 4px 24px rgba(108,92,231,0.08);">
 
       <div style="background:#4a3cb5;padding:28px 32px;text-align:center;">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;margin:0 auto 14px;display:flex;align-items:center;justify-content:center;">
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>
-          </svg>
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;margin:0 auto 14px;line-height:56px;text-align:center;font-size:28px;">
+          &#9200;
         </div>
         <h1 style="color:#ffffff;font-size:20px;font-weight:700;margin:0 0 6px;">Promemoria appuntamento</h1>
         <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:0;">Il tuo appuntamento è <strong>domani!</strong></p>

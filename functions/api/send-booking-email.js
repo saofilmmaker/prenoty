@@ -51,12 +51,8 @@ export async function onRequestPost(context) {
 
       <!-- Header viola -->
       <div style="background:#6c5ce7;padding:32px 32px 28px;text-align:center;">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center;">
-          <!-- Icona calendario -->
-          <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
-            <rect x="3" y="4" width="18" height="18" rx="3"/>
-            <path d="M3 10h18M8 2v3M16 2v3"/>
-          </svg>
+        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;margin:0 auto 16px;line-height:56px;text-align:center;font-size:28px;">
+          &#128197;
         </div>
         <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 6px;">Appuntamento confermato!</h1>
         <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:0;">Ti aspettiamo da <strong>${nomeSalone}</strong></p>
