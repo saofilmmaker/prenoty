@@ -702,6 +702,12 @@ export default function AppCliente() {
                       </div>
                       <p className="text-sm leading-relaxed" style={{ color: T.textSoft }}>{r.testo}</p>
                       <div className="text-xs mt-2" style={{ color: T.textMuted }}>{r.data}</div>
+                      {r.rispostaProprietario && (
+                        <div className="mt-3 pl-3 border-l-2" style={{ borderColor: T.accent }}>
+                          <div className="text-xs font-semibold mb-1" style={{ color: T.accent }}>Risposta del titolare</div>
+                          <p className="text-sm leading-relaxed" style={{ color: T.textSoft }}>{r.rispostaProprietario}</p>
+                        </div>
+                      )}
                     </div>
                   ))}
                 </div>
