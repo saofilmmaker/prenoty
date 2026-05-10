@@ -26,6 +26,8 @@ export async function onRequestPost(context) {
       weekday: "long", day: "numeric", month: "long", year: "numeric"
     });
     const dataCapitalized = dataLeggibile.charAt(0).toUpperCase() + dataLeggibile.slice(1);
+    const giorno = dataObj.getDate();
+    const meseBreve = dataObj.toLocaleDateString("it-IT", { month: "short" }).toUpperCase().replace(".","");
 
     const linkSalone = slugSalone ? `https://prenoty.com/${slugSalone}` : "https://prenoty.com";
 
@@ -51,9 +53,20 @@ export async function onRequestPost(context) {
 
       <!-- Header viola -->
       <div style="background:#6c5ce7;padding:32px 32px 28px;text-align:center;">
-        <div style="width:56px;height:56px;background:rgba(255,255,255,0.2);border-radius:16px;margin:0 auto 16px;line-height:56px;text-align:center;font-size:28px;">
-          &#128197;
-        </div>
+        <!-- Icona calendario stile Prenoty — tabella per compatibilità Gmail -->
+        <table cellpadding="0" cellspacing="0" border="0" style="margin:0 auto 18px;border-radius:14px;overflow:hidden;background:#ffffff;width:58px;">
+          <tr>
+            <td style="background:#4a3cb5;height:18px;text-align:center;vertical-align:middle;border-radius:14px 14px 0 0;">
+              <span style="color:#ffffff;font-size:9px;font-weight:700;letter-spacing:2px;font-family:sans-serif;">&#11044; &#11044;</span>
+            </td>
+          </tr>
+          <tr>
+            <td style="background:#ffffff;text-align:center;padding:4px 0 6px;border-radius:0 0 14px 14px;">
+              <div style="font-family:sans-serif;font-size:8px;font-weight:700;color:#6c5ce7;letter-spacing:1.5px;text-transform:uppercase;">${meseBreve}</div>
+              <div style="font-family:sans-serif;font-size:22px;font-weight:800;color:#1a1730;line-height:1.1;">${giorno}</div>
+            </td>
+          </tr>
+        </table>
         <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 6px;">Appuntamento confermato!</h1>
         <p style="color:rgba(255,255,255,0.85);font-size:14px;margin:0;">Ti aspettiamo da <strong>${nomeSalone}</strong></p>
       </div>
