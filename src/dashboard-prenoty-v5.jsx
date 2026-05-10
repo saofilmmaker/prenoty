@@ -218,6 +218,9 @@ useEffect(() => {
         if (saloneDb.staff && saloneDb.staff.length > 0) {
           setStaff(saloneDb.staff);
         }
+        if (Array.isArray(saloneDb.recensioni) && saloneDb.recensioni.length > 0) {
+          setRecensioni(saloneDb.recensioni);
+        }
       }
 
       if (!saloneDb?.id) return;

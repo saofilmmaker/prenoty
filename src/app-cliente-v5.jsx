@@ -159,6 +159,7 @@ export default function AppCliente() {
       const { data: serviziDb } = await supabase
         .from("servizi").select("*").eq("salone_id", saloneDb.id);
       if (serviziDb) setServizi(serviziDb);
+      if (Array.isArray(saloneDb.recensioni)) setRecensioni(saloneDb.recensioni);
       setCaricamento(false);
     };
     carica();
@@ -190,12 +191,16 @@ export default function AppCliente() {
   const [nuovaRecensione, setNuovaRecensione] = useState({ nome: "", stelle: 5, testo: "" });
   const [recensioneInviata, setRecensioneInviata] = useState(false);
 
-  const inviaRecensione = () => {
+  const inviaRecensione = async () => {
     const testo = nuovaRecensione.testo.trim();
     const nome = nuovaRecensione.nome.trim();
     if (!testo || !nome) return;
-    const nuova = { id: Math.max(0, ...recensioni.map(r => r.id)) + 1, nome, stelle: nuovaRecensione.stelle, testo, data: "Adesso" };
-    setRecensioni([nuova, ...recensioni]);
+    const nuova = { id: Date.now(), nome, stelle: nuovaRecensione.stelle, testo, data: new Date().toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }) };
+    const nuovaLista = [nuova, ...recensioni];
+    setRecensioni(nuovaLista);
+    if (salone.id) {
+      await supabase.from("saloni").update({ recensioni: nuovaLista }).eq("id", salone.id);
+    }
     setRecensioneInviata(true);
     setTimeout(() => { setModalRecensioneAperto(false); setRecensioneInviata(false); setNuovaRecensione({ nome: "", stelle: 5, testo: "" }); }, 2000);
   };
