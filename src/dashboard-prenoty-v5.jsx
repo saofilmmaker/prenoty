@@ -774,6 +774,30 @@ useEffect(() => {
     return () => { supabase.removeChannel(channel); };
   }, [salone.dbId]);
 
+  // REALTIME — ascolta nuove recensioni in tempo reale
+  useEffect(() => {
+    if (!salone.dbId) return;
+    const channel = supabase
+      .channel(`recensioni-salone-${salone.dbId}`)
+      .on(
+        "postgres_changes",
+        { event: "UPDATE", schema: "public", table: "saloni", filter: `id=eq.${salone.dbId}` },
+        (payload) => {
+          const nuoveRecensioni = payload.new?.recensioni;
+          if (!Array.isArray(nuoveRecensioni)) return;
+          setRecensioni(prev => {
+            // Aggiorna solo se è arrivata una recensione nuova
+            if (nuoveRecensioni.length > prev.length) {
+              suonaCampanella(suonoRef.current);
+            }
+            return nuoveRecensioni;
+          });
+        }
+      )
+      .subscribe();
+    return () => { supabase.removeChannel(channel); };
+  }, [salone.dbId]);
+
   // iOS PWA — riconnette Realtime e ricarica prenotazioni quando l'app torna in foreground
   useEffect(() => {
     const handleVisibilityChange = async () => {
