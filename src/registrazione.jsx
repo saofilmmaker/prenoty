@@ -65,6 +65,7 @@ export default function Registrazione() {
           .reg-wrap{flex-direction:column;gap:20px}
           .reg-benefit{order:2;width:100%}
           .reg-form{order:1;width:100%;box-sizing:border-box}
+          .reg-content{min-height:unset!important;padding-bottom:48px!important}
         }
       `}</style>
 
@@ -76,7 +77,7 @@ export default function Registrazione() {
       </div>
 
       {/* CONTENUTO */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px 48px" }}>
+      <div className="reg-content" style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px 48px", minHeight:"calc(100vh - 78px)" }}>
         <div className="reg-wrap">
 
           <div className="reg-benefit">
