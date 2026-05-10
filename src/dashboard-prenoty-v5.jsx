@@ -1099,21 +1099,31 @@ useEffect(() => {
                       <div className="divide-y" style={{ borderColor: T.border }}>
                         {listaNotifiche.map((n, i) => {
                           const Icona = n.icon;
+                          const isPren = n.tipo === "prenotazione";
+                          const colore  = isPren ? "#6c5ce7" : "#5de279";
+                          const coloreSoft = isPren ? "rgba(108,92,231,0.12)" : "rgba(93,226,121,0.12)";
+                          const coloreBordo = isPren ? "rgba(108,92,231,0.3)" : "rgba(93,226,121,0.3)";
                           return (
                             <button
                               key={i}
                               onClick={n.onClick}
                               className="w-full p-3 text-left transition"
-                              style={{ borderColor: T.border, backgroundColor: T.card }}
+                              style={{
+                                borderColor: T.border,
+                                backgroundColor: T.card,
+                                borderLeft: `3px solid ${colore}`,
+                              }}
                             >
                               <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: T.accentSoft }}>
-                                  <Icona className="w-4 h-4" style={{ color: T.accent }} />
+                                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                                  style={{ backgroundColor: coloreSoft, border: `1px solid ${coloreBordo}` }}>
+                                  <Icona className="w-4 h-4" style={{ color: colore }} />
                                 </div>
                                 <div className="flex-1 min-w-0">
-                                  <div className="text-sm">{n.titolo}</div>
+                                  <div className="text-sm font-medium">{n.titolo}</div>
                                   <div className="text-xs mt-0.5 truncate" style={{ color: T.textMuted }}>{n.sottotitolo}</div>
                                 </div>
+                                <div style={{ width: 7, height: 7, borderRadius: "50%", background: colore, flexShrink: 0, marginTop: 4 }} />
                               </div>
                             </button>
                           );
