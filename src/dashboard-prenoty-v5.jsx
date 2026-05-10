@@ -1131,7 +1131,7 @@ useEffect(() => {
               <div className="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6">
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
-                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "Incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: null },
+                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: null },
                   { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotato (confermati)",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
                   { lbl: "PAGATO",   val: `€${pagatiOggi}`, sub: "cliccaper vedere chi",icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
                   { lbl: "NUOVE",    val: nuoveNotifiche,   sub: "da controllare",      icon: Bell,       bg: nuoveNotifiche > 0 ? T.accentSoft : T.card, light: true, onClick: nuoveNotifiche > 0 ? () => setNotificheAperte(true) : null, pulse: nuoveNotifiche > 0 },
