@@ -350,9 +350,7 @@ useEffect(() => {
 
   // STAFF - ora con foto e max 5 operatori
   const [staff, setStaff] = useState([
-    { id: 1, nome: "Marco Ferrari", ruolo: "Titolare", colore: "#6c5ce7", foto: null },
-    { id: 2, nome: "Laura Bianchi", ruolo: "Senior Stylist", colore: "#a29bfe", foto: null },
-    { id: 3, nome: "Giulia Conti", ruolo: "Colorista", colore: "#fd79a8", foto: null },
+    { id: 1, nome: "Titolare", ruolo: "Titolare", colore: "#6c5ce7", foto: null },
   ]);
   const MAX_STAFF = 15;
 
