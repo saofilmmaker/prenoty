@@ -632,9 +632,9 @@ useEffect(() => {
   const SUONI = [
     { id: "ding",     label: "Ding ding",  Icon: Bell },
     { id: "singolo",  label: "Singolo",    Icon: Music2 },
-    { id: "chime",    label: "Chime",      Icon: Waves },
+    { id: "nova",     label: "Nova",       Icon: Sparkles },
     { id: "whatsapp", label: "Messaggio",  Icon: MessageSquare },
-    { id: "pop",      label: "Pop",        Icon: Zap },
+    { id: "matrix",   label: "Matrix",     Icon: Zap },
   ];
 
   const suonaCampanella = async (tipo) => {
@@ -660,9 +660,9 @@ useEffect(() => {
 
       if (suono === "ding")     { nota(880, 0, 0.5); nota(1100, 0.18, 0.5); }
       if (suono === "singolo")  { nota(1046, 0, 0.8); }
-      if (suono === "chime")    { nota(523, 0, 0.4); nota(659, 0.15, 0.4); nota(784, 0.30, 0.6); }
+      if (suono === "nova")     { [523,659,784,1047].forEach((f,i) => nota(f, i*0.06, 0.5, 0.22, "triangle")); }
       if (suono === "whatsapp") { nota(800, 0, 0.12); nota(1000, 0.13, 0.12); nota(800, 0.26, 0.2); }
-      if (suono === "pop")      { nota(300, 0, 0.08, 0.3, "sine"); nota(200, 0.08, 0.1, 0.15); }
+      if (suono === "matrix")   { [1400,1100,880,660,520,380].forEach((f,i) => nota(f, i*0.055, 0.12, 0.18)); }
     } catch(e) {}
   };
 
