@@ -183,6 +183,7 @@ export default function AppCliente() {
 
   // RECENSIONI
   const [recensioni, setRecensioni] = useState([]);
+  const [mostraTutteRecensioni, setMostraTutteRecensioni] = useState(false);
   const mediaStelle = recensioni.length > 0
     ? (recensioni.reduce((s, r) => s + r.stelle, 0) / recensioni.length).toFixed(1) : 0;
 
@@ -686,7 +687,7 @@ export default function AppCliente() {
                   </div>
                 </div>
                 <div className="space-y-3">
-                  {recensioni.slice(0, 3).map(r => (
+                  {recensioni.slice(0, mostraTutteRecensioni ? recensioni.length : 3).map(r => (
                     <div key={r.id} className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                       <div className="flex items-center justify-between mb-2">
                         <div className="text-sm">{r.nome}</div>
@@ -711,6 +712,17 @@ export default function AppCliente() {
                     </div>
                   ))}
                 </div>
+                {recensioni.length > 3 && (
+                  <button
+                    onClick={() => setMostraTutteRecensioni(v => !v)}
+                    className="w-full mt-3 py-3 border tracking-widest text-xs transition flex items-center justify-center gap-2"
+                    style={{ borderColor: T.accent, color: T.accent, letterSpacing: "0.12em" }}
+                  >
+                    {mostraTutteRecensioni
+                      ? "▲ MOSTRA MENO"
+                      : `▼ VEDI TUTTE LE ${recensioni.length} RECENSIONI`}
+                  </button>
+                )}
                 <button
                   onClick={() => setModalRecensioneAperto(true)}
                   className="w-full mt-3 py-3 border tracking-widest text-xs transition flex items-center justify-center gap-2"
