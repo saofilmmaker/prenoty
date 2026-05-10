@@ -2709,24 +2709,8 @@ useEffect(() => {
                       </ul>
                     </div>
                     <button
-                      onClick={async () => {
-                        try {
-                          const { data: { session } } = await supabase.auth.getSession();
-                          const res = await fetch("/api/create-checkout-session", {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                              saloneId: salone.dbId,
-                              email: session?.user?.email || "",
-                              nomeNegozio: salone.nome,
-                            }),
-                          });
-                          const { url, error } = await res.json();
-                          if (error) throw new Error(error);
-                          window.location.href = url;
-                        } catch (e) {
-                          alert("Errore: " + e.message);
-                        }
+                      onClick={() => {
+                        window.open("https://buy.stripe.com/28E9AT5OO23kbTz73e7IY00", "_blank");
                       }}
                       className="w-full py-3 text-sm tracking-widest"
                       style={{ backgroundColor: T.accent, color: "#fff", border: "none", letterSpacing: "0.15em", borderRadius: 8, cursor: "pointer" }}
