@@ -2399,6 +2399,7 @@ useEffect(() => {
                   setSalvataggioVetrinaStato("salvataggio");
                   const vetrinaPayload = {
                     descrizione: salone.descrizione,
+                    email: salone.email,
                     logo: salone.logo,
                     galleria: salone.galleria,
                     social: salone.social,
