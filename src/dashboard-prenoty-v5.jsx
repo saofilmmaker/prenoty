@@ -314,19 +314,29 @@ useEffect(() => {
   // State per gestione risposte/segnalazioni
   const [risposteInCorso, setRisposteInCorso] = useState({}); // { recensioneId: "testo bozza" }
 
+  const salvaRecensioni = async (nuovaLista) => {
+    setRecensioni(nuovaLista);
+    if (salone.dbId) {
+      await supabase.from("saloni").update({ recensioni: nuovaLista }).eq("id", salone.dbId);
+    }
+  };
+
   const inviaRisposta = (recId) => {
     const testo = risposteInCorso[recId]?.trim();
     if (!testo) return;
-    setRecensioni(recensioni.map(r => r.id === recId ? { ...r, rispostaProprietario: testo } : r));
+    const nuovaLista = recensioni.map(r => r.id === recId ? { ...r, rispostaProprietario: testo } : r);
+    salvaRecensioni(nuovaLista);
     setRisposteInCorso({ ...risposteInCorso, [recId]: "" });
   };
 
   const eliminaRisposta = (recId) => {
-    setRecensioni(recensioni.map(r => r.id === recId ? { ...r, rispostaProprietario: null } : r));
+    const nuovaLista = recensioni.map(r => r.id === recId ? { ...r, rispostaProprietario: null } : r);
+    salvaRecensioni(nuovaLista);
   };
 
   const segnalaRecensione = (recId) => {
-    setRecensioni(recensioni.map(r => r.id === recId ? { ...r, segnalata: !r.segnalata } : r));
+    const nuovaLista = recensioni.map(r => r.id === recId ? { ...r, segnalata: !r.segnalata } : r);
+    salvaRecensioni(nuovaLista);
   };
   const mediaStelle = recensioni.length > 0
     ? (recensioni.reduce((s, r) => s + r.stelle, 0) / recensioni.length).toFixed(1)
