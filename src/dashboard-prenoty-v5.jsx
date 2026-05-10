@@ -1155,7 +1155,7 @@ useEffect(() => {
                         <div style={{ width: 32, height: 32, borderRadius: 14, background: s.light ? T.accentSoft : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <Ic className="w-4 h-4" style={{ color: s.light ? T.accent : "#fff" }} />
                         </div>
-                        <span className="text-xs tracking-widest" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em", whiteSpace: "nowrap" }}>{s.lbl}</span>
+                        <span className="text-xs tracking-widest" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em", textAlign: "right" }}>{s.lbl}</span>
                       </div>
                       <div className="text-2xl md:text-3xl font-semibold" style={{ color: s.light ? T.text : "#fff" }}>{s.val}</div>
                       <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{i === 3 ? (filtroCard === "pagati" ? "▸ filtro attivo — clicca per togliere" : "ricevuto oggi online") : s.sub}</div>
