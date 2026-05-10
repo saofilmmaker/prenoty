@@ -340,6 +340,26 @@ export default function AppCliente() {
       note: note || null,
     });
     if (!error) {
+      // Invia email di conferma al cliente (fire-and-forget, non blocca il flusso)
+      if (email) {
+        const dataStr2 = `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}`;
+        fetch("/api/send-booking-email", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            emailCliente: email,
+            nomeCliente: nome,
+            nomeSalone: salone.nome,
+            servizi: serviziScelti.map(x => x.nome).join(", "),
+            data: dataStr2,
+            ora: ora,
+            staff: staffScelto?.nome || null,
+            prezzo: totale,
+            slugSalone: salone.slug,
+          }),
+        }).catch(() => {}); // ignora errori email, la prenotazione è già salvata
+      }
+
       // Salva/aggiorna cliente in anagrafica automaticamente
       const { data: esistente } = await supabase
         .from("clienti")

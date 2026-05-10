@@ -3,4 +3,5 @@ compatibility_date = "2024-01-01"
 
 [triggers]
 crons = ["0 8 * * *"]
-# Eseguito ogni giorno alle 08:00 UTC (10:00 ora italiana)
+# "0 8 * * *" — ogni giorno alle 08:00 UTC (10:00 ora italiana)
+# Gestisce sia send-trial-emails che send-reminder-emails
