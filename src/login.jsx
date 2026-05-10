@@ -38,6 +38,7 @@ export default function Login() {
           .login-form{order:2;width:100%;box-sizing:border-box}
           .bullets-desktop{display:none}
           .bullets-mobile{display:flex;flex-direction:column;gap:10px;width:100%;order:3}
+          .login-content{min-height:unset!important;padding-bottom:48px!important}
         }
       `}</style>
 
@@ -49,7 +50,7 @@ export default function Login() {
       </div>
 
       {/* CONTENUTO */}
-      <div style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px 48px" }}>
+      <div className="login-content" style={{ display:"flex", alignItems:"center", justifyContent:"center", padding:"0 24px 48px", minHeight:"calc(100vh - 78px)" }}>
         <div className="login-wrap">
 
           <div className="login-left">
