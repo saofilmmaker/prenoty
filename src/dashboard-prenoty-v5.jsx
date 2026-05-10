@@ -906,9 +906,26 @@ useEffect(() => {
   const isMeseCorrente = meseReport.mese === oggi.getMonth() && meseReport.anno === oggi.getFullYear();
 
   const cancella = async (id) => {
+    const pren = prenotazioni.find(p => p.id === id);
     // Rimuove subito dalla UI
     setPrenotazioni(prenotazioni.filter(p => p.id !== id));
     setDettaglio(null);
+    // Invia email di cancellazione al cliente (fire-and-forget)
+    if (pren?.email) {
+      fetch("/api/send-cancellation-email", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          emailCliente: pren.email,
+          nomeCliente: pren.cliente,
+          nomeSalone: salone.nome,
+          servizi: pren.servizio,
+          data: pren.data,
+          ora: pren.ora,
+          slugSalone: salone.slug,
+        }),
+      }).catch(() => {});
+    }
     // Elimina da Supabase (permanente)
     const { error } = await supabase.from("prenotazioni").delete().eq("id", id);
     if (error) {
