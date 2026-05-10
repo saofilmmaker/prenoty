@@ -81,9 +81,27 @@ export default function DashboardAdmin() {
     const carica = async () => {
       const { data } = await supabase
         .from("saloni")
-        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza")
+        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza, recensioni")
         .order("created_at", { ascending: false });
       if (data) {
+        // Estrai tutte le recensioni segnalate da tutti i saloni
+        const segnalate = [];
+        data.forEach(s => {
+          if (Array.isArray(s.recensioni)) {
+            s.recensioni.filter(r => r.segnalata).forEach(r => {
+              segnalate.push({
+                ...r,
+                saloneNome: s.nome,
+                saloneId: s.id,
+                clienteNome: r.nome,          // campo nome cliente dalla recensione
+                segnalataIl: r.segnalataIl || r.data || "—",
+                motivo: r.motivo || "Nessun motivo specificato",
+              });
+            });
+          }
+        });
+        setRecensioniSegnalate(segnalate);
+
         // Carica conteggio prenotazioni per ogni salone
         const idSaloni = data.map(s => s.id);
         const { data: prenData } = await supabase

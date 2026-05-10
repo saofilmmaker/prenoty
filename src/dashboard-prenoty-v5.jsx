@@ -335,7 +335,12 @@ useEffect(() => {
   };
 
   const segnalaRecensione = (recId) => {
-    const nuovaLista = recensioni.map(r => r.id === recId ? { ...r, segnalata: !r.segnalata } : r);
+    const oggi = new Date().toLocaleDateString("it-IT", { day: "2-digit", month: "long", year: "numeric" });
+    const nuovaLista = recensioni.map(r =>
+      r.id === recId
+        ? { ...r, segnalata: !r.segnalata, segnalataIl: !r.segnalata ? oggi : null }
+        : r
+    );
     salvaRecensioni(nuovaLista);
   };
   const mediaStelle = recensioni.length > 0
