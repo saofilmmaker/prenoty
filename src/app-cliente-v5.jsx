@@ -359,6 +359,9 @@ export default function AppCliente() {
             staff: staffScelto?.nome || null,
             prezzo: totale,
             slugSalone: salone.slug,
+            metodoPagamento: paga,
+            iban: paga === "bonifico" ? (salone.metodiPagamento?.iban || null) : null,
+            intestatario: paga === "bonifico" ? (salone.metodiPagamento?.intestatario || null) : null,
           }),
         }).catch(() => {}); // ignora errori email, la prenotazione è già salvata
       }

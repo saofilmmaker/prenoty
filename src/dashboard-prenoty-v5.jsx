@@ -212,7 +212,14 @@ useEffect(() => {
           provaScadeIl: saloneDb.prova_scade_il || null,
         }));
         if (saloneDb.metodi_pagamento) {
-          setMetodiPagamento(saloneDb.metodi_pagamento);
+          setMetodiPagamento(prev => ({
+            ...prev,
+            ...saloneDb.metodi_pagamento,
+            bonifico: saloneDb.metodi_pagamento.bonifico ?? false,
+            iban: saloneDb.metodi_pagamento.iban || "",
+            intestatario: saloneDb.metodi_pagamento.intestatario || "",
+            inSalone: saloneDb.metodi_pagamento.inSalone ?? true,
+          }));
         }
         if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
           setTipoAttivita(saloneDb.tipo);
@@ -353,21 +360,10 @@ useEffect(() => {
 
   // METODI DI PAGAMENTO (il parrucchiere sceglie quali attivare)
   const [metodiPagamento, setMetodiPagamento] = useState({
-    carta: true,           // Visa, Mastercard, Amex (tramite PSP)
-    applePay: true,        // Apple Pay
-    googlePay: true,       // Google Pay
-    nexi: true,            // Nexi (Cartasì, PagoBancomat) — molto usato in Italia
-    paypal: false,         // PayPal (il parrucchiere deve avere account)
-    bonifico: false,       // Bonifico bancario
-    inSalone: true,        // Paga direttamente in salone (nessun pagamento online)
-  });
-
-  // PSP (Payment Service Provider) scelto dal parrucchiere per ricevere i pagamenti con carta
-  const [psp, setPsp] = useState({
-    scelto: null,          // null | "nexi" | "stripe" | "paypal" | "sumup"
-    collegato: false,      // true quando il parrucchiere ha completato il setup
-    iban: "",              // IBAN del salone dove arriveranno i soldi
-    intestatario: "",      // Nome dell'intestatario del conto
+    bonifico: false,       // Bonifico bancario (con IBAN)
+    iban: "",              // IBAN del salone per il bonifico
+    intestatario: "",      // Intestatario del conto
+    inSalone: true,        // Paga direttamente in salone
   });
 
   // STAFF - ora con foto e max 5 operatori
@@ -2663,166 +2659,78 @@ useEffect(() => {
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>METODI DI PAGAMENTO</h3>
-                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Scegli quali metodi accettare dai tuoi clienti</p>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Scegli come vuoi ricevere i pagamenti dai clienti</p>
                 <div className="space-y-3">
-                  {[
-                    { key: "carta", lbl: "Carta di credito/debito", sub: "Visa, Mastercard, Amex" },
-                    { key: "applePay", lbl: "Apple Pay", sub: "Pagamento rapido da iPhone" },
-                    { key: "googlePay", lbl: "Google Pay", sub: "Pagamento rapido da Android" },
-                    { key: "nexi", lbl: "Nexi", sub: "Molto diffuso in Italia: Cartasì, PagoBancomat" },
-                    { key: "paypal", lbl: "PayPal", sub: "Richiede account PayPal Business" },
-                    { key: "bonifico", lbl: "Bonifico bancario", sub: "Il cliente riceve l'IBAN via email" },
-                    {
-                      key: "inSalone",
-                      lbl: tipoAttivita === "generico" ? "Paga di persona" : "Paga in salone",
-                      sub: tipoAttivita === "generico"
-                        ? "Nessun pagamento online, paga direttamente al servizio"
-                        : "Nessun pagamento online, paga al termine del servizio",
-                    },
-                  ].map((m) => {
-                    const attivo = metodiPagamento[m.key];
-                    return (
-                      <label key={m.key} className="flex items-center justify-between cursor-pointer py-2">
-                        <div className="flex-1 pr-3">
-                          <div className="text-sm">{m.lbl}</div>
-                          <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{m.sub}</div>
-                        </div>
-                        <input
-                          type="checkbox"
-                          checked={attivo}
-                          onChange={() => setMetodiPagamento({ ...metodiPagamento, [m.key]: !attivo })}
-                          className="sr-only"
-                        />
-                        <div className="w-10 h-6 rounded-full relative transition flex-shrink-0" style={{ backgroundColor: attivo ? T.accent : T.border }}>
-                          <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: attivo ? "calc(100% - 20px)" : "4px" }} />
-                        </div>
-                      </label>
-                    );
-                  })}
-                </div>
-                <SalvaBottone
-                  onClick={async () => {
-                    if (!salone.dbId) throw new Error("dbId mancante");
-                    await supabase.from("saloni").update({ metodi_pagamento: metodiPagamento }).eq("id", salone.dbId);
-                  }}
-                  label="SALVA METODI"
-                  T={T}
-                />
-              </div>
 
-              {/* SCELTA PSP — dove arrivano i soldi dei clienti */}
-              {(metodiPagamento.carta || metodiPagamento.applePay || metodiPagamento.googlePay || metodiPagamento.nexi) && (
-                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                  <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>DOVE RICEVERAI I PAGAMENTI</h3>
-                  <p className="text-xs mb-4" style={{ color: T.textMuted }}>Scegli il servizio che gestirà i pagamenti con carta. I soldi arriveranno automaticamente sul tuo IBAN.</p>
+                  {/* Paga in salone */}
+                  <label className="flex items-center justify-between cursor-pointer py-2">
+                    <div className="flex-1 pr-3">
+                      <div className="text-sm">{tipoAttivita === "generico" ? "Paga di persona" : "Paga in salone"}</div>
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                        {tipoAttivita === "generico" ? "Il cliente paga al momento del servizio (contanti o POS)" : "Il cliente paga in salone al termine del servizio (contanti o POS)"}
+                      </div>
+                    </div>
+                    <input type="checkbox" checked={metodiPagamento.inSalone} onChange={() => setMetodiPagamento({ ...metodiPagamento, inSalone: !metodiPagamento.inSalone })} className="sr-only" />
+                    <div className="w-10 h-6 rounded-full relative transition flex-shrink-0" style={{ backgroundColor: metodiPagamento.inSalone ? T.accent : T.border }}>
+                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: metodiPagamento.inSalone ? "calc(100% - 20px)" : "4px" }} />
+                    </div>
+                  </label>
 
-                  {/* Scelta tra i 3 PSP */}
-                  <div className="space-y-3 mb-5">
-                    {[
-                      { id: "nexi", nome: "Nexi", commissione: "1,2% + 0,25 €", descr: "Italiano, leader in Italia (60% delle transazioni). Ideale per saloni.", consigliato: true },
-                      { id: "stripe", nome: "Stripe", commissione: "1,4% + 0,25 €", descr: "Internazionale, setup in 10 minuti." },
-                      { id: "sumup", nome: "SumUp", commissione: "1,95%", descr: "Italiano, semplice e senza canoni." },
-                      { id: "paypal", nome: "PayPal", commissione: "2,9% + 0,35 €", descr: "Conosciuto da tutti, ma più costoso." },
-                    ].map((p) => {
-                      const sel = psp.scelto === p.id;
-                      return (
-                        <button
-                          key={p.id}
-                          onClick={() => setPsp({ ...psp, scelto: p.id, collegato: false })}
-                          className="w-full p-4 border text-left transition"
-                          style={{
-                            backgroundColor: sel ? T.accentSoft : T.bg,
-                            borderColor: sel ? T.accent : T.border,
-                            borderWidth: sel ? "2px" : "1px",
-                          }}
-                        >
-                          <div className="flex items-center justify-between">
-                            <div>
-                              <div className="flex items-center gap-2">
-                                <span>{p.nome}</span>
-                                {p.consigliato && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full text-white tracking-widest" style={{ backgroundColor: T.accent, letterSpacing: "0.1em" }}>
-                                    CONSIGLIATO
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-xs mt-1" style={{ color: T.textMuted }}>{p.descr}</div>
-                            </div>
-                            <div className="text-right">
-                              <div className="text-xs" style={{ color: T.textMuted }}>commissione</div>
-                              <div className="text-sm" style={{ color: T.accent }}>{p.commissione}</div>
-                            </div>
-                          </div>
-                        </button>
-                      );
-                    })}
-                  </div>
+                  {/* Bonifico bancario */}
+                  <label className="flex items-center justify-between cursor-pointer py-2 border-t" style={{ borderColor: T.border }}>
+                    <div className="flex-1 pr-3">
+                      <div className="text-sm">Bonifico bancario</div>
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>Il cliente riceve IBAN e intestatario nell'email di conferma</div>
+                    </div>
+                    <input type="checkbox" checked={metodiPagamento.bonifico} onChange={() => setMetodiPagamento({ ...metodiPagamento, bonifico: !metodiPagamento.bonifico })} className="sr-only" />
+                    <div className="w-10 h-6 rounded-full relative transition flex-shrink-0" style={{ backgroundColor: metodiPagamento.bonifico ? T.accent : T.border }}>
+                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: metodiPagamento.bonifico ? "calc(100% - 20px)" : "4px" }} />
+                    </div>
+                  </label>
 
-                  {/* Form IBAN + collegamento, visibile solo se ha scelto un PSP */}
-                  {psp.scelto && (
-                    <div className="pt-5 border-t space-y-4" style={{ borderColor: T.border }}>
+                  {/* Campi IBAN — visibili solo se bonifico è attivo */}
+                  {metodiPagamento.bonifico && (
+                    <div className="space-y-3 pt-3 pb-1 px-4 border-l-2" style={{ borderColor: T.accent }}>
                       <div>
                         <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>INTESTATARIO DEL CONTO *</label>
                         <input
                           type="text"
-                          value={psp.intestatario}
-                          onChange={(e) => setPsp({ ...psp, intestatario: e.target.value })}
+                          value={metodiPagamento.intestatario}
+                          onChange={(e) => setMetodiPagamento({ ...metodiPagamento, intestatario: e.target.value })}
                           className="w-full mt-2 p-3 border outline-none"
                           style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
                           placeholder="Nome e cognome o ragione sociale"
                         />
                       </div>
                       <div>
-                        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>IBAN DEL SALONE *</label>
+                        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>IBAN DEL CONTO *</label>
                         <input
                           type="text"
-                          value={psp.iban}
-                          onChange={(e) => setPsp({ ...psp, iban: e.target.value.toUpperCase() })}
+                          value={metodiPagamento.iban}
+                          onChange={(e) => setMetodiPagamento({ ...metodiPagamento, iban: e.target.value.toUpperCase().replace(/\s/g, "").replace(/(.{4})/g, "$1 ").trim() })}
                           className="w-full mt-2 p-3 border outline-none font-mono"
                           style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
                           placeholder="IT60 X054 2811 1010 0000 0123 456"
                           maxLength={34}
                         />
-                        <div className="text-xs mt-2" style={{ color: T.textMuted }}>Qui arriveranno i soldi dei pagamenti online (entro 2-7 giorni)</div>
-                      </div>
-
-                      {!psp.collegato ? (
-                        <button
-                          onClick={() => {
-                            if (psp.iban && psp.intestatario) {
-                              setPsp({ ...psp, collegato: true });
-                            }
-                          }}
-                          disabled={!psp.iban || !psp.intestatario}
-                          className="w-full py-3 tracking-widest text-sm disabled:opacity-40"
-                          style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em" }}
-                        >
-                          COLLEGA {psp.scelto.toUpperCase()}
-                        </button>
-                      ) : (
-                        <div className="p-4 border flex items-center gap-3" style={{ backgroundColor: T.accentSoft, borderColor: T.accent }}>
-                          <CheckCircle className="w-5 h-5" style={{ color: T.accent }} />
-                          <div className="flex-1">
-                            <div className="text-sm">{({ nexi: "Nexi", stripe: "Stripe", paypal: "PayPal", sumup: "SumUp" })[psp.scelto]} collegato correttamente</div>
-                            <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>I pagamenti arriveranno su {psp.iban.slice(0, 4)}••••{psp.iban.slice(-4)}</div>
-                          </div>
-                          <button
-                            onClick={() => setPsp({ scelto: null, collegato: false, iban: "", intestatario: "" })}
-                            className="text-xs tracking-widest"
-                            style={{ color: T.danger, letterSpacing: "0.15em" }}
-                          >
-                            SCOLLEGA
-                          </button>
-                        </div>
-                      )}
-
-                      <div className="text-xs p-3 border" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.textMuted }}>
-                        <strong style={{ color: T.textSoft }}>Come funziona:</strong> quando un cliente paga online, i soldi arrivano prima a {({ nexi: "Nexi", stripe: "Stripe", paypal: "PayPal", sumup: "SumUp" })[psp.scelto]}, che li gira automaticamente sul tuo IBAN entro pochi giorni. Non devi fare nulla manualmente.
+                        <div className="text-xs mt-1" style={{ color: T.textMuted }}>Il cliente lo riceverà nell'email di conferma per effettuare il bonifico</div>
                       </div>
                     </div>
                   )}
                 </div>
-              )}
+
+                <SalvaBottone
+                  onClick={async () => {
+                    if (!salone.dbId) throw new Error("dbId mancante");
+                    if (metodiPagamento.bonifico && (!metodiPagamento.iban || !metodiPagamento.intestatario)) {
+                      throw new Error("Inserisci IBAN e intestatario per abilitare il bonifico");
+                    }
+                    await supabase.from("saloni").update({ metodi_pagamento: metodiPagamento }).eq("id", salone.dbId);
+                  }}
+                  label="SALVA METODI"
+                  T={T}
+                />
+              </div>
 
               {/* PIANO PRENOTY */}
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>

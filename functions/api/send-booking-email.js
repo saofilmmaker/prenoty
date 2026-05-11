@@ -12,7 +12,7 @@ const CORS = {
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    const { emailCliente, nomeCliente, nomeSalone, servizi, data, ora, staff, prezzo, slugSalone } = await request.json();
+    const { emailCliente, nomeCliente, nomeSalone, servizi, data, ora, staff, prezzo, slugSalone, metodoPagamento, iban, intestatario } = await request.json();
 
     if (!emailCliente) {
       return new Response(JSON.stringify({ error: "emailCliente obbligatoria" }), {
@@ -109,6 +109,32 @@ export async function onRequestPost(context) {
             </tr>` : ""}
           </table>
         </div>
+
+        <!-- Bonifico bancario — mostrato solo se il cliente ha scelto bonifico -->
+        ${metodoPagamento === "bonifico" && iban ? `
+        <div style="background:#fffbeb;border:1px solid #fcd34d;border-radius:10px;padding:18px 20px;margin-bottom:16px;">
+          <p style="color:#92400e;font-size:13px;font-weight:700;margin:0 0 10px;">💳 Completa il pagamento tramite bonifico</p>
+          <table style="width:100%;border-collapse:collapse;">
+            <tr>
+              <td style="padding:5px 0;color:#78350f;font-size:12px;width:36%;">Intestatario</td>
+              <td style="padding:5px 0;color:#1a1730;font-size:13px;font-weight:600;">${intestatario}</td>
+            </tr>
+            <tr>
+              <td style="padding:5px 0;color:#78350f;font-size:12px;">IBAN</td>
+              <td style="padding:5px 0;color:#1a1730;font-size:13px;font-weight:600;font-family:monospace;">${iban}</td>
+            </tr>
+            ${prezzo > 0 ? `<tr>
+              <td style="padding:5px 0;color:#78350f;font-size:12px;">Importo</td>
+              <td style="padding:5px 0;color:#1a1730;font-size:13px;font-weight:600;">€${prezzo}</td>
+            </tr>` : ""}
+            <tr>
+              <td style="padding:5px 0;color:#78350f;font-size:12px;">Causale</td>
+              <td style="padding:5px 0;color:#1a1730;font-size:13px;font-weight:600;">Prenotazione ${nomeSalone} ${dataCapitalized}</td>
+            </tr>
+          </table>
+          <p style="color:#92400e;font-size:12px;margin:10px 0 0;">L'appuntamento è confermato. Effettua il bonifico entro 24 ore.</p>
+        </div>
+        ` : ""}
 
         <!-- Info promemoria -->
         <div style="background:#f0fdf4;border:1px solid #bbf7d0;border-radius:10px;padding:14px 18px;margin-bottom:24px;">
