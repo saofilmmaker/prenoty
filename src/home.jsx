@@ -199,8 +199,10 @@ export default function Home(){
         .btn-neon:hover::after{opacity:0.35;}
         .btn-neon:hover{transform:translateY(-1px);}
 
-        .btn-neon-green::before,.btn-neon-green::after{background:linear-gradient(to right,transparent,#5de279,transparent);}
-        .btn-neon-green:hover{box-shadow:0 0 22px rgba(93,226,121,0.45),0 0 48px rgba(93,226,121,0.15);}
+        /* Solid green — linee neon bianche visibili sul verde, hover più scuro */
+        .btn-neon-green{border:1px solid transparent!important;transition:all .2s ease!important;}
+        .btn-neon-green::before,.btn-neon-green::after{background:linear-gradient(to right,transparent,rgba(255,255,255,0.9),transparent);}
+        .btn-neon-green:hover{background:#45c962!important;border-color:rgba(255,255,255,0.45)!important;box-shadow:0 0 18px rgba(93,226,121,0.5),0 0 40px rgba(93,226,121,0.2)!important;}
 
         .btn-neon-ghost::before,.btn-neon-ghost::after{background:linear-gradient(to right,transparent,#6c5ce7,transparent);}
         .btn-neon-ghost:hover{background:rgba(108,92,231,0.1)!important;border-color:rgba(108,92,231,0.45)!important;box-shadow:0 0 18px rgba(108,92,231,0.25);}
