@@ -123,7 +123,7 @@ export default function AppCliente() {
   // DATI SALONE da Supabase
   const [salone, setSalone] = useState({
     nome: "", tipoAttivita: "generico", indirizzo: "", telefono: "", email: "",
-    logo: null, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
+    logo: null, copertina: null, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
     orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
     mostraRecensioni: true, mostraMappa: true, mostraOrari: true, mostraGalleria: true, mostraSocial: true,
     metodiPagamento: { carta: true, applePay: true, googlePay: true, nexi: true, paypal: false, bonifico: false, inSalone: true },
@@ -148,6 +148,7 @@ export default function AppCliente() {
         orari: saloneDb.orari || prev.orari,
         social: saloneDb.social || prev.social,
         logo: saloneDb.logo || null,
+        copertina: saloneDb.copertina || null,
         descrizione: saloneDb.descrizione || prev.descrizione,
         mostraRecensioni: saloneDb.mostra_recensioni ?? true,
         mostraMappa: saloneDb.mostra_mappa ?? true,
@@ -435,8 +436,9 @@ export default function AppCliente() {
               <h1 className="text-sm tracking-wide" style={{ letterSpacing: "0.1em" }}>{salone.nome.toUpperCase()}</h1>
               {salone.mostraRecensioni && recensioni.length > 0 && (
                 <div className="flex items-center gap-1 text-xs" style={{ color: T.textMuted }}>
-                  <Star className="w-3 h-3 fill-current" style={{ color: T.accent }} />
-                  {mediaStelle} · {recensioni.length} recensioni
+                  <Star className="w-3 h-3 fill-current" style={{ color: "#f9ca24" }} />
+                  <span style={{ color: "#f9ca24", fontWeight: 600 }}>{mediaStelle}</span>
+                  <span>· {recensioni.length} recensioni</span>
                 </div>
               )}
             </div>
@@ -487,49 +489,58 @@ export default function AppCliente() {
         {/* HOME */}
         {step === 0 && (
           <div className="space-y-8 pb-8">
-            {/* HERO — Logo, nome, rating, descrizione */}
-            <div className="text-center pt-4 pb-2">
-              {salone.logo && (
-                <img src={salone.logo} alt={salone.nome} className="w-20 h-20 mx-auto mb-4 object-contain" />
-              )}
-              <h1 className="text-4xl mb-3 leading-tight">{salone.nome}</h1>
-
-              {/* Rating compatto (sempre visibile se recensioni attivate) */}
-              {salone.mostraRecensioni && (
-                <div className="flex items-center justify-center gap-2 mb-4">
-                  {recensioni.length > 0 && (
-                    <span className="text-sm font-medium" style={{ color: T.text }}>{mediaStelle}</span>
-                  )}
-                  <div className="flex">
-                    {[1, 2, 3, 4, 5].map(n => (
-                      <Star
-                        key={n}
-                        className="w-4 h-4"
-                        style={{
-                          fill: recensioni.length > 0 && n <= Math.round(parseFloat(mediaStelle)) ? T.accent : "transparent",
-                          color: T.accent,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <span className="text-sm" style={{ color: T.textSoft }}>
-                    {recensioni.length > 0 ? `${recensioni.length} recensioni` : "Nessuna recensione"}
-                  </span>
+            {/* HERO — Copertina, nome, rating, descrizione */}
+            <div className="pb-2">
+              {/* FOTO DI COPERTINA */}
+              {salone.copertina ? (
+                <div className="relative w-full overflow-hidden -mx-6 mb-6" style={{ width: "calc(100% + 3rem)", height: 200 }}>
+                  <img src={salone.copertina} alt={salone.nome} className="w-full h-full object-cover" />
+                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to top, ${T.bg}, transparent)` }} />
                 </div>
+              ) : (
+                <div className="mb-4" />
               )}
 
-              <p className="max-w-md mx-auto leading-relaxed text-sm" style={{ color: T.textSoft }}>
-                {salone.descrizione}
-              </p>
+              <div className="text-center">
+                <h1 className="text-4xl mb-3 leading-tight">{salone.nome}</h1>
 
-              {/* CTA principale */}
-              <button
-                onClick={() => setStep(1)}
-                className="mt-8 px-12 py-4 tracking-widest text-sm transition"
-                style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.2em" }}
-              >
-                PRENOTA ORA
-              </button>
+                {/* Rating stelle gialle */}
+                {salone.mostraRecensioni && (
+                  <div className="flex items-center justify-center gap-2 mb-4">
+                    {recensioni.length > 0 && (
+                      <span className="text-sm font-bold" style={{ color: "#f9ca24" }}>{mediaStelle}</span>
+                    )}
+                    <div className="flex">
+                      {[1, 2, 3, 4, 5].map(n => (
+                        <Star
+                          key={n}
+                          className="w-4 h-4"
+                          style={{
+                            fill: recensioni.length > 0 && n <= Math.round(parseFloat(mediaStelle)) ? "#f9ca24" : "transparent",
+                            color: "#f9ca24",
+                          }}
+                        />
+                      ))}
+                    </div>
+                    <span className="text-sm" style={{ color: T.textSoft }}>
+                      {recensioni.length > 0 ? `${recensioni.length} recensioni` : "Nessuna recensione"}
+                    </span>
+                  </div>
+                )}
+
+                <p className="max-w-md mx-auto leading-relaxed text-sm" style={{ color: T.textSoft }}>
+                  {salone.descrizione}
+                </p>
+
+                {/* CTA principale */}
+                <button
+                  onClick={() => setStep(1)}
+                  className="mt-8 px-12 py-4 tracking-widest text-sm transition"
+                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.2em" }}
+                >
+                  PRENOTA ORA
+                </button>
+              </div>
             </div>
 
             {/* GALLERIA (se attivata e ci sono foto) */}

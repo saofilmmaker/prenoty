@@ -197,6 +197,7 @@ useEffect(() => {
           orari: saloneDb.orari || prev.orari,
           descrizione: saloneDb.descrizione || prev.descrizione,
           logo: saloneDb.logo || prev.logo,
+          copertina: saloneDb.copertina || null,
           galleria: saloneDb.galleria || [],
           social: saloneDb.social || prev.social,
           mostraRecensioni: saloneDb.mostra_recensioni ?? true,
@@ -283,6 +284,7 @@ useEffect(() => {
     telefono: "+39 02 1234567",
     email: "info@atelierbellezza.it",
     logo: null, // URL dell'immagine del logo caricato dal parrucchiere
+    copertina: null, // URL foto di copertina (banner in cima alla pagina cliente)
     orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
 
     // VETRINA — contenuti che il cliente vede sulla home pubblica
@@ -2290,6 +2292,41 @@ useEffect(() => {
                   />
                 </div>
 
+                {/* FOTO DI COPERTINA */}
+                <div className="mb-5">
+                  <label className="text-xs tracking-widest block mb-2" style={{ color: T.textMuted }}>FOTO DI COPERTINA</label>
+                  <label className="cursor-pointer block">
+                    <input
+                      type="file"
+                      accept="image/*"
+                      className="hidden"
+                      onChange={(e) => {
+                        uploadFoto(e.target.files[0], (dataUrl) => {
+                          setSalone({ ...salone, copertina: dataUrl });
+                        }, 1200);
+                      }}
+                    />
+                    {salone.copertina ? (
+                      <div className="relative w-full overflow-hidden border" style={{ borderColor: T.border, height: 140 }}>
+                        <img src={salone.copertina} alt="Copertina" className="w-full h-full object-cover" />
+                        <button
+                          onClick={(e) => { e.preventDefault(); setSalone({ ...salone, copertina: null }); }}
+                          className="absolute top-2 right-2 text-xs tracking-widest px-2 py-1"
+                          style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: 6, letterSpacing: "0.1em" }}
+                        >
+                          RIMUOVI
+                        </button>
+                        <div className="absolute bottom-2 left-2 text-xs" style={{ color: "rgba(255,255,255,0.8)" }}>Clicca per cambiare</div>
+                      </div>
+                    ) : (
+                      <div className="p-6 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
+                        <div className="text-sm">Tocca qui per caricare la foto di copertina</div>
+                        <div className="text-xs mt-1">Formato orizzontale consigliato · PNG, JPG</div>
+                      </div>
+                    )}
+                  </label>
+                </div>
+
                 {/* GALLERIA */}
                 <div className="mb-5">
                   <div className="flex items-center justify-between mb-2">
@@ -2432,6 +2469,7 @@ useEffect(() => {
                       descrizione: salone.descrizione,
                       email: salone.email,
                       logo: salone.logo,
+                      copertina: salone.copertina,
                       galleria: salone.galleria,
                       social: salone.social,
                       mostra_recensioni: salone.mostraRecensioni,
