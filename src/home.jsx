@@ -365,7 +365,7 @@ export default function Home(){
               {/* Prezzo */}
               <div style={{marginBottom:28,textAlign:"left"}}>
                 <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:4}}>
-                  <span style={{fontSize:64,fontWeight:800,color:"#fff",letterSpacing:-3,lineHeight:1}}>€299</span>
+                  <span style={{fontSize:64,fontWeight:800,color:"#fff",letterSpacing:2,lineHeight:1}}>€299</span>
                   <span style={{fontSize:15,color:"#9b96c8",fontWeight:500}}>pagamento unico</span>
                 </div>
                 <p style={{fontSize:13,color:"rgba(155,150,200,0.55)"}}>Senza canoni mensili — paghi una volta sola</p>
