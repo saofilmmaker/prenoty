@@ -1,3 +1,4 @@
+// v5 — build 2026-05-11
 import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
