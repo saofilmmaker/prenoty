@@ -2323,8 +2323,12 @@ useEffect(() => {
 
                   {salone.copertina ? (
                     <div
-                      className="relative w-full overflow-hidden select-none"
-                      style={{ height: 240, cursor: "ns-resize", border: `1px solid ${T.border}` }}
+                      className="relative overflow-hidden select-none"
+                      style={{
+                        height: 240,
+                        cursor: "ns-resize",
+                        margin: "0 -24px",
+                      }}
                       onMouseDown={(e) => {
                         const startY = e.clientY;
                         const startVal = salone.copertina_y;
@@ -2358,8 +2362,7 @@ useEffect(() => {
                         style={{ objectPosition: `center ${salone.copertina_y}%` }}
                         draggable={false}
                       />
-                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 70, background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)", pointerEvents: "none" }} />
-                      <div className="absolute bottom-2 left-3 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.85)", letterSpacing: "0.05em" }}>
+                      <div className="absolute bottom-2 left-6 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.85)", letterSpacing: "0.05em", textShadow: "0 1px 3px rgba(0,0,0,0.6)" }}>
                         ↕ Trascina per riposizionare
                       </div>
                     </div>
