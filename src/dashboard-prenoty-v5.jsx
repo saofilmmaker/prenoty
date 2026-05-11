@@ -272,6 +272,8 @@ useEffect(() => {
           ora: p.ora?.slice(0, 5) || "",
           stato: p.stato || "confermato",
           pagamento: "salone",
+          metodoPagamento: p.metodo_pagamento || "salone",
+          codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
@@ -782,6 +784,8 @@ useEffect(() => {
             ora: p.ora?.slice(0, 5) || "",
             stato: p.stato || "confermato",
             pagamento: "salone",
+            metodoPagamento: p.metodo_pagamento || "salone",
+            codiceBonifico: p.codice_bonifico || null,
             staffId: p.staff_id || 1,
             nuovo: true,
             note: p.note || "",
@@ -850,6 +854,8 @@ useEffect(() => {
           ora: p.ora?.slice(0, 5) || "",
           stato: p.stato || "confermato",
           pagamento: "salone",
+          metodoPagamento: p.metodo_pagamento || "salone",
+          codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
@@ -2870,8 +2876,20 @@ useEffect(() => {
                   <div className="flex items-center gap-2">
                     {dettaglio.pagamento === "pagato" ? (
                       <><CheckCircle className="w-4 h-4" style={{ color: "#16a34a" }} /><span style={{ color: "#16a34a" }}>Pagato online</span></>
+                    ) : dettaglio.metodoPagamento === "bonifico" ? (
+                      <div>
+                        <div className="flex items-center gap-2">
+                          <CreditCard className="w-4 h-4" style={{ color: "#d97706" }} />
+                          <span style={{ color: "#d97706", fontWeight: 600 }}>Bonifico bancario</span>
+                        </div>
+                        {dettaglio.codiceBonifico && (
+                          <div className="text-xs mt-1 font-mono font-bold tracking-wider" style={{ color: T.textMuted }}>
+                            {dettaglio.codiceBonifico}
+                          </div>
+                        )}
+                      </div>
                     ) : (
-                      <><CreditCard className="w-4 h-4" style={{ color: T.textMuted }} /><span>Da pagare</span></>
+                      <><CreditCard className="w-4 h-4" style={{ color: T.textMuted }} /><span>Paga in salone</span></>
                     )}
                   </div>
                 </div>

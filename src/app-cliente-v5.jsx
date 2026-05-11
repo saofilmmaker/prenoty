@@ -344,6 +344,8 @@ export default function AppCliente() {
       nomi_servizi: nomiServizi,
       prezzo: totale,
       note: note || null,
+      metodo_pagamento: paga || "salone",
+      codice_bonifico: paga === "bonifico" ? codiceBonifico : null,
     });
     if (!error) {
       // Invia email di conferma al cliente (fire-and-forget, non blocca il flusso)
@@ -1319,7 +1321,7 @@ export default function AppCliente() {
                   </div>
 
                   <p className="text-xs leading-relaxed" style={{ color: T.textMuted }}>
-                    Usa questa causale esatta quando effettui il bonifico — il titolare la troverà nella sua banca e identificherà subito la tua prenotazione. Riceverai tutto via email.
+                    Usa questa causale esatta quando effettui il bonifico — il titolare la troverà nella sua banca e identificherà subito la tua prenotazione.
                   </p>
                 </div>
               </div>
