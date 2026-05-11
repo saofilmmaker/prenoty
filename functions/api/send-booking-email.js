@@ -12,7 +12,7 @@ const CORS = {
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    const { emailCliente, nomeCliente, nomeSalone, servizi, data, ora, staff, prezzo, slugSalone, metodoPagamento, iban, intestatario } = await request.json();
+    const { emailCliente, nomeCliente, nomeSalone, servizi, data, ora, staff, prezzo, slugSalone, metodoPagamento, iban, intestatario, codiceBonifico } = await request.json();
 
     if (!emailCliente) {
       return new Response(JSON.stringify({ error: "emailCliente obbligatoria" }), {
@@ -129,10 +129,15 @@ export async function onRequestPost(context) {
             </tr>` : ""}
             <tr>
               <td style="padding:5px 0;color:#78350f;font-size:12px;">Causale</td>
-              <td style="padding:5px 0;color:#1a1730;font-size:13px;font-weight:600;">Prenotazione ${nomeSalone} ${dataCapitalized}</td>
+              <td style="padding:5px 0;color:#1a1730;font-size:16px;font-weight:800;font-family:monospace;letter-spacing:1px;">${codiceBonifico || `PRE-${nomeSalone.slice(0,3).toUpperCase()}`}</td>
             </tr>
           </table>
-          <p style="color:#92400e;font-size:12px;margin:10px 0 0;">L'appuntamento è confermato. Effettua il bonifico entro 24 ore.</p>
+          <!-- Box causale evidenziata -->
+          <div style="background:#fffbeb;border:2px dashed #f59e0b;border-radius:8px;padding:14px;margin-top:12px;text-align:center;">
+            <div style="color:#92400e;font-size:11px;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Scrivi questa causale nel bonifico</div>
+            <div style="color:#1a1730;font-size:20px;font-weight:800;font-family:monospace;letter-spacing:2px;">${codiceBonifico || ""}</div>
+          </div>
+          <p style="color:#92400e;font-size:12px;margin:10px 0 0;">Il titolare troverà questo codice nella causale e identificherà subito la tua prenotazione.</p>
         </div>
         ` : ""}
 

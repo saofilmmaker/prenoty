@@ -117,6 +117,9 @@ export default function AppCliente() {
   const [email, setEmail] = useState("");
   const [note, setNote] = useState("");
   const [paga, setPaga] = useState(null);
+  const [codiceBonifico, setCodiceBonifico] = useState(null);
+  const [causaleCopiata, setCausaleCopiata] = useState(false);
+  const [ibanCopiato, setIbanCopiato] = useState(false);
   const [cartaNumero, setCartaNumero] = useState("");
   const [cartaScadenza, setCartaScadenza] = useState("");
   const [cartaCvv, setCartaCvv] = useState("");
@@ -362,6 +365,7 @@ export default function AppCliente() {
             metodoPagamento: paga,
             iban: paga === "bonifico" ? (salone.metodiPagamento?.iban || null) : null,
             intestatario: paga === "bonifico" ? (salone.metodiPagamento?.intestatario || null) : null,
+            codiceBonifico: paga === "bonifico" ? codiceBonifico : null,
           }),
         }).catch(() => {}); // ignora errori email, la prenotazione è già salvata
       }
@@ -1162,7 +1166,16 @@ export default function AppCliente() {
               {/* Bonifico */}
               {salone.metodiPagamento.bonifico && (
                 <button
-                  onClick={() => setPaga("bonifico")}
+                  onClick={() => {
+                    setPaga("bonifico");
+                    if (!codiceBonifico) {
+                      const now = new Date();
+                      const giorno = String(now.getDate()).padStart(2, "0");
+                      const mese = String(now.getMonth() + 1).padStart(2, "0");
+                      const rand = Math.random().toString(36).slice(2, 6).toUpperCase();
+                      setCodiceBonifico(`PRE-${giorno}${mese}-${rand}`);
+                    }
+                  }}
                   className="w-full p-5 border text-left transition"
                   style={{
                     backgroundColor: paga === "bonifico" ? T.accentSoft : T.card,
@@ -1174,7 +1187,7 @@ export default function AppCliente() {
                     <CreditCard className="w-5 h-5" style={{ color: T.accent }} />
                     <div>
                       <div>Bonifico bancario</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Riceverai l'IBAN via email</div>
+                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Visualizza subito IBAN e causale</div>
                     </div>
                   </div>
                 </button>
@@ -1246,10 +1259,69 @@ export default function AppCliente() {
               </div>
             )}
 
-            {/* Avviso bonifico */}
-            {paga === "bonifico" && (
-              <div className="mt-6 p-4 border text-sm" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, color: T.textSoft }}>
-                Dopo la conferma riceverai via email l'IBAN per effettuare il bonifico. L'appuntamento sarà confermato al ricevimento del pagamento.
+            {/* Blocco bonifico — IBAN + causale visibili subito */}
+            {paga === "bonifico" && codiceBonifico && (
+              <div className="mt-4 border rounded-none overflow-hidden" style={{ borderColor: T.accent }}>
+                {/* Header */}
+                <div className="px-5 py-3 text-xs tracking-widest font-semibold" style={{ backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}>
+                  DATI PER IL BONIFICO
+                </div>
+                <div className="p-5 space-y-4" style={{ backgroundColor: T.card }}>
+
+                  {/* Intestatario */}
+                  <div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>INTESTATARIO</div>
+                    <div className="text-sm font-semibold" style={{ color: T.text }}>{salone.metodiPagamento?.intestatario}</div>
+                  </div>
+
+                  {/* IBAN con copia */}
+                  <div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>IBAN</div>
+                    <div className="flex items-center justify-between gap-3">
+                      <div className="font-mono text-sm font-semibold tracking-wider" style={{ color: T.text }}>{salone.metodiPagamento?.iban}</div>
+                      <button
+                        onClick={() => {
+                          navigator.clipboard?.writeText(salone.metodiPagamento?.iban || "");
+                          setIbanCopiato(true);
+                          setTimeout(() => setIbanCopiato(false), 2000);
+                        }}
+                        className="text-xs px-3 py-1.5 flex-shrink-0 transition"
+                        style={{ backgroundColor: ibanCopiato ? T.accent : T.accentSoft, color: ibanCopiato ? "#fff" : T.accent, border: `1px solid ${T.accent}` }}
+                      >
+                        {ibanCopiato ? "✓ Copiato" : "Copia"}
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Importo */}
+                  {totale > 0 && (
+                    <div>
+                      <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>IMPORTO</div>
+                      <div className="text-sm font-semibold" style={{ color: T.text }}>€{totale}</div>
+                    </div>
+                  )}
+
+                  {/* Causale — box evidenziato */}
+                  <div className="p-4 border" style={{ backgroundColor: T.accentSoft, borderColor: T.borderStrong }}>
+                    <div className="text-xs tracking-widest mb-2 font-semibold" style={{ color: T.accent, letterSpacing: "0.15em" }}>SCRIVI QUESTA CAUSALE</div>
+                    <div className="font-mono text-base font-bold mb-3" style={{ color: T.text }}>{codiceBonifico}</div>
+                    <button
+                      onClick={() => {
+                        navigator.clipboard?.writeText(codiceBonifico);
+                        setCausaleCopiata(true);
+                        setTimeout(() => setCausaleCopiata(false), 2000);
+                      }}
+                      className="w-full py-2.5 text-sm tracking-widest transition"
+                      style={{ backgroundColor: causaleCopiata ? T.accent : T.dark, color: "#fff", letterSpacing: "0.15em" }}
+                    >
+                      {causaleCopiata ? "✓ CAUSALE COPIATA" : "📋 COPIA CAUSALE"}
+                    </button>
+                  </div>
+
+                  <p className="text-xs leading-relaxed" style={{ color: T.textMuted }}>
+                    Usa questa causale esatta quando effettui il bonifico — il titolare la troverà nella sua banca e identificherà subito la tua prenotazione. Riceverai tutto via email.
+                  </p>
+                </div>
               </div>
             )}
           </div>
