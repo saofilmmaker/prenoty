@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from "react";
+import ShaderBackground from "./ShaderBackground";
 
 function useInView(t=0.1){const r=useRef(null);const[v,s]=useState(false);useEffect(()=>{const o=new IntersectionObserver(([e])=>{if(e.isIntersecting)s(true)},{threshold:t});if(r.current)o.observe(r.current);return()=>o.disconnect();},[]);return[r,v];}
 
@@ -48,8 +49,6 @@ function IPhone(){
             <div style={{width:8,height:8,borderRadius:"50%",background:"#1a1a1a",border:"1px solid #333"}}/>
             <div style={{width:10,height:10,borderRadius:"50%",background:"#1a1a1a",border:"1px solid #333"}}/>
           </div>
-
-          
 
           {/* Contenuto — Screen A: Dashboard titolare */}
           <div style={{position:"absolute",top:52,left:0,right:0,bottom:0,padding:"0 16px 16px",opacity:sc===0?1:0,transition:"opacity 0.8s ease",overflowY:"hidden"}}>
@@ -181,7 +180,10 @@ function IPhone(){
 
 export default function Home(){
   return(
-    <div style={{background:"#1a1730",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
+    <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
+      {/* ── Sfondo WebGL aurora — palette Prenoty ── */}
+      <ShaderBackground/>
+
       <style>{`
         *{box-sizing:border-box;}
         @media(max-width:960px){
@@ -210,7 +212,7 @@ export default function Home(){
         </div>
       </nav>
 
-      <section style={{background:"linear-gradient(135deg,#2d2060 0%,#1a1730 50%,#0f0d24 100%)",position:"relative",overflow:"hidden"}}>
+      <section style={{background:"transparent",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",width:600,height:600,borderRadius:"50%",background:"rgba(108,92,231,0.06)",filter:"blur(80px)",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
         <div className="hero-inner" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 56px",minHeight:"90vh",gap:72,position:"relative",zIndex:1}}>
           <div style={{flex:1,maxWidth:500}}>
