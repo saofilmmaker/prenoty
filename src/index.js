@@ -22,6 +22,8 @@ function ProtectedRoute({ children }) {
   return children;
 }
 
+window.__BUILD__ = process.env.REACT_APP_BUILD || "dev";
+
 // Registra Service Worker per PWA offline-ready (iOS + Android)
 if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => {
