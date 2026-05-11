@@ -219,6 +219,9 @@ useEffect(() => {
             iban: saloneDb.metodi_pagamento.iban || "",
             intestatario: saloneDb.metodi_pagamento.intestatario || "",
             inSalone: saloneDb.metodi_pagamento.inSalone ?? true,
+            stripe: saloneDb.metodi_pagamento.stripe ?? false,
+            stripe_pk: saloneDb.metodi_pagamento.stripe_pk || "",
+            stripe_sk: saloneDb.metodi_pagamento.stripe_sk || "",
           }));
         }
         if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
@@ -366,6 +369,9 @@ useEffect(() => {
     iban: "",              // IBAN del salone per il bonifico
     intestatario: "",      // Intestatario del conto
     inSalone: true,        // Paga direttamente in salone
+    stripe: false,         // Pagamenti online con carta via Stripe
+    stripe_pk: "",         // Chiave pubblica Stripe (pk_live_... o pk_test_...)
+    stripe_sk: "",         // Chiave segreta Stripe (sk_live_... o sk_test_...)
   });
 
   // STAFF - ora con foto e max 5 operatori
@@ -2723,6 +2729,64 @@ useEffect(() => {
                       </div>
                     </div>
                   )}
+
+                  {/* Stripe — pagamenti online con carta */}
+                  <label className="flex items-center justify-between cursor-pointer py-2 border-t" style={{ borderColor: T.border }}>
+                    <div className="flex-1 pr-3">
+                      <div className="text-sm flex items-center gap-2">
+                        Stripe
+                        <span className="text-xs px-2 py-0.5 rounded font-bold" style={{ backgroundColor: "#635bff", color: "#fff" }}>ONLINE</span>
+                      </div>
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>Il cliente paga con carta direttamente alla prenotazione</div>
+                    </div>
+                    <input type="checkbox" checked={metodiPagamento.stripe} onChange={() => setMetodiPagamento({ ...metodiPagamento, stripe: !metodiPagamento.stripe })} className="sr-only" />
+                    <div className="w-10 h-6 rounded-full relative transition flex-shrink-0" style={{ backgroundColor: metodiPagamento.stripe ? T.accent : T.border }}>
+                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: metodiPagamento.stripe ? "calc(100% - 20px)" : "4px" }} />
+                    </div>
+                  </label>
+
+                  {/* Chiavi Stripe — visibili solo se Stripe è attivo */}
+                  {metodiPagamento.stripe && (
+                    <div className="space-y-4 pt-3 pb-1 px-4 border-l-2" style={{ borderColor: "#635bff" }}>
+                      {/* Istruzioni */}
+                      <div className="text-xs p-3 rounded" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
+                        <div className="font-semibold mb-1">Come collegare il tuo Stripe:</div>
+                        <ol className="list-decimal pl-4 space-y-1" style={{ color: T.textSoft }}>
+                          <li>Vai su <a href="https://dashboard.stripe.com/apikeys" target="_blank" rel="noopener noreferrer" style={{ color: "#635bff", textDecoration: "underline" }}>dashboard.stripe.com/apikeys</a></li>
+                          <li>Copia la <strong>Chiave pubblica</strong> (inizia con pk_)</li>
+                          <li>Copia la <strong>Chiave segreta</strong> (inizia con sk_)</li>
+                          <li>Incollale qui sotto e salva</li>
+                        </ol>
+                      </div>
+                      <div>
+                        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>CHIAVE PUBBLICA (pk_live_... o pk_test_...) *</label>
+                        <input
+                          type="text"
+                          value={metodiPagamento.stripe_pk}
+                          onChange={(e) => setMetodiPagamento({ ...metodiPagamento, stripe_pk: e.target.value.trim() })}
+                          className="w-full mt-2 p-3 border outline-none font-mono text-xs"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                          placeholder="pk_live_xxxxxxxxxxxxxxxxxxxxxx"
+                          spellCheck={false}
+                          autoComplete="off"
+                        />
+                      </div>
+                      <div>
+                        <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>CHIAVE SEGRETA (sk_live_... o sk_test_...) *</label>
+                        <input
+                          type="password"
+                          value={metodiPagamento.stripe_sk}
+                          onChange={(e) => setMetodiPagamento({ ...metodiPagamento, stripe_sk: e.target.value.trim() })}
+                          className="w-full mt-2 p-3 border outline-none font-mono text-xs"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                          placeholder="sk_live_xxxxxxxxxxxxxxxxxxxxxx"
+                          spellCheck={false}
+                          autoComplete="off"
+                        />
+                        <div className="text-xs mt-1" style={{ color: T.textMuted }}>Tenuta al sicuro sui nostri server — non viene mai mostrata ai clienti</div>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
                 <SalvaBottone
@@ -2730,6 +2794,12 @@ useEffect(() => {
                     if (!salone.dbId) throw new Error("dbId mancante");
                     if (metodiPagamento.bonifico && (!metodiPagamento.iban || !metodiPagamento.intestatario)) {
                       throw new Error("Inserisci IBAN e intestatario per abilitare il bonifico");
+                    }
+                    if (metodiPagamento.stripe && (!metodiPagamento.stripe_pk || !metodiPagamento.stripe_sk)) {
+                      throw new Error("Inserisci entrambe le chiavi Stripe per abilitare i pagamenti online");
+                    }
+                    if (metodiPagamento.stripe && (!metodiPagamento.stripe_pk.startsWith("pk_") || !metodiPagamento.stripe_sk.startsWith("sk_"))) {
+                      throw new Error("Le chiavi Stripe non sembrano valide — controlla che inizino con pk_ e sk_");
                     }
                     await supabase.from("saloni").update({ metodi_pagamento: metodiPagamento }).eq("id", salone.dbId);
                   }}

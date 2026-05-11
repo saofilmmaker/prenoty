@@ -1,5 +1,5 @@
 // v5 — build 2026-05-11
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
@@ -120,9 +120,14 @@ export default function AppCliente() {
   const [codiceBonifico, setCodiceBonifico] = useState(null);
   const [causaleCopiata, setCausaleCopiata] = useState(false);
   const [ibanCopiato, setIbanCopiato] = useState(false);
-  const [cartaNumero, setCartaNumero] = useState("");
-  const [cartaScadenza, setCartaScadenza] = useState("");
-  const [cartaCvv, setCartaCvv] = useState("");
+
+  // Stripe
+  const stripeRef = useRef(null);       // istanza Stripe
+  const elementsRef = useRef(null);     // istanza Elements
+  const [stripeIntent, setStripeIntent] = useState(null);   // { client_secret, stripe_pk }
+  const [stripeReady, setStripeReady] = useState(false);    // Payment Element montato
+  const [stripeLoading, setStripeLoading] = useState(false);
+  const [stripeError, setStripeError] = useState(null);
 
   // DATI SALONE da Supabase
   const [salone, setSalone] = useState({
@@ -130,7 +135,7 @@ export default function AppCliente() {
     logo: null, copertina: null, copertina_y: 50, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
     orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
     mostraRecensioni: true, mostraMappa: true, mostraOrari: true, mostraGalleria: true, mostraSocial: true,
-    metodiPagamento: { carta: true, applePay: true, googlePay: true, nexi: true, paypal: false, bonifico: false, inSalone: true },
+    metodiPagamento: { stripe: false, bonifico: false, inSalone: true },
   });
   const [servizi, setServizi] = useState([]);
   const [caricamento, setCaricamento] = useState(true);
@@ -160,7 +165,11 @@ export default function AppCliente() {
         mostraOrari: saloneDb.mostra_orari ?? true,
         mostraGalleria: saloneDb.mostra_galleria ?? true,
         mostraSocial: saloneDb.mostra_social ?? true,
-        metodiPagamento: saloneDb.metodi_pagamento || prev.metodiPagamento,
+        metodiPagamento: (() => {
+          const mp = { ...(saloneDb.metodi_pagamento || prev.metodiPagamento) };
+          delete mp.stripe_sk; // la chiave segreta non va mai al frontend
+          return mp;
+        })(),
       }));
       const { data: serviziDb } = await supabase
         .from("servizi").select("*").eq("salone_id", saloneDb.id);
@@ -269,10 +278,62 @@ export default function AppCliente() {
   const totale = serviziScelti.reduce((s, x) => s + x.prezzo, 0);
   const durataTotale = serviziScelti.reduce((s, x) => s + x.durata, 0);
 
+  // Inizializza Stripe quando il cliente sceglie "carta"
+  useEffect(() => {
+    if (paga !== "carta" || !salone.metodiPagamento?.stripe || totale <= 0) {
+      if (paga !== "carta") {
+        setStripeIntent(null); setStripeReady(false); setStripeError(null);
+        stripeRef.current = null; elementsRef.current = null;
+      }
+      return;
+    }
+    if (stripeIntent) return; // già inizializzato
+    setStripeLoading(true);
+    setStripeError(null);
+    fetch("/api/create-payment-intent", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ salone_id: salone.id, amount: totale }),
+    })
+      .then(r => r.json())
+      .then(data => {
+        if (data.error) { setStripeError(data.error); setStripeLoading(false); return; }
+        setStripeIntent(data);
+        setStripeLoading(false);
+      })
+      .catch(e => { setStripeError(e.message); setStripeLoading(false); });
+  }, [paga, salone.id, totale]); // eslint-disable-line
+
+  // Monta Stripe Payment Element dopo aver ricevuto il client_secret
+  useEffect(() => {
+    if (!stripeIntent) return;
+    let mounted = true;
+    const init = async () => {
+      // Carica Stripe.js se non è ancora presente
+      if (!window.Stripe) {
+        await new Promise((res, rej) => {
+          const s = document.createElement("script");
+          s.src = "https://js.stripe.com/v3/";
+          s.onload = res; s.onerror = rej;
+          document.head.appendChild(s);
+        });
+      }
+      if (!mounted) return;
+      stripeRef.current = window.Stripe(stripeIntent.stripe_pk);
+      const elements = stripeRef.current.elements({ clientSecret: stripeIntent.client_secret, locale: "it" });
+      elementsRef.current = elements;
+      const pe = elements.create("payment");
+      pe.mount("#stripe-payment-element");
+      pe.on("ready", () => { if (mounted) setStripeReady(true); });
+    };
+    init().catch(e => { if (mounted) setStripeError(e.message); });
+    return () => { mounted = false; };
+  }, [stripeIntent]);
+
   const reset = () => {
     setStep(0); setServiziScelti([]); setStaffScelto(null); setData(null); setOra(null);
     setNome(""); setTelefono(""); setEmail(""); setNote(""); setPaga(null);
-    setCartaNumero(""); setCartaScadenza(""); setCartaCvv("");
+    setStripeIntent(null); setStripeReady(false); setStripeError(null);
   };
 
   const toggleServizio = (s) => {
@@ -327,6 +388,21 @@ export default function AppCliente() {
   // SALVA PRENOTAZIONE su Supabase
   const inviaPrenotazione = async () => {
     setInvioInCorso(true);
+
+    // Se il cliente ha scelto carta → prima conferma il pagamento Stripe
+    if (paga === "carta" && stripeRef.current && elementsRef.current && totale > 0) {
+      const { error: stripeErr } = await stripeRef.current.confirmPayment({
+        elements: elementsRef.current,
+        confirmParams: {},
+        redirect: "if_required",
+      });
+      if (stripeErr) {
+        setStripeError(stripeErr.message);
+        setInvioInCorso(false);
+        return;
+      }
+    }
+
     const dataStr = `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}`;
     const durataTot = serviziScelti.reduce((s, x) => s + x.durata, 0);
     const nomiServizi = serviziScelti.map(x => x.nome).join(", ");
@@ -409,7 +485,7 @@ export default function AppCliente() {
     (step === 3 && data) ||
     (step === 4 && ora) ||
     (step === 5 && nome.trim() && telefono.trim() && email.trim()) ||
-    (step === 6 && paga && (paga !== "carta" || (cartaNumero.replace(/\s/g,"").length >= 13 && cartaScadenza.length >= 4 && cartaCvv.length >= 3)));
+    (step === 6 && paga && (paga !== "carta" || stripeReady));
 
   if (caricamento) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730" }}>
@@ -1060,8 +1136,8 @@ export default function AppCliente() {
             </div>
 
             <div className="space-y-3">
-              {/* Carta di credito */}
-              {salone.metodiPagamento.carta && (
+              {/* Carta di credito via Stripe */}
+              {salone.metodiPagamento.stripe && (
                 <button
                   onClick={() => setPaga("carta")}
                   className="w-full p-5 border text-left transition"
@@ -1076,90 +1152,6 @@ export default function AppCliente() {
                     <div>
                       <div>Carta di credito/debito</div>
                       <div className="text-xs mt-1" style={{ color: T.textMuted }}>Visa, Mastercard, Amex</div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {/* Apple Pay */}
-              {salone.metodiPagamento.applePay && (
-                <button
-                  onClick={() => setPaga("applePay")}
-                  className="w-full p-5 border text-left transition"
-                  style={{
-                    backgroundColor: paga === "applePay" ? T.accentSoft : T.card,
-                    borderColor: paga === "applePay" ? T.accent : T.border,
-                    borderWidth: paga === "applePay" ? "2px" : "1px",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl"></span>
-                    <div>
-                      <div>Apple Pay</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Pagamento rapido con Face ID</div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {/* Google Pay */}
-              {salone.metodiPagamento.googlePay && (
-                <button
-                  onClick={() => setPaga("googlePay")}
-                  className="w-full p-5 border text-left transition"
-                  style={{
-                    backgroundColor: paga === "googlePay" ? T.accentSoft : T.card,
-                    borderColor: paga === "googlePay" ? T.accent : T.border,
-                    borderWidth: paga === "googlePay" ? "2px" : "1px",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-xl">G</span>
-                    <div>
-                      <div>Google Pay</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Pagamento rapido da Android</div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {/* Nexi — molto diffuso in Italia */}
-              {salone.metodiPagamento.nexi && (
-                <button
-                  onClick={() => setPaga("nexi")}
-                  className="w-full p-5 border text-left transition"
-                  style={{
-                    backgroundColor: paga === "nexi" ? T.accentSoft : T.card,
-                    borderColor: paga === "nexi" ? T.accent : T.border,
-                    borderWidth: paga === "nexi" ? "2px" : "1px",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="px-2 py-1 text-xs font-bold rounded" style={{ backgroundColor: "#003a70", color: "#fff", letterSpacing: "0.05em" }}>nexi</span>
-                    <div>
-                      <div>Nexi</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Carte Nexi, Cartasì, PagoBancomat</div>
-                    </div>
-                  </div>
-                </button>
-              )}
-
-              {/* PayPal */}
-              {salone.metodiPagamento.paypal && (
-                <button
-                  onClick={() => setPaga("paypal")}
-                  className="w-full p-5 border text-left transition"
-                  style={{
-                    backgroundColor: paga === "paypal" ? T.accentSoft : T.card,
-                    borderColor: paga === "paypal" ? T.accent : T.border,
-                    borderWidth: paga === "paypal" ? "2px" : "1px",
-                  }}
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="text-sm font-bold" style={{ color: "#003087" }}>PayPal</span>
-                    <div>
-                      <div>PayPal</div>
-                      <div className="text-xs mt-1" style={{ color: T.textMuted }}>Paga con il tuo account PayPal</div>
                     </div>
                   </div>
                 </button>
@@ -1217,47 +1209,27 @@ export default function AppCliente() {
               )}
             </div>
 
-            {/* Form carta solo se ha scelto carta */}
+            {/* Stripe Payment Element — si mostra dopo aver scelto carta */}
             {paga === "carta" && (
-              <div className="mt-6 p-5 border space-y-3" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                <input
-                  type="text"
-                  placeholder="Numero carta"
-                  maxLength={19}
-                  value={cartaNumero}
-                  onChange={e => {
-                    const v = e.target.value.replace(/\D/g, "").slice(0, 16);
-                    setCartaNumero(v.replace(/(.{4})/g, "$1 ").trim());
-                  }}
-                  className="w-full p-3 border outline-none"
-                  style={{ backgroundColor: T.bg, borderColor: cartaNumero.replace(/\s/g,"").length > 0 && cartaNumero.replace(/\s/g,"").length < 13 ? "#e74c3c" : T.border, color: T.text, letterSpacing: "0.05em" }}
-                />
-                <div className="grid grid-cols-2 gap-3">
-                  <input
-                    type="text"
-                    placeholder="MM/AA"
-                    maxLength={5}
-                    value={cartaScadenza}
-                    onChange={e => {
-                      const v = e.target.value.replace(/\D/g, "").slice(0, 4);
-                      setCartaScadenza(v.length > 2 ? v.slice(0,2) + "/" + v.slice(2) : v);
-                    }}
-                    className="p-3 border outline-none"
-                    style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
-                  />
-                  <input
-                    type="text"
-                    placeholder="CVV"
-                    maxLength={4}
-                    value={cartaCvv}
-                    onChange={e => setCartaCvv(e.target.value.replace(/\D/g, "").slice(0, 4))}
-                    className="p-3 border outline-none"
-                    style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
-                  />
+              <div className="mt-6 border" style={{ borderColor: T.border }}>
+                <div className="px-5 py-3 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#635bff", color: "#fff", letterSpacing: "0.15em" }}>
+                  INSERISCI I DATI DELLA CARTA
                 </div>
-                {paga === "carta" && (!cartaNumero || !cartaScadenza || !cartaCvv) && (
-                  <p className="text-xs" style={{ color: T.textMuted }}>Compila tutti i campi per procedere</p>
-                )}
+                <div className="p-5" style={{ backgroundColor: T.card }}>
+                  {stripeLoading && (
+                    <div className="text-sm py-4 text-center" style={{ color: T.textMuted }}>Caricamento form pagamento...</div>
+                  )}
+                  {stripeError && (
+                    <div className="text-sm py-2 px-3 rounded mb-3" style={{ backgroundColor: "#fef2f2", color: "#dc2626" }}>
+                      ⚠ {stripeError}
+                    </div>
+                  )}
+                  {/* Stripe monta il suo Payment Element in questo div */}
+                  <div id="stripe-payment-element" />
+                  {!stripeReady && !stripeLoading && !stripeError && (
+                    <div className="text-xs mt-3" style={{ color: T.textMuted }}>Caricamento sicuro tramite Stripe...</div>
+                  )}
+                </div>
               </div>
             )}
 
