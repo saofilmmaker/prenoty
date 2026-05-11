@@ -189,6 +189,22 @@ export default function Home(){
       <style>{`
         *{box-sizing:border-box;}
         html,body{background:#0f0d24!important;}
+
+        /* ── Neon Buttons ── */
+        .btn-neon{position:relative;border-radius:50px!important;transition:all .25s ease;}
+        .btn-neon::before,.btn-neon::after{content:'';position:absolute;left:12.5%;width:75%;height:1px;transition:opacity .5s ease;pointer-events:none;}
+        .btn-neon::before{top:0;opacity:0;}
+        .btn-neon::after{bottom:0;opacity:0.2;}
+        .btn-neon:hover::before{opacity:1;}
+        .btn-neon:hover::after{opacity:0.35;}
+        .btn-neon:hover{transform:translateY(-1px);}
+
+        .btn-neon-green::before,.btn-neon-green::after{background:linear-gradient(to right,transparent,#5de279,transparent);}
+        .btn-neon-green:hover{box-shadow:0 0 22px rgba(93,226,121,0.45),0 0 48px rgba(93,226,121,0.15);}
+
+        .btn-neon-ghost::before,.btn-neon-ghost::after{background:linear-gradient(to right,transparent,#6c5ce7,transparent);}
+        .btn-neon-ghost:hover{background:rgba(108,92,231,0.1)!important;border-color:rgba(108,92,231,0.45)!important;box-shadow:0 0 18px rgba(108,92,231,0.25);}
+
         @media(max-width:960px){
           .hero-inner{flex-direction:column!important;padding:48px 24px 64px!important;min-height:auto!important;align-items:center!important;text-align:center;}
           .hero-h1{font-size:46px!important;letter-spacing:-1px!important;}
@@ -237,8 +253,8 @@ export default function Home(){
             </FadeIn>
             <FadeIn delay={0.25}>
               <div className="hero-btns" style={{display:"flex",gap:12,marginBottom:32,flexWrap:"wrap"}}>
-                <a href="/registrazione" style={{background:"#5de279",color:"#0a2e14",padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>Inizia gratis</a>
-                <a href="#come-funziona" style={{background:"transparent",border:"0.5px solid rgba(224,220,255,0.2)",color:"#9b96c8",padding:"14px 24px",borderRadius:12,fontSize:15,textDecoration:"none"}}>Come funziona</a>
+                <a href="/registrazione" className="btn-neon btn-neon-green" style={{background:"#5de279",color:"#0a2e14",padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>Inizia gratis</a>
+                <a href="#come-funziona" className="btn-neon btn-neon-ghost" style={{background:"transparent",border:"0.5px solid rgba(224,220,255,0.2)",color:"#9b96c8",padding:"14px 24px",borderRadius:12,fontSize:15,textDecoration:"none"}}>Come funziona</a>
               </div>
             </FadeIn>
             <FadeIn delay={0.32}>
@@ -390,7 +406,7 @@ export default function Home(){
               </ul>
 
               {/* CTA */}
-              <a href="/registrazione" style={{
+              <a href="/registrazione" className="btn-neon btn-neon-green" style={{
                 display:"block",textAlign:"center",
                 background:"#5de279",color:"#0a2e14",
                 padding:"15px",borderRadius:12,
@@ -413,7 +429,7 @@ export default function Home(){
           <img src="/P_prenoty_Viola.png" alt="P" style={{width:52,height:52,objectFit:"contain",display:"block",margin:"0 auto 20px"}}/>
           <h2 style={{fontSize:46,fontWeight:800,color:"#fff",letterSpacing:-2,marginBottom:12,lineHeight:1.05}}>Inizia oggi.<br/>È gratis.</h2>
           <p style={{fontSize:16,color:"#9b96c8",marginBottom:36}}>30 giorni senza limitazioni. Poi decidi tu.</p>
-          <a href="/registrazione" style={{display:"inline-block",background:"#5de279",color:"#0a2e14",padding:"16px 48px",borderRadius:14,fontSize:16,fontWeight:700,textDecoration:"none"}}>Registrati gratis</a>
+          <a href="/registrazione" className="btn-neon btn-neon-green" style={{display:"inline-block",background:"#5de279",color:"#0a2e14",padding:"16px 48px",borderRadius:14,fontSize:16,fontWeight:700,textDecoration:"none"}}>Registrati gratis</a>
         </FadeIn>
       </section>
 
