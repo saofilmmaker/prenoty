@@ -2299,56 +2299,68 @@ useEffect(() => {
                   <div className="flex items-center justify-between mb-2">
                     <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>FOTO DI COPERTINA</label>
                     {salone.copertina && (
-                      <label className="cursor-pointer text-xs tracking-widest" style={{ color: T.accent, letterSpacing: "0.15em" }}>
-                        <input type="file" accept="image/*" className="hidden"
-                          onChange={(e) => {
-                            uploadFoto(e.target.files[0], (dataUrl) => {
-                              setSalone({ ...salone, copertina: dataUrl });
-                            }, 1400);
-                          }}
-                        />
-                        CAMBIA
-                      </label>
-                    )}
-                  </div>
-
-                  {salone.copertina ? (
-                    <div>
-                      {/* PREVIEW a tutto schermo come in vetrina */}
-                      <div className="relative w-full overflow-hidden border mb-3" style={{ borderColor: T.border, height: 200 }}>
-                        <img
-                          src={salone.copertina}
-                          alt="Copertina"
-                          className="w-full h-full object-cover"
-                          style={{ objectPosition: `center ${salone.copertina_y}%` }}
-                        />
-                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)" }} />
-                        <div className="absolute bottom-2 left-3 text-xs" style={{ color: "rgba(255,255,255,0.7)" }}>Anteprima vetrina</div>
+                      <div className="flex gap-4">
+                        <label className="cursor-pointer text-xs tracking-widest" style={{ color: T.accent, letterSpacing: "0.15em" }}>
+                          <input type="file" accept="image/*" className="hidden"
+                            onChange={(e) => {
+                              uploadFoto(e.target.files[0], (dataUrl) => {
+                                setSalone(prev => ({ ...prev, copertina: dataUrl }));
+                              }, 1400);
+                            }}
+                          />
+                          CAMBIA
+                        </label>
                         <button
-                          onClick={() => setSalone({ ...salone, copertina: null, copertina_y: 50 })}
-                          className="absolute top-2 right-2 text-xs px-2 py-1"
-                          style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
+                          onClick={() => setSalone(prev => ({ ...prev, copertina: null, copertina_y: 50 }))}
+                          className="text-xs tracking-widest"
+                          style={{ color: T.danger, background: "none", border: "none", cursor: "pointer", letterSpacing: "0.15em" }}
                         >
                           RIMUOVI
                         </button>
                       </div>
+                    )}
+                  </div>
 
-                      {/* SLIDER POSIZIONE VERTICALE */}
-                      <div className="flex items-center gap-3">
-                        <span className="text-xs flex-shrink-0" style={{ color: T.textMuted }}>▲ Su</span>
-                        <input
-                          type="range"
-                          min="0"
-                          max="100"
-                          value={salone.copertina_y}
-                          onChange={(e) => setSalone({ ...salone, copertina_y: Number(e.target.value) })}
-                          className="flex-1"
-                          style={{ accentColor: T.accent }}
-                        />
-                        <span className="text-xs flex-shrink-0" style={{ color: T.textMuted }}>▼ Giù</span>
-                      </div>
-                      <div className="text-xs text-center mt-1" style={{ color: T.textMuted }}>
-                        Trascina per riposizionare la foto
+                  {salone.copertina ? (
+                    <div
+                      className="relative w-full overflow-hidden select-none"
+                      style={{ height: 240, cursor: "ns-resize", border: `1px solid ${T.border}` }}
+                      onMouseDown={(e) => {
+                        const startY = e.clientY;
+                        const startVal = salone.copertina_y;
+                        const h = e.currentTarget.getBoundingClientRect().height;
+                        const onMove = (ev) => {
+                          const delta = ((ev.clientY - startY) / h) * 100 * 2;
+                          setSalone(prev => ({ ...prev, copertina_y: Math.min(100, Math.max(0, Math.round(startVal - delta))) }));
+                        };
+                        const onUp = () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+                        window.addEventListener("mousemove", onMove);
+                        window.addEventListener("mouseup", onUp);
+                      }}
+                      onTouchStart={(e) => {
+                        const startY = e.touches[0].clientY;
+                        const startVal = salone.copertina_y;
+                        const h = e.currentTarget.getBoundingClientRect().height;
+                        const onMove = (ev) => {
+                          ev.preventDefault();
+                          const delta = ((ev.touches[0].clientY - startY) / h) * 100 * 2;
+                          setSalone(prev => ({ ...prev, copertina_y: Math.min(100, Math.max(0, Math.round(startVal - delta))) }));
+                        };
+                        const onEnd = () => { window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onEnd); };
+                        window.addEventListener("touchmove", onMove, { passive: false });
+                        window.addEventListener("touchend", onEnd);
+                      }}
+                    >
+                      <img
+                        src={salone.copertina}
+                        alt="Copertina"
+                        className="w-full h-full object-cover pointer-events-none"
+                        style={{ objectPosition: `center ${salone.copertina_y}%` }}
+                        draggable={false}
+                      />
+                      <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 70, background: "linear-gradient(to top, rgba(0,0,0,0.55), transparent)", pointerEvents: "none" }} />
+                      <div className="absolute bottom-2 left-3 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.85)", letterSpacing: "0.05em" }}>
+                        ↕ Trascina per riposizionare
                       </div>
                     </div>
                   ) : (
@@ -2356,14 +2368,14 @@ useEffect(() => {
                       <input type="file" accept="image/*" className="hidden"
                         onChange={(e) => {
                           uploadFoto(e.target.files[0], (dataUrl) => {
-                            setSalone({ ...salone, copertina: dataUrl, copertina_y: 50 });
+                            setSalone(prev => ({ ...prev, copertina: dataUrl, copertina_y: 50 }));
                           }, 1400);
                         }}
                       />
                       <div className="p-8 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
                         <div className="text-2xl mb-2">🖼</div>
                         <div className="text-sm">Tocca per caricare la foto di copertina</div>
-                        <div className="text-xs mt-1">Formato orizzontale · ottimizzata automaticamente</div>
+                        <div className="text-xs mt-1">Formato orizzontale consigliato · ottimizzata automaticamente</div>
                       </div>
                     </label>
                   )}
