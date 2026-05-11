@@ -44,11 +44,12 @@ export default function ShaderBackground() {
           vec2 ip = floor(p);
           vec2 u  = fract(p);
           u = u * u * (3.0 - 2.0 * u);
-          return mix(
-            mix(rand(ip),              rand(ip + vec2(1.0, 0.0)), u.x),
+          float res = mix(
+            mix(rand(ip), rand(ip + vec2(1.0, 0.0)), u.x),
             mix(rand(ip + vec2(0.0, 1.0)), rand(ip + vec2(1.0, 1.0)), u.x),
             u.y
           );
+          return res * res;
         }
 
         float fbm(vec2 x) {
@@ -61,40 +62,36 @@ export default function ShaderBackground() {
             x   = rot * x * 2.0 + shift;
             a  *= 0.4;
           }
-          return v * v;
+          return v;
         }
 
         void main() {
-          // Subtle camera shake
-          vec2 shake = vec2(sin(iTime * 1.1) * 0.004, cos(iTime * 1.9) * 0.004);
+          vec2 shake = vec2(sin(iTime * 1.2) * 0.005, cos(iTime * 2.1) * 0.005);
           vec2 p = ((gl_FragCoord.xy + shake * iResolution.xy) - iResolution.xy * 0.5)
                    / iResolution.y * mat2(6.0, -4.0, 4.0, 6.0);
           vec2 v;
           vec4 o = vec4(0.0);
 
-          float f = 2.0 + fbm(p + vec2(iTime * 4.5, 0.0)) * 0.5;
+          float f = 2.0 + fbm(p + vec2(iTime * 5.0, 0.0)) * 0.5;
 
-          // ── Prenoty aurora: purple #6c5ce7 ↔ teal #00b894 ↔ green #5de279 ──
-          // ── Prenoty palette (normalized) ──────────────────────────────
+          // ── Prenoty palette ──────────────────────────────────────────
           // Purple  #6c5ce7 → (0.424, 0.361, 0.906)
           // DkPurp  #4a3cb5 → (0.290, 0.235, 0.710)
           // Green   #5de279 → (0.365, 0.886, 0.475)
           // Yellow  #f9ca24 → (0.976, 0.792, 0.141)
 
-          for (float i = 0.0; i < 32.0; i++) {
-            v = p + cos(i * i + (iTime + p.x * 0.08) * 0.022 + i * vec2(13.0, 11.0)) * 3.5
-              + vec2(sin(iTime * 2.8 + i) * 0.003, cos(iTime * 3.2 - i) * 0.003);
+          for (float i = 0.0; i < 35.0; i++) {
+            v = p + cos(i * i + (iTime + p.x * 0.08) * 0.025 + i * vec2(13.0, 11.0)) * 3.5
+              + vec2(sin(iTime * 3.0 + i) * 0.003, cos(iTime * 3.5 - i) * 0.003);
 
-            float tailNoise = fbm(v + vec2(iTime * 0.45, i)) * 0.35 * (1.0 - i / 32.0);
+            float tailNoise = fbm(v + vec2(iTime * 0.5, i)) * 0.3 * (1.0 - i / 35.0);
 
-            // Phase per-streak cycling through palette
+            // Prenoty palette — phase cycling per streak
             float ph = i * 0.19 + iTime * 0.30;
-
-            // Weights: purple dominant, green accent, yellow warm flash
-            float wP = pow(max(0.0, cos(ph + 2.6)), 1.8);          // purple
-            float wD = pow(max(0.0, cos(ph + 1.5)), 2.2);          // dark purple
-            float wG = pow(max(0.0, cos(ph - 0.4)), 1.8);          // green
-            float wY = pow(max(0.0, sin(ph + 0.9)), 2.8) * 0.55;   // yellow (sparingly)
+            float wP = pow(max(0.0, cos(ph + 2.6)), 1.8);
+            float wD = pow(max(0.0, cos(ph + 1.5)), 2.2);
+            float wG = pow(max(0.0, cos(ph - 0.4)), 1.8);
+            float wY = pow(max(0.0, sin(ph + 0.9)), 2.8) * 0.45;
             float wT = wP + wD + wG + wY + 0.001;
 
             vec4 auroraColors = vec4(
@@ -105,19 +102,16 @@ export default function ShaderBackground() {
             );
 
             vec4 contrib = auroraColors
-              * exp(sin(i * i + iTime * 0.75))
+              * exp(sin(i * i + iTime * 0.8))
               / length(max(v, vec2(v.x * f * 0.015, v.y * 1.5)));
 
-            float thin = 0.25 + 0.75 * smoothstep(0.0, 1.0, i / 32.0);
+            float thin = 0.15 + 0.85 * smoothstep(0.0, 1.0, i / 35.0);
             o += contrib * (1.0 + tailNoise * 0.8) * thin;
           }
 
-          // Tone-map
-          o = tanh(pow(o / 90.0, vec4(1.6)));
-
-          // Very dark base — almost black with faint blue tint
-          vec3 bg = vec3(0.018, 0.012, 0.038);
-          gl_FragColor = vec4(bg + o.rgb * 1.1, 1.0);
+          // Pure black base — dark areas stay fully black, only streaks glow
+          o = tanh(pow(o / 80.0, vec4(1.5)));
+          gl_FragColor = vec4(o.rgb * 1.8, 1.0);
         }
       `,
     });
