@@ -2392,7 +2392,7 @@ useEffect(() => {
                           className="hidden"
                           onChange={(e) => {
                             uploadFoto(e.target.files[0], (dataUrl) => {
-                              setSalone({ ...salone, galleria: [...salone.galleria, dataUrl] });
+                              setSalone({ ...salone, galleria: [...salone.galleria, { url: dataUrl, y: 50 }] });
                             });
                           }}
                         />
@@ -2408,19 +2408,73 @@ useEffect(() => {
                     </div>
                   ) : (
                     <div className="grid grid-cols-3 gap-2">
-                      {salone.galleria.map((foto, i) => (
-                        <div key={i} className="relative aspect-square overflow-hidden border" style={{ borderColor: T.border }}>
-                          <img src={foto} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                          <button
-                            onClick={() => setSalone({ ...salone, galleria: salone.galleria.filter((_, idx) => idx !== i) })}
-                            className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center"
-                            style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff" }}
-                            title="Rimuovi"
+                      {salone.galleria.map((foto, i) => {
+                        const fotoUrl = typeof foto === "string" ? foto : foto.url;
+                        const fotoY = typeof foto === "object" ? (foto.y ?? 50) : 50;
+                        return (
+                          <div
+                            key={i}
+                            className="relative aspect-square overflow-hidden border select-none"
+                            style={{ borderColor: T.border, cursor: "ns-resize" }}
+                            onMouseDown={(e) => {
+                              const startY = e.clientY;
+                              const startVal = fotoY;
+                              const h = e.currentTarget.getBoundingClientRect().height;
+                              const onMove = (ev) => {
+                                const delta = ((ev.clientY - startY) / h) * 100 * 2;
+                                setSalone(prev => ({
+                                  ...prev,
+                                  galleria: prev.galleria.map((f, idx) => {
+                                    if (idx !== i) return f;
+                                    const obj = typeof f === "string" ? { url: f, y: 50 } : { ...f };
+                                    return { ...obj, y: Math.min(100, Math.max(0, Math.round(startVal - delta))) };
+                                  })
+                                }));
+                              };
+                              const onUp = () => { window.removeEventListener("mousemove", onMove); window.removeEventListener("mouseup", onUp); };
+                              window.addEventListener("mousemove", onMove);
+                              window.addEventListener("mouseup", onUp);
+                            }}
+                            onTouchStart={(e) => {
+                              const startY = e.touches[0].clientY;
+                              const startVal = fotoY;
+                              const h = e.currentTarget.getBoundingClientRect().height;
+                              const onMove = (ev) => {
+                                ev.preventDefault();
+                                const delta = ((ev.touches[0].clientY - startY) / h) * 100 * 2;
+                                setSalone(prev => ({
+                                  ...prev,
+                                  galleria: prev.galleria.map((f, idx) => {
+                                    if (idx !== i) return f;
+                                    const obj = typeof f === "string" ? { url: f, y: 50 } : { ...f };
+                                    return { ...obj, y: Math.min(100, Math.max(0, Math.round(startVal - delta))) };
+                                  })
+                                }));
+                              };
+                              const onEnd = () => { window.removeEventListener("touchmove", onMove); window.removeEventListener("touchend", onEnd); };
+                              window.addEventListener("touchmove", onMove, { passive: false });
+                              window.addEventListener("touchend", onEnd);
+                            }}
                           >
-                            <X className="w-3 h-3" />
-                          </button>
-                        </div>
-                      ))}
+                            <img
+                              src={fotoUrl}
+                              alt={`Foto ${i + 1}`}
+                              className="w-full h-full object-cover pointer-events-none"
+                              style={{ objectPosition: `center ${fotoY}%` }}
+                              draggable={false}
+                            />
+                            <button
+                              onClick={(e) => { e.stopPropagation(); setSalone({ ...salone, galleria: salone.galleria.filter((_, idx) => idx !== i) }); }}
+                              className="absolute top-1 right-1 w-6 h-6 rounded-full flex items-center justify-center"
+                              style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff" }}
+                              title="Rimuovi"
+                            >
+                              <X className="w-3 h-3" />
+                            </button>
+                            <div className="absolute bottom-1 left-0 right-0 text-center pointer-events-none" style={{ color: "rgba(255,255,255,0.85)", textShadow: "0 1px 3px rgba(0,0,0,0.9)", fontSize: "10px" }}>↕</div>
+                          </div>
+                        );
+                      })}
                     </div>
                   )}
                 </div>

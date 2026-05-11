@@ -557,11 +557,15 @@ export default function AppCliente() {
               <div>
                 <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>GALLERIA</div>
                 <div className="grid grid-cols-3 gap-2">
-                  {salone.galleria.map((foto, i) => (
-                    <div key={i} className="aspect-square overflow-hidden border cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => setLightboxFoto(foto)}>
-                      <img src={foto} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" />
-                    </div>
-                  ))}
+                  {salone.galleria.map((foto, i) => {
+                    const fotoUrl = typeof foto === "string" ? foto : foto.url;
+                    const fotoY = typeof foto === "object" ? (foto.y ?? 50) : 50;
+                    return (
+                      <div key={i} className="aspect-square overflow-hidden border cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => setLightboxFoto(fotoUrl)}>
+                        <img src={fotoUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" style={{ objectPosition: `center ${fotoY}%` }} />
+                      </div>
+                    );
+                  })}
                 </div>
               </div>
             )}
