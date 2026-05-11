@@ -184,6 +184,8 @@ export default function Home(){
       {/* ── Sfondo WebGL aurora — palette Prenoty ── */}
       <ShaderBackground/>
 
+      {/* Contenuto sopra il canvas shader */}
+      <div style={{position:"relative",zIndex:1}}>
       <style>{`
         *{box-sizing:border-box;}
         html,body{background:#0f0d24!important;}
@@ -315,6 +317,7 @@ export default function Home(){
           <span style={{color:"rgba(155,150,200,0.3)",fontSize:12}}>© 2026 Prenoty — Genova, Italia</span>
         </div>
       </footer>
+      </div>{/* fine wrapper zIndex:1 */}
     </div>
   );
 }
