@@ -2322,14 +2322,7 @@ useEffect(() => {
                   </div>
 
                   {salone.copertina ? (
-                    <div
-                      className="relative w-full overflow-hidden select-none border"
-                      style={{
-                        height: 240,
-                        cursor: "ns-resize",
-                        borderColor: T.border,
-                        backgroundColor: "#000",
-                      }}
+                    <div className="relative w-full border select-none" style={{ borderColor: T.border, cursor: "ns-resize" }}
                       onMouseDown={(e) => {
                         const startY = e.clientY;
                         const startVal = salone.copertina_y;
@@ -2359,12 +2352,12 @@ useEffect(() => {
                       <img
                         src={salone.copertina}
                         alt="Copertina"
-                        className="w-full h-full object-contain pointer-events-none"
-                        style={{ objectPosition: `center ${salone.copertina_y}%` }}
+                        className="w-full block pointer-events-none"
+                        style={{ display: "block" }}
                         draggable={false}
                       />
-                      <div className="absolute bottom-2 left-3 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.85)", letterSpacing: "0.05em", textShadow: "0 1px 3px rgba(0,0,0,0.8)" }}>
-                        ↕ Trascina per riposizionare · anteprima come appare in vetrina →
+                      <div className="absolute bottom-2 left-3 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.9)", letterSpacing: "0.05em", textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
+                        ↕ Trascina per riposizionare
                       </div>
                     </div>
                   ) : (

@@ -494,7 +494,7 @@ export default function AppCliente() {
             <div className="pb-2">
               {/* FOTO DI COPERTINA */}
               {salone.copertina ? (
-                <div className="relative w-full overflow-hidden -mx-6 mb-6" style={{ width: "calc(100% + 3rem)", height: 200 }}>
+                <div className="relative w-full overflow-hidden -mx-6 mb-6" style={{ width: "calc(100% + 3rem)", height: 280 }}>
                   <img src={salone.copertina} alt={salone.nome} className="w-full h-full object-cover" style={{ objectPosition: `center ${salone.copertina_y}%` }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to top, ${T.bg}, transparent)` }} />
                 </div>
