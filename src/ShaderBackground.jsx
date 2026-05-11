@@ -113,11 +113,11 @@ export default function ShaderBackground() {
           }
 
           // Tone-map
-          o = tanh(pow(o / 65.0, vec4(1.4)));
+          o = tanh(pow(o / 90.0, vec4(1.6)));
 
-          // Dark base #1a1730 (0.102, 0.090, 0.188) + aurora
-          vec3 bg = vec3(0.102, 0.090, 0.188);
-          gl_FragColor = vec4(bg + o.rgb * 1.9, 1.0);
+          // Very dark base — almost black with faint blue tint
+          vec3 bg = vec3(0.018, 0.012, 0.038);
+          gl_FragColor = vec4(bg + o.rgb * 1.1, 1.0);
         }
       `,
     });
