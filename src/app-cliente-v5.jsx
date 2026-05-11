@@ -507,8 +507,19 @@ export default function AppCliente() {
       {/* HEADER */}
       <header className="sticky top-0 z-10 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            {/* Logo del salone o iniziali fallback */}
+
+          {/* MOBILE: bottone Aggiungi home — DESKTOP: logo + nome */}
+          <div className="md:hidden">
+            <button
+              onClick={() => setPwaModalAperto(true)}
+              className="flex items-center gap-2"
+              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 20, cursor: "pointer", padding: "7px 14px", color: T.textSoft, fontFamily: "inherit", fontSize: 12 }}
+            >
+              <Smartphone style={{ width: 14, height: 14 }} />
+              <span style={{ letterSpacing: "0.05em" }}>Aggiungi home</span>
+            </button>
+          </div>
+          <div className="hidden md:flex items-center gap-3">
             {salone.logo ? (
               <img src={salone.logo} alt={salone.nome} className="w-10 h-10 rounded-full object-cover border" style={{ borderColor: T.border }} />
             ) : (
@@ -519,10 +530,9 @@ export default function AppCliente() {
                 {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
               </div>
             )}
-            <div>
-              <h1 className="text-sm tracking-wide" style={{ letterSpacing: "0.1em" }}>{salone.nome.toUpperCase()}</h1>
-            </div>
+            <h1 className="text-sm tracking-wide" style={{ letterSpacing: "0.1em" }}>{salone.nome.toUpperCase()}</h1>
           </div>
+
           <div className="flex items-center gap-1">
             <button
               onClick={condividiSalone}
@@ -545,26 +555,6 @@ export default function AppCliente() {
           </div>
         </div>
       </header>
-
-      {/* BANNER PWA — visibile solo su mobile, solo in step 0 (home) */}
-      {step === 0 && (
-        <div
-          className="md:hidden flex items-center justify-between gap-2 px-4 py-2.5 border-b"
-          style={{ backgroundColor: T.dark, color: T.bg, borderColor: T.borderStrong }}
-        >
-          <div className="flex items-center gap-2 min-w-0">
-            <Smartphone className="w-4 h-4 flex-shrink-0" />
-            <span className="text-xs truncate">Aggiungi alla home — accedi più rapidamente</span>
-          </div>
-          <button
-            onClick={() => setPwaModalAperto(true)}
-            className="text-xs tracking-widest whitespace-nowrap px-3 py-1.5"
-            style={{ backgroundColor: T.bg, color: T.dark, letterSpacing: "0.1em" }}
-          >
-            COME?
-          </button>
-        </div>
-      )}
 
       <main className="max-w-2xl mx-auto px-6 py-8 pb-32">
         {/* HOME */}
@@ -1394,90 +1384,109 @@ export default function AppCliente() {
         </div>
       )}
 
-      {/* MODAL "Aggiungi alla home" - istruzioni PWA */}
+      {/* MODAL "Aggiungi alla home" - istruzioni PWA con illustrazioni */}
       {pwaModalAperto && (
         <div
           onClick={() => setPwaModalAperto(false)}
-          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 10000 }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.75)", display: "flex", alignItems: "flex-end", justifyContent: "center", zIndex: 10000 }}
         >
           <div
             onClick={(e) => e.stopPropagation()}
-            style={{
-              background: T.card,
-              borderTopLeftRadius: 20,
-              borderTopRightRadius: 20,
-              padding: "28px 24px 36px",
-              maxWidth: 500,
-              width: "100%",
-              fontFamily: "Georgia, 'Times New Roman', serif",
-              color: T.text,
-              maxHeight: "85vh",
-              overflowY: "auto",
-            }}
+            style={{ background: T.card, borderTopLeftRadius: 24, borderTopRightRadius: 24, padding: "24px 24px 40px", maxWidth: 500, width: "100%", color: T.text, maxHeight: "90vh", overflowY: "auto" }}
           >
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 6 }}>
-              <h3 style={{ fontSize: 20, fontWeight: 400, margin: 0 }}>Aggiungi alla schermata home</h3>
-              <button onClick={() => setPwaModalAperto(false)} style={{ background: "transparent", border: "none", color: T.textSoft, cursor: "pointer", padding: 4, display: "flex" }}>
+            {/* Handle bar */}
+            <div style={{ width: 36, height: 4, borderRadius: 2, background: T.border, margin: "0 auto 20px" }} />
+
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 16 }}>
+              <div>
+                <div style={{ fontSize: 11, color: T.accent, letterSpacing: "0.2em", marginBottom: 6 }}>
+                  {isIOS ? "IPHONE · SAFARI" : "ANDROID · CHROME"}
+                </div>
+                <h3 style={{ fontSize: 20, fontWeight: 600, margin: 0 }}>Aggiungi alla schermata Home</h3>
+                <p style={{ fontSize: 13, color: T.textSoft, margin: "6px 0 0", lineHeight: 1.5 }}>
+                  Accedi a <strong style={{ color: T.text }}>{salone.nome}</strong> con un tocco, come un'app — senza passare dall'App Store.
+                </p>
+              </div>
+              <button onClick={() => setPwaModalAperto(false)} style={{ background: "transparent", border: "none", color: T.textMuted, cursor: "pointer", padding: 4, flexShrink: 0, marginLeft: 12 }}>
                 <X size={20} />
               </button>
             </div>
-            <p style={{ fontSize: 13, color: T.textSoft, margin: "0 0 24px", lineHeight: 1.6 }}>
-              Accederai a <strong style={{ color: T.text }}>{salone.nome}</strong> con un solo tocco, come un'app nativa. Nessun download dall'App Store.
-            </p>
 
-            {isIOS ? (
-              <div>
-                <div style={{ fontSize: 11, color: T.accent, letterSpacing: "0.2em", marginBottom: 14 }}>SU IPHONE / SAFARI</div>
-                <div style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>1</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Tocca il pulsante <strong>Condividi</strong></div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>L'icona del quadrato con la freccia in alto, in basso al centro della pagina (Safari).</div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 12, marginTop: 20 }}>
+              {isIOS ? (<>
+                {/* Step 1 iOS */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>1</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Tocca il tasto <strong>Condividi</strong> in Safari</div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>Il pulsante con il quadrato e la freccia verso l'alto — in basso al centro dello schermo.</div>
+                  </div>
+                  {/* Icona share iOS */}
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#007aff" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><path d="M4 12v8a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-8"/><polyline points="16 6 12 2 8 6"/><line x1="12" y1="2" x2="12" y2="15"/></svg>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>2</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Scorri e tocca <strong>"Aggiungi alla schermata Home"</strong></div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>Trovi l'opzione nella seconda riga del menu condivisione.</div>
+                {/* Step 2 iOS */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>2</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Scorri e tocca <strong>"Aggiungi alla schermata Home"</strong></div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>Trovi l'opzione scorrendo nella seconda riga del menu.</div>
+                  </div>
+                  {/* Icona home screen */}
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#007aff" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>3</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Tocca <strong>"Aggiungi"</strong> in alto a destra</div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>L'icona del salone apparirà nella tua home, come un'app.</div>
+                {/* Step 3 iOS */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>3</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Tocca <strong>"Aggiungi"</strong> in alto a destra</div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>L'icona del salone apparirà subito nella tua schermata Home.</div>
+                  </div>
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#007aff" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 </div>
-              </div>
-            ) : (
-              <div>
-                <div style={{ fontSize: 11, color: T.accent, letterSpacing: "0.2em", marginBottom: 14 }}>SU ANDROID / CHROME</div>
-                <div style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>1</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Tocca i <strong>3 puntini</strong> in alto a destra</div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>Apre il menu di Chrome.</div>
+              </>) : (<>
+                {/* Step 1 Android */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>1</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Tocca i <strong>3 puntini</strong> in alto a destra</div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>Il menu ⋮ nell'angolo in alto a destra di Chrome.</div>
+                  </div>
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: T.textSoft, fontSize: 18, letterSpacing: 1, fontWeight: 700 }}>⋮</div>
+                </div>
+                {/* Step 2 Android */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>2</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Tocca <strong>"Aggiungi a schermata Home"</strong></div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>O "Installa app" a seconda della versione di Chrome.</div>
+                  </div>
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#4285f4" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><rect x="3" y="3" width="18" height="18" rx="2"/><line x1="12" y1="8" x2="12" y2="16"/><line x1="8" y1="12" x2="16" y2="12"/></svg>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 14, marginBottom: 18, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>2</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Tocca <strong>"Installa app"</strong> o <strong>"Aggiungi a schermata Home"</strong></div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>L'opzione si chiama in modo leggermente diverso a seconda della versione Android.</div>
+                {/* Step 3 Android */}
+                <div style={{ background: T.bg, borderRadius: 16, padding: "16px 18px", display: "flex", gap: 14, alignItems: "center" }}>
+                  <div style={{ width: 32, height: 32, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 700, fontSize: 15, flexShrink: 0 }}>3</div>
+                  <div style={{ flex: 1 }}>
+                    <div style={{ fontSize: 14, fontWeight: 600, marginBottom: 4 }}>Conferma con <strong>"Aggiungi"</strong></div>
+                    <div style={{ fontSize: 12, color: T.textMuted, lineHeight: 1.5 }}>L'icona del salone apparirà nella tua schermata Home.</div>
+                  </div>
+                  <div style={{ flexShrink: 0, width: 36, height: 36, border: `1.5px solid ${T.border}`, borderRadius: 8, display: "flex", alignItems: "center", justifyContent: "center", color: "#4285f4" }}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><polyline points="20 6 9 17 4 12"/></svg>
                   </div>
                 </div>
-                <div style={{ display: "flex", gap: 14, alignItems: "flex-start" }}>
-                  <div style={{ width: 28, height: 28, borderRadius: "50%", background: T.accent, color: "#fff", display: "flex", alignItems: "center", justifyContent: "center", fontWeight: 600, fontSize: 14, flexShrink: 0 }}>3</div>
-                  <div>
-                    <div style={{ fontSize: 14, marginBottom: 4 }}>Conferma con <strong>"Installa"</strong> o <strong>"Aggiungi"</strong></div>
-                    <div style={{ fontSize: 12, color: T.textMuted }}>L'icona del salone apparirà nella tua home.</div>
-                  </div>
-                </div>
-              </div>
-            )}
+              </>)}
+            </div>
 
-            <button onClick={() => setPwaModalAperto(false)} style={{ width: "100%", marginTop: 24, padding: 14, background: T.dark, color: T.bg, border: "none", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>HO CAPITO</button>
+            <button onClick={() => setPwaModalAperto(false)} style={{ width: "100%", marginTop: 20, padding: 15, background: T.accent, color: "#fff", border: "none", borderRadius: 12, fontFamily: "inherit", fontSize: 13, fontWeight: 600, letterSpacing: "0.1em", cursor: "pointer" }}>
+              HO CAPITO
+            </button>
           </div>
         </div>
       )}
