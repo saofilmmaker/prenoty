@@ -186,6 +186,7 @@ export default function Home(){
 
       <style>{`
         *{box-sizing:border-box;}
+        html,body{background:#0f0d24!important;}
         @media(max-width:960px){
           .hero-inner{flex-direction:column!important;padding:48px 24px 64px!important;min-height:auto!important;align-items:center!important;text-align:center;}
           .hero-h1{font-size:46px!important;letter-spacing:-1px!important;}
