@@ -492,11 +492,22 @@ export default function AppCliente() {
           <div className="space-y-8 pb-8">
             {/* HERO — Copertina, nome, rating, descrizione */}
             <div className="pb-2">
-              {/* FOTO DI COPERTINA */}
+              {/* FOTO DI COPERTINA — Facebook style: 820×312 desktop, 640×360 mobile */}
               {salone.copertina ? (
-                <div className="relative w-full overflow-hidden -mx-6 mb-6" style={{ width: "calc(100% + 3rem)", height: 280 }}>
-                  <img src={salone.copertina} alt={salone.nome} className="w-full h-full object-cover" style={{ objectPosition: `center ${salone.copertina_y}%` }} />
-                  <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to top, ${T.bg}, transparent)` }} />
+                <div
+                  className="relative overflow-hidden mb-6"
+                  style={{
+                    width: "100vw",
+                    left: "calc(50% - 50vw)",
+                    aspectRatio: "820 / 312",
+                  }}
+                >
+                  <img
+                    src={salone.copertina}
+                    alt={salone.nome}
+                    className="w-full h-full object-cover"
+                    style={{ objectPosition: `center ${salone.copertina_y}%` }}
+                  />
                 </div>
               ) : (
                 <div className="mb-4" />

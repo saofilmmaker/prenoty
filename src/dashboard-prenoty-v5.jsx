@@ -2322,7 +2322,9 @@ useEffect(() => {
                   </div>
 
                   {salone.copertina ? (
-                    <div className="relative w-full border select-none" style={{ borderColor: T.border, cursor: "ns-resize" }}
+                    <div
+                      className="relative w-full overflow-hidden select-none border"
+                      style={{ aspectRatio: "820 / 312", borderColor: T.border, cursor: "ns-resize" }}
                       onMouseDown={(e) => {
                         const startY = e.clientY;
                         const startVal = salone.copertina_y;
@@ -2352,8 +2354,8 @@ useEffect(() => {
                       <img
                         src={salone.copertina}
                         alt="Copertina"
-                        className="w-full block pointer-events-none"
-                        style={{ display: "block" }}
+                        className="w-full h-full object-cover pointer-events-none"
+                        style={{ objectPosition: `center ${salone.copertina_y}%` }}
                         draggable={false}
                       />
                       <div className="absolute bottom-2 left-3 text-xs pointer-events-none" style={{ color: "rgba(255,255,255,0.9)", letterSpacing: "0.05em", textShadow: "0 1px 4px rgba(0,0,0,0.9)" }}>
