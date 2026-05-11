@@ -123,7 +123,7 @@ export default function AppCliente() {
   // DATI SALONE da Supabase
   const [salone, setSalone] = useState({
     nome: "", tipoAttivita: "generico", indirizzo: "", telefono: "", email: "",
-    logo: null, copertina: null, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
+    logo: null, copertina: null, copertina_y: 50, descrizione: "", galleria: [], social: { instagram: "", facebook: "", tiktok: "", sito: "" },
     orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
     mostraRecensioni: true, mostraMappa: true, mostraOrari: true, mostraGalleria: true, mostraSocial: true,
     metodiPagamento: { carta: true, applePay: true, googlePay: true, nexi: true, paypal: false, bonifico: false, inSalone: true },
@@ -149,6 +149,7 @@ export default function AppCliente() {
         social: saloneDb.social || prev.social,
         logo: saloneDb.logo || null,
         copertina: saloneDb.copertina || null,
+        copertina_y: saloneDb.copertina_y ?? 50,
         descrizione: saloneDb.descrizione || prev.descrizione,
         mostraRecensioni: saloneDb.mostra_recensioni ?? true,
         mostraMappa: saloneDb.mostra_mappa ?? true,
@@ -494,7 +495,7 @@ export default function AppCliente() {
               {/* FOTO DI COPERTINA */}
               {salone.copertina ? (
                 <div className="relative w-full overflow-hidden -mx-6 mb-6" style={{ width: "calc(100% + 3rem)", height: 200 }}>
-                  <img src={salone.copertina} alt={salone.nome} className="w-full h-full object-cover" />
+                  <img src={salone.copertina} alt={salone.nome} className="w-full h-full object-cover" style={{ objectPosition: `center ${salone.copertina_y}%` }} />
                   <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 80, background: `linear-gradient(to top, ${T.bg}, transparent)` }} />
                 </div>
               ) : (

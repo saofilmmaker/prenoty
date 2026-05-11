@@ -198,6 +198,7 @@ useEffect(() => {
           descrizione: saloneDb.descrizione || prev.descrizione,
           logo: saloneDb.logo || prev.logo,
           copertina: saloneDb.copertina || null,
+          copertina_y: saloneDb.copertina_y ?? 50,
           galleria: saloneDb.galleria || [],
           social: saloneDb.social || prev.social,
           mostraRecensioni: saloneDb.mostra_recensioni ?? true,
@@ -285,6 +286,7 @@ useEffect(() => {
     email: "info@atelierbellezza.it",
     logo: null, // URL dell'immagine del logo caricato dal parrucchiere
     copertina: null, // URL foto di copertina (banner in cima alla pagina cliente)
+    copertina_y: 50, // Posizione verticale copertina (0=top, 50=center, 100=bottom)
     orari: { lun: "09:00-19:00", mar: "09:00-19:00", mer: "09:00-19:00", gio: "09:00-19:00", ven: "09:00-19:00", sab: "09:00-18:00", dom: "Chiuso" },
 
     // VETRINA — contenuti che il cliente vede sulla home pubblica
@@ -2294,37 +2296,77 @@ useEffect(() => {
 
                 {/* FOTO DI COPERTINA */}
                 <div className="mb-5">
-                  <label className="text-xs tracking-widest block mb-2" style={{ color: T.textMuted }}>FOTO DI COPERTINA</label>
-                  <label className="cursor-pointer block">
-                    <input
-                      type="file"
-                      accept="image/*"
-                      className="hidden"
-                      onChange={(e) => {
-                        uploadFoto(e.target.files[0], (dataUrl) => {
-                          setSalone({ ...salone, copertina: dataUrl });
-                        }, 1200);
-                      }}
-                    />
-                    {salone.copertina ? (
-                      <div className="relative w-full overflow-hidden border" style={{ borderColor: T.border, height: 140 }}>
-                        <img src={salone.copertina} alt="Copertina" className="w-full h-full object-cover" />
+                  <div className="flex items-center justify-between mb-2">
+                    <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>FOTO DI COPERTINA</label>
+                    {salone.copertina && (
+                      <label className="cursor-pointer text-xs tracking-widest" style={{ color: T.accent, letterSpacing: "0.15em" }}>
+                        <input type="file" accept="image/*" className="hidden"
+                          onChange={(e) => {
+                            uploadFoto(e.target.files[0], (dataUrl) => {
+                              setSalone({ ...salone, copertina: dataUrl });
+                            }, 1400);
+                          }}
+                        />
+                        CAMBIA
+                      </label>
+                    )}
+                  </div>
+
+                  {salone.copertina ? (
+                    <div>
+                      {/* PREVIEW a tutto schermo come in vetrina */}
+                      <div className="relative w-full overflow-hidden border mb-3" style={{ borderColor: T.border, height: 200 }}>
+                        <img
+                          src={salone.copertina}
+                          alt="Copertina"
+                          className="w-full h-full object-cover"
+                          style={{ objectPosition: `center ${salone.copertina_y}%` }}
+                        />
+                        <div style={{ position: "absolute", bottom: 0, left: 0, right: 0, height: 60, background: "linear-gradient(to top, rgba(0,0,0,0.5), transparent)" }} />
+                        <div className="absolute bottom-2 left-3 text-xs" style={{ color: "rgba(255,255,255,0.7)" }}>Anteprima vetrina</div>
                         <button
-                          onClick={(e) => { e.preventDefault(); setSalone({ ...salone, copertina: null }); }}
-                          className="absolute top-2 right-2 text-xs tracking-widest px-2 py-1"
-                          style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: 6, letterSpacing: "0.1em" }}
+                          onClick={() => setSalone({ ...salone, copertina: null, copertina_y: 50 })}
+                          className="absolute top-2 right-2 text-xs px-2 py-1"
+                          style={{ backgroundColor: "rgba(0,0,0,0.6)", color: "#fff", border: "none", borderRadius: 6, cursor: "pointer" }}
                         >
                           RIMUOVI
                         </button>
-                        <div className="absolute bottom-2 left-2 text-xs" style={{ color: "rgba(255,255,255,0.8)" }}>Clicca per cambiare</div>
                       </div>
-                    ) : (
-                      <div className="p-6 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
-                        <div className="text-sm">Tocca qui per caricare la foto di copertina</div>
-                        <div className="text-xs mt-1">Formato orizzontale consigliato · PNG, JPG</div>
+
+                      {/* SLIDER POSIZIONE VERTICALE */}
+                      <div className="flex items-center gap-3">
+                        <span className="text-xs flex-shrink-0" style={{ color: T.textMuted }}>▲ Su</span>
+                        <input
+                          type="range"
+                          min="0"
+                          max="100"
+                          value={salone.copertina_y}
+                          onChange={(e) => setSalone({ ...salone, copertina_y: Number(e.target.value) })}
+                          className="flex-1"
+                          style={{ accentColor: T.accent }}
+                        />
+                        <span className="text-xs flex-shrink-0" style={{ color: T.textMuted }}>▼ Giù</span>
                       </div>
-                    )}
-                  </label>
+                      <div className="text-xs text-center mt-1" style={{ color: T.textMuted }}>
+                        Trascina per riposizionare la foto
+                      </div>
+                    </div>
+                  ) : (
+                    <label className="cursor-pointer block">
+                      <input type="file" accept="image/*" className="hidden"
+                        onChange={(e) => {
+                          uploadFoto(e.target.files[0], (dataUrl) => {
+                            setSalone({ ...salone, copertina: dataUrl, copertina_y: 50 });
+                          }, 1400);
+                        }}
+                      />
+                      <div className="p-8 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
+                        <div className="text-2xl mb-2">🖼</div>
+                        <div className="text-sm">Tocca per caricare la foto di copertina</div>
+                        <div className="text-xs mt-1">Formato orizzontale · ottimizzata automaticamente</div>
+                      </div>
+                    </label>
+                  )}
                 </div>
 
                 {/* GALLERIA */}
@@ -2470,6 +2512,7 @@ useEffect(() => {
                       email: salone.email,
                       logo: salone.logo,
                       copertina: salone.copertina,
+                      copertina_y: salone.copertina_y,
                       galleria: salone.galleria,
                       social: salone.social,
                       mostra_recensioni: salone.mostraRecensioni,
