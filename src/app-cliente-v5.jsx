@@ -492,15 +492,11 @@ export default function AppCliente() {
           <div className="space-y-8 pb-8">
             {/* HERO — Copertina, nome, rating, descrizione */}
             <div className="pb-2">
-              {/* FOTO DI COPERTINA — Facebook style: 820×312 desktop, 640×360 mobile */}
+              {/* FOTO DI COPERTINA — proporzioni Facebook 820×312, contenuta nel container */}
               {salone.copertina ? (
                 <div
-                  className="relative overflow-hidden mb-6"
-                  style={{
-                    width: "100vw",
-                    left: "calc(50% - 50vw)",
-                    aspectRatio: "820 / 312",
-                  }}
+                  className="relative w-full overflow-hidden mb-6"
+                  style={{ aspectRatio: "820 / 312" }}
                 >
                   <img
                     src={salone.copertina}
