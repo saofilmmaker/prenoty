@@ -235,6 +235,30 @@ useEffect(() => {
         }
       }
 
+      // ── Auto-crea record saloni se mancante (primo accesso dopo conferma email) ──
+      // Il record non esiste perché alla registrazione l'utente non aveva ancora
+      // confermato la mail, quindi l'insert era bloccato da RLS.
+      // I dati di tipo/nome vengono letti dai metadati utente salvati al signup.
+      if (!saloneDb) {
+        const { data: { user } } = await supabase.auth.getUser();
+        const meta   = user?.user_metadata || {};
+        const tipo   = meta.tipo_attivita || "parrucchiere";
+        const nome   = meta.nome_salone   || "Il mio salone";
+        const slug   = "salone-" + userId.slice(0, 8);
+        const { data: nuovoSalone, error: errIns } = await supabase
+          .from("saloni")
+          .insert({ user_id: userId, nome, slug, email: user.email, tipo })
+          .select()
+          .single();
+        if (!errIns && nuovoSalone) {
+          setSalone(prev => ({ ...prev, nome, slug, email: user.email, dbId: nuovoSalone.id }));
+          setTipoAttivita(tipo);
+          // Ricarica i dati ora che il record esiste
+          caricaDati();
+          return;
+        }
+      }
+
       if (!saloneDb?.id) return;
 
       // Carica servizi da Supabase usando salone_id

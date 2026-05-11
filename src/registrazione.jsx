@@ -42,12 +42,21 @@ export default function Registrazione() {
     const { data: esistente } = await supabase.from("saloni").select("id").eq("email", email).single();
     if (esistente) { setErrore("Questa email è già registrata. Accedi invece di registrarti."); setLoading(false); return; }
 
-    const { data, error } = await supabase.auth.signUp({ email, password });
+    const nomeDefault = tipoAttivita === "generico" ? "La mia attività" : "Il mio salone";
+    const { data, error } = await supabase.auth.signUp({
+      email,
+      password,
+      options: {
+        // Salviamo tipo e nome nei metadati utente:
+        // dopo la conferma email, la dashboard leggerà questi e creerà il record saloni
+        data: {
+          tipo_attivita: tipoAttivita,
+          nome_salone:   nomeDefault,
+        },
+      },
+    });
     if (error) { setErrore(error.message.includes('already') ? 'Questa email è già registrata. Accedi invece di registrarti.' : error.message); setLoading(false); return; }
     if (!data.user) { setErrore('Questa email è già registrata. Accedi invece di registrarti.'); setLoading(false); return; }
-    const slug = "salone-" + data.user.id.slice(0, 8);
-    const nomeDefault = tipoAttivita === "generico" ? "La mia attività" : "Il mio salone";
-    await supabase.from("saloni").insert({ user_id: data.user.id, nome: nomeDefault, slug, email, tipo: tipoAttivita });
 
     setSuccesso(true);
     setLoading(false);
