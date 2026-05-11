@@ -1,1 +1,2 @@
-/* /index.html 200
+# Cloudflare Pages gestisce il routing SPA tramite 404.html
+# La regola /* /index.html 200 non funziona su CF Pages (infinite loop)
