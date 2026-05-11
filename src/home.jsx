@@ -199,7 +199,11 @@ export default function Home(){
       <div style={{position:"relative",zIndex:1}}>
       <style>{`
         *{box-sizing:border-box;}
-        html,body{background:#0f0d24!important;}
+        html,body{
+          background:#0f0d24!important;
+          overscroll-behavior:none;
+          -webkit-overflow-scrolling:touch;
+        }
 
         /* ── Liquid Glass Buttons ── */
         .btn-glass{
@@ -207,15 +211,21 @@ export default function Home(){
           isolation:isolate; overflow:hidden; border:none !important; background:transparent !important;
           display:inline-flex; align-items:center; justify-content:center;
           transition:transform .3s cubic-bezier(.34,1.56,.64,1);
+          -webkit-tap-highlight-color:transparent;
+          touch-action:manipulation;
         }
-        .btn-glass:hover{ transform:translateY(-2px) scale(1.02); }
+        @media(hover:hover){
+          .btn-glass:hover{ transform:translateY(-2px) scale(1.02); }
+        }
         .btn-glass:active{ transform:scale(0.97); }
 
-        /* Lens layer — VUOTO, solo backdrop-filter */
+        /* Lens layer — VUOTO, solo backdrop-filter
+           Fallback (Android / tutti): blur+saturate
+           Desktop Chrome con SVG filter: aggiunge displacement refraction */
         .btn-glass-lens{
           position:absolute; inset:0; z-index:-1; border-radius:inherit; pointer-events:none;
-          backdrop-filter:blur(8px) url(#lg-prenoty) saturate(150%);
           -webkit-backdrop-filter:blur(8px) saturate(150%);
+          backdrop-filter:blur(8px) saturate(150%);
           box-shadow:
             inset 0 0 0 1px rgba(255,255,255,0.10),
             inset 1.8px 3px 0px -2px rgba(255,255,255,0.90),
@@ -228,6 +238,12 @@ export default function Home(){
             0px 1px 5px 0px rgba(0,0,0,0.10),
             0px 6px 16px 0px rgba(0,0,0,0.08);
           transition:background-color 400ms cubic-bezier(1,0,0.4,1), box-shadow 400ms cubic-bezier(1,0,0.4,1);
+        }
+        /* Solo su browser che supportano SVG filter in backdrop-filter (Chrome desktop) */
+        @supports (backdrop-filter: url(#x)) {
+          .btn-glass-lens{
+            backdrop-filter:blur(8px) url(#lg-prenoty) saturate(150%);
+          }
         }
 
         /* Testo galleggia sopra il vetro */
@@ -287,7 +303,7 @@ export default function Home(){
 
       <section style={{background:"transparent",position:"relative",overflow:"hidden"}}>
         <div style={{position:"absolute",width:600,height:600,borderRadius:"50%",background:"rgba(108,92,231,0.06)",filter:"blur(80px)",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
-        <div className="hero-inner" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 56px",minHeight:"90vh",gap:72,position:"relative",zIndex:1}}>
+        <div className="hero-inner" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 56px",minHeight:"90vh",minHeight:"90svh",gap:72,position:"relative",zIndex:1}}>
           <div style={{flex:1,maxWidth:500}}>
             <FadeIn delay={0.05}>
               <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(108,92,231,0.12)",border:"0.5px solid rgba(108,92,231,0.3)",borderRadius:8,padding:"5px 14px",marginBottom:24}}>
