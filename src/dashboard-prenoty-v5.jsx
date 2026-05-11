@@ -2421,45 +2421,46 @@ useEffect(() => {
                     ))}
                   </div>
                 </div>
-              </div>
 
-              {/* BOTTONE SALVA VETRINA */}
-              <button
-                onClick={async () => {
-                  const { data: { session: sess } } = await supabase.auth.getSession();
-                  if (!sess) return;
-                  setSalvataggioVetrinaStato("salvataggio");
-                  const vetrinaPayload = {
-                    descrizione: salone.descrizione,
-                    email: salone.email,
-                    logo: salone.logo,
-                    galleria: salone.galleria,
-                    social: salone.social,
-                    mostra_recensioni: salone.mostraRecensioni,
-                    mostra_mappa: salone.mostraMappa,
-                    mostra_orari: salone.mostraOrari,
-                    mostra_galleria: salone.mostraGalleria,
-                    mostra_social: salone.mostraSocial,
-                  };
-                  const { error } = salone.dbId
-                    ? await supabase.from("saloni").update(vetrinaPayload).eq("id", salone.dbId)
-                    : await supabase.from("saloni").insert({ ...vetrinaPayload, user_id: sess.user.id, nome: salone.nome, slug: salone.slug || "salone" }).select().single();
-                  setSalvataggioVetrinaStato(error ? "errore" : "ok");
-                  setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
-                }}
-                disabled={salvataggioVetrinaStato === "salvataggio"}
-                className="w-full py-3 text-sm tracking-widest"
-                style={{
-                  backgroundColor: salvataggioVetrinaStato === "ok" ? "#27ae60" : T.accent,
-                  color: "#fff",
-                  border: "none",
-                  cursor: salvataggioVetrinaStato === "salvataggio" ? "wait" : "pointer",
-                  letterSpacing: "0.15em",
-                  opacity: salvataggioVetrinaStato === "salvataggio" ? 0.7 : 1,
-                }}
-              >
-                {salvataggioVetrinaStato === "salvataggio" ? "SALVATAGGIO..." : salvataggioVetrinaStato === "ok" ? "✓ SALVATO" : salvataggioVetrinaStato === "errore" ? "ERRORE — RIPROVA" : "SALVA VETRINA"}
-              </button>
+                {/* BOTTONE SALVA VETRINA */}
+                <button
+                  onClick={async () => {
+                    const { data: { session: sess } } = await supabase.auth.getSession();
+                    if (!sess) return;
+                    setSalvataggioVetrinaStato("salvataggio");
+                    const vetrinaPayload = {
+                      descrizione: salone.descrizione,
+                      email: salone.email,
+                      logo: salone.logo,
+                      galleria: salone.galleria,
+                      social: salone.social,
+                      mostra_recensioni: salone.mostraRecensioni,
+                      mostra_mappa: salone.mostraMappa,
+                      mostra_orari: salone.mostraOrari,
+                      mostra_galleria: salone.mostraGalleria,
+                      mostra_social: salone.mostraSocial,
+                    };
+                    const { error } = salone.dbId
+                      ? await supabase.from("saloni").update(vetrinaPayload).eq("id", salone.dbId)
+                      : await supabase.from("saloni").insert({ ...vetrinaPayload, user_id: sess.user.id, nome: salone.nome, slug: salone.slug || "salone" }).select().single();
+                    setSalvataggioVetrinaStato(error ? "errore" : "ok");
+                    setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
+                  }}
+                  disabled={salvataggioVetrinaStato === "salvataggio"}
+                  className="w-full py-3 text-sm tracking-widest"
+                  style={{
+                    backgroundColor: salvataggioVetrinaStato === "ok" ? "#27ae60" : T.accent,
+                    color: "#fff",
+                    border: "none",
+                    cursor: salvataggioVetrinaStato === "salvataggio" ? "wait" : "pointer",
+                    letterSpacing: "0.15em",
+                    opacity: salvataggioVetrinaStato === "salvataggio" ? 0.7 : 1,
+                    borderRadius: 0,
+                  }}
+                >
+                  {salvataggioVetrinaStato === "salvataggio" ? "SALVATAGGIO..." : salvataggioVetrinaStato === "ok" ? "✓ SALVATO" : salvataggioVetrinaStato === "errore" ? "ERRORE — RIPROVA" : "SALVA VETRINA"}
+                </button>
+              </div>
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>ORARI DI APERTURA</h3>
