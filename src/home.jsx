@@ -190,22 +190,70 @@ export default function Home(){
         *{box-sizing:border-box;}
         html,body{background:#0f0d24!important;}
 
-        /* ── Neon Buttons ── */
-        .btn-neon{position:relative;border-radius:50px!important;transition:all .25s ease;}
-        .btn-neon::before,.btn-neon::after{content:'';position:absolute;left:12.5%;width:75%;height:1px;transition:opacity .5s ease;pointer-events:none;}
-        .btn-neon::before{top:0;opacity:0;}
-        .btn-neon::after{bottom:0;opacity:0.2;}
-        .btn-neon:hover::before{opacity:1;}
-        .btn-neon:hover::after{opacity:0.35;}
-        .btn-neon:hover{transform:translateY(-1px);}
+        /* ── Liquid Glass Buttons ── */
+        .btn-glass{
+          position:relative; cursor:pointer; text-decoration:none;
+          isolation:isolate; overflow:hidden;
+          display:inline-flex; align-items:center; justify-content:center;
+          transition:transform .3s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, background .2s ease;
+        }
+        .btn-glass:hover{ transform:translateY(-2px) scale(1.02); }
+        .btn-glass:active{ transform:translateY(0) scale(0.98); }
 
-        /* Solid green — linee neon bianche visibili sul verde, hover più scuro */
-        .btn-neon-green{border:1px solid transparent!important;transition:all .2s ease!important;}
-        .btn-neon-green::before,.btn-neon-green::after{background:linear-gradient(to right,transparent,rgba(255,255,255,0.9),transparent);}
-        .btn-neon-green:hover{background:#45c962!important;border-color:rgba(255,255,255,0.45)!important;box-shadow:0 0 18px rgba(93,226,121,0.5),0 0 40px rgba(93,226,121,0.2)!important;}
+        /* green tinted glass */
+        .btn-glass-green{
+          background:rgba(56,200,90,0.22) !important;
+          border:1px solid rgba(93,226,121,0.45) !important;
+          color:#fff !important;
+          backdrop-filter:blur(18px) saturate(160%);
+          -webkit-backdrop-filter:blur(18px) saturate(160%);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.38),
+            inset 0 -1px 0 rgba(0,0,0,0.12),
+            inset 1px 0 0 rgba(255,255,255,0.10),
+            inset -1px 0 0 rgba(255,255,255,0.10),
+            0 4px 24px rgba(93,226,121,0.18),
+            0 1px 4px rgba(0,0,0,0.28);
+          text-shadow:0 1px 3px rgba(0,0,0,0.35);
+        }
+        .btn-glass-green:hover{
+          background:rgba(56,200,90,0.32) !important;
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.45),
+            inset 0 -1px 0 rgba(0,0,0,0.15),
+            inset 1px 0 0 rgba(255,255,255,0.14),
+            inset -1px 0 0 rgba(255,255,255,0.14),
+            0 8px 32px rgba(93,226,121,0.32),
+            0 2px 8px rgba(0,0,0,0.28) !important;
+        }
 
-        .btn-neon-ghost::before,.btn-neon-ghost::after{background:linear-gradient(to right,transparent,#6c5ce7,transparent);}
-        .btn-neon-ghost:hover{background:rgba(108,92,231,0.1)!important;border-color:rgba(108,92,231,0.45)!important;box-shadow:0 0 18px rgba(108,92,231,0.25);}
+        /* neutral glass ghost */
+        .btn-glass-ghost{
+          background:rgba(255,255,255,0.07) !important;
+          border:1px solid rgba(255,255,255,0.18) !important;
+          color:rgba(255,255,255,0.88) !important;
+          backdrop-filter:blur(18px) saturate(140%);
+          -webkit-backdrop-filter:blur(18px) saturate(140%);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.28),
+            inset 0 -1px 0 rgba(0,0,0,0.08),
+            inset 1px 0 0 rgba(255,255,255,0.08),
+            inset -1px 0 0 rgba(255,255,255,0.08),
+            0 4px 16px rgba(0,0,0,0.18),
+            0 1px 4px rgba(0,0,0,0.22);
+          text-shadow:0 1px 2px rgba(0,0,0,0.25);
+        }
+        .btn-glass-ghost:hover{
+          background:rgba(255,255,255,0.12) !important;
+          border-color:rgba(255,255,255,0.26) !important;
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.38),
+            inset 0 -1px 0 rgba(0,0,0,0.08),
+            inset 1px 0 0 rgba(255,255,255,0.12),
+            inset -1px 0 0 rgba(255,255,255,0.12),
+            0 6px 24px rgba(0,0,0,0.22),
+            0 2px 6px rgba(0,0,0,0.18) !important;
+        }
 
         @media(max-width:960px){
           .hero-inner{flex-direction:column!important;padding:48px 24px 64px!important;min-height:auto!important;align-items:center!important;text-align:center;}
@@ -255,8 +303,8 @@ export default function Home(){
             </FadeIn>
             <FadeIn delay={0.25}>
               <div className="hero-btns" style={{display:"flex",gap:12,marginBottom:32,flexWrap:"wrap"}}>
-                <a href="/registrazione" className="btn-neon btn-neon-green" style={{background:"#5de279",color:"#0a2e14",padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>Inizia gratis</a>
-                <a href="#come-funziona" className="btn-neon btn-neon-ghost" style={{background:"transparent",border:"0.5px solid rgba(224,220,255,0.2)",color:"#9b96c8",padding:"14px 24px",borderRadius:12,fontSize:15,textDecoration:"none"}}>Come funziona</a>
+                <a href="/registrazione" className="btn-glass btn-glass-green" style={{padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>Inizia gratis</a>
+                <a href="#come-funziona" className="btn-glass btn-glass-ghost" style={{padding:"14px 24px",borderRadius:12,fontSize:15,textDecoration:"none"}}>Come funziona</a>
               </div>
             </FadeIn>
             <FadeIn delay={0.32}>
@@ -322,9 +370,6 @@ export default function Home(){
 
       {/* ── Sezione Prezzo ── */}
       <section className="sec-pad" style={{padding:"80px 56px",background:"#1a1730",borderTop:"0.5px solid rgba(108,92,231,0.12)",textAlign:"center"}}>
-        <style>{`
-          @keyframes rotateBorder { to { transform: translate(-50%,-50%) rotate(360deg); } }
-        `}</style>
         <FadeIn>
           <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Prezzo</p>
           <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
@@ -408,13 +453,10 @@ export default function Home(){
               </ul>
 
               {/* CTA */}
-              <a href="/registrazione" className="btn-neon btn-neon-green" style={{
-                display:"block",textAlign:"center",
-                background:"#5de279",color:"#0a2e14",
+              <a href="/registrazione" className="btn-glass btn-glass-green" style={{
+                display:"flex",textAlign:"center",justifyContent:"center",
                 padding:"15px",borderRadius:12,
                 fontSize:15,fontWeight:700,textDecoration:"none",
-                boxShadow:"0 4px 24px rgba(93,226,121,0.3)",
-                transition:"all .2s",
               }}>
                 Inizia gratis — 30 giorni
               </a>
@@ -431,7 +473,7 @@ export default function Home(){
           <img src="/P_prenoty_Viola.png" alt="P" style={{width:52,height:52,objectFit:"contain",display:"block",margin:"0 auto 20px"}}/>
           <h2 style={{fontSize:46,fontWeight:800,color:"#fff",letterSpacing:-2,marginBottom:12,lineHeight:1.05}}>Inizia oggi.<br/>È gratis.</h2>
           <p style={{fontSize:16,color:"#9b96c8",marginBottom:36}}>30 giorni senza limitazioni. Poi decidi tu.</p>
-          <a href="/registrazione" className="btn-neon btn-neon-green" style={{display:"inline-block",background:"#5de279",color:"#0a2e14",padding:"16px 48px",borderRadius:14,fontSize:16,fontWeight:700,textDecoration:"none"}}>Registrati gratis</a>
+          <a href="/registrazione" className="btn-glass btn-glass-green" style={{display:"inline-flex",padding:"16px 48px",borderRadius:14,fontSize:16,fontWeight:700,textDecoration:"none"}}>Registrati gratis</a>
         </FadeIn>
       </section>
 
