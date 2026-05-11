@@ -302,6 +302,112 @@ export default function Home(){
         </div>
       </section>
 
+      {/* ── Sezione Prezzo ── */}
+      <section className="sec-pad" style={{padding:"80px 56px",background:"#1a1730",borderTop:"0.5px solid rgba(108,92,231,0.12)",textAlign:"center"}}>
+        <style>{`
+          @keyframes rotateBorder { to { transform: translate(-50%,-50%) rotate(360deg); } }
+        `}</style>
+        <FadeIn>
+          <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Prezzo</p>
+          <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
+          <p style={{fontSize:16,color:"#9b96c8",marginBottom:48}}>30 giorni gratis, poi un unico pagamento.<br/>Nessun abbonamento mensile.</p>
+        </FadeIn>
+
+        <FadeIn delay={0.12}>
+          <div style={{
+            position:"relative",
+            maxWidth:400,
+            margin:"0 auto",
+            borderRadius:20,
+            padding:"2px",
+            background:"linear-gradient(135deg, rgba(108,92,231,0.8) 0%, rgba(93,226,121,0.4) 50%, rgba(108,92,231,0.6) 100%)",
+            boxShadow:"0 0 80px rgba(108,92,231,0.25)",
+          }}>
+            {/* Card interna */}
+            <div style={{
+              borderRadius:18,
+              padding:"36px 32px",
+              background:"linear-gradient(160deg, rgba(30,27,60,0.98) 0%, rgba(20,18,45,0.99) 100%)",
+              position:"relative",
+              overflow:"hidden",
+            }}>
+              {/* Glow bg */}
+              <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:"rgba(108,92,231,0.07)",filter:"blur(60px)",top:-80,right:-80,pointerEvents:"none"}}/>
+              <div style={{position:"absolute",width:200,height:200,borderRadius:"50%",background:"rgba(93,226,121,0.05)",filter:"blur(50px)",bottom:-60,left:-60,pointerEvents:"none"}}/>
+
+              {/* Badge 30 giorni gratis */}
+              <div style={{
+                display:"inline-flex",alignItems:"center",gap:6,
+                background:"linear-gradient(135deg,rgba(93,226,121,0.15),rgba(93,226,121,0.08))",
+                border:"1px solid rgba(93,226,121,0.35)",
+                borderRadius:20,padding:"5px 16px",marginBottom:24,
+              }}>
+                <div style={{width:6,height:6,borderRadius:"50%",background:"#5de279"}}/>
+                <span style={{fontSize:11,fontWeight:700,color:"#5de279",letterSpacing:1,textTransform:"uppercase"}}>30 giorni gratis — nessuna carta</span>
+              </div>
+
+              {/* Header */}
+              <div style={{marginBottom:6}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
+                  <div style={{width:36,height:36,borderRadius:10,background:"rgba(108,92,231,0.2)",border:"1px solid rgba(108,92,231,0.3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="1.8"><path d="M6 2v4M18 2v4M2 9h20M4 4h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                  </div>
+                  <div style={{textAlign:"left"}}>
+                    <div style={{fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:2}}>Piano Prenoty</div>
+                    <div style={{fontSize:12,color:"rgba(155,150,200,0.6)"}}>Accesso completo alla piattaforma</div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Divisore */}
+              <div style={{height:"1px",background:"rgba(108,92,231,0.2)",margin:"20px 0"}}/>
+
+              {/* Prezzo */}
+              <div style={{marginBottom:28,textAlign:"left"}}>
+                <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:4}}>
+                  <span style={{fontSize:64,fontWeight:800,color:"#fff",letterSpacing:-3,lineHeight:1}}>€299</span>
+                  <span style={{fontSize:15,color:"#9b96c8",fontWeight:500}}>pagamento unico</span>
+                </div>
+                <p style={{fontSize:13,color:"rgba(155,150,200,0.55)"}}>Senza canoni mensili — paghi una volta sola</p>
+              </div>
+
+              {/* Features */}
+              <ul style={{listStyle:"none",padding:0,margin:"0 0 32px",display:"flex",flexDirection:"column",gap:11}}>
+                {[
+                  "Prenotazioni illimitate",
+                  "Link personalizzato",
+                  "Notifiche in tempo reale",
+                  "Report mensili",
+                  "Supporto prioritario",
+                ].map(f=>(
+                  <li key={f} style={{display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
+                    <div style={{width:18,height:18,borderRadius:"50%",background:"rgba(93,226,121,0.12)",border:"1px solid rgba(93,226,121,0.3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                      <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="3" strokeLinecap="round"><path d="M20 6 9 17l-5-5"/></svg>
+                    </div>
+                    <span style={{fontSize:14,color:"rgba(255,255,255,0.82)"}}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+
+              {/* CTA */}
+              <a href="/registrazione" style={{
+                display:"block",textAlign:"center",
+                background:"#5de279",color:"#0a2e14",
+                padding:"15px",borderRadius:12,
+                fontSize:15,fontWeight:700,textDecoration:"none",
+                boxShadow:"0 4px 24px rgba(93,226,121,0.3)",
+                transition:"all .2s",
+              }}>
+                Inizia gratis — 30 giorni
+              </a>
+              <p style={{textAlign:"center",fontSize:11,color:"rgba(155,150,200,0.4)",marginTop:10}}>
+                Nessuna carta di credito richiesta
+              </p>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
       <section className="sec-pad" style={{padding:"80px 56px",textAlign:"center",background:"#13112b",borderTop:"0.5px solid rgba(108,92,231,0.12)"}}>
         <FadeIn>
           <img src="/P_prenoty_Viola.png" alt="P" style={{width:52,height:52,objectFit:"contain",display:"block",margin:"0 auto 20px"}}/>
