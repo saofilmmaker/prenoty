@@ -1238,8 +1238,19 @@ useEffect(() => {
               </button>
             );
           })}
-          {/* Separatore + Esci — in fondo, si raggiunge solo scorrendo */}
-          <div className="flex-shrink-0 flex items-center px-2" style={{ borderLeft: `1px solid ${T.border}`, marginLeft: 4 }}>
+          {/* Separatore + Supporto + Esci — in fondo, si raggiunge solo scorrendo */}
+          <div className="flex-shrink-0 flex items-center px-2" style={{ borderLeft: `1px solid ${T.border}`, marginLeft: 4, gap: 0 }}>
+            <a
+              href="https://wa.me/393489259863?text=Ciao%2C+ho+bisogno+di+assistenza+con+Prenoty."
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex flex-col items-center gap-1 px-3 py-3 text-xs"
+              style={{ color: "#25D366", textDecoration: "none" }}
+              title="Supporto WhatsApp"
+            >
+              <MessageSquare className="w-4 h-4" />
+              Supporto
+            </a>
             <button
               onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }}
               className="flex flex-col items-center gap-1 px-3 py-3 text-xs"
@@ -3207,7 +3218,7 @@ useEffect(() => {
         </div>
       )}
 
-      <WhatsAppAssistenza tema={tema} numero="393331234567" />
+      <WhatsAppAssistenza tema={tema} numero="393489259863" />
     </div>
   );
 }

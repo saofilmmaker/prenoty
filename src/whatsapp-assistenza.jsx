@@ -1,8 +1,15 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { MessageCircle, X } from "lucide-react";
 
-export default function WhatsAppAssistenza({ tema = "chiaro", numero = "393331234567", pubblico = false }) {
+export default function WhatsAppAssistenza({ tema = "chiaro", numero = "393489259863", pubblico = false }) {
   const [aperto, setAperto] = useState(false);
+  const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth < 768);
+    window.addEventListener("resize", check);
+    return () => window.removeEventListener("resize", check);
+  }, []);
   const T = tema === "chiaro" ? {
     card: "#ffffff", border: "#e0dcff",
     text: "#1e1b3a", textSoft: "#4a4580", accent: "#6c5ce7",
@@ -26,10 +33,13 @@ export default function WhatsAppAssistenza({ tema = "chiaro", numero = "39333123
     window.open(`https://wa.me/${numero}?text=${encodeURIComponent(testo)}`, "_blank");
     setAperto(false);
   };
+  // Su mobile non mostrare il bottone fisso — disturba i modal
+  if (isMobile) return null;
+
   return (
     <>
       {aperto && (
-        <div style={{ position: "fixed", bottom: 90, right: 20, width: 300, background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", zIndex: 9999, fontFamily: "Georgia, 'Times New Roman', serif", overflow: "hidden" }}>
+        <div style={{ position: "fixed", bottom: 90, left: 20, width: 300, background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", zIndex: 9999, fontFamily: "Georgia, 'Times New Roman', serif", overflow: "hidden" }}>
           <div style={{ background: verdeWA, color: "#fff", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 15, fontWeight: 600 }}>Assistenza</div>
@@ -48,7 +58,7 @@ export default function WhatsAppAssistenza({ tema = "chiaro", numero = "39333123
           </div>
         </div>
       )}
-      <button onClick={() => setAperto(!aperto)} style={{ position: "fixed", bottom: 20, right: 20, width: 56, height: 56, borderRadius: "50%", background: verdeWA, color: "#fff", border: "none", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "0 4px 16px rgba(37,211,102,0.4)", zIndex: 9998 }} title="Assistenza WhatsApp">
+      <button onClick={() => setAperto(!aperto)} style={{ position: "fixed", bottom: 20, left: 20, width: 56, height: 56, borderRadius: "50%", background: verdeWA, color: "#fff", border: "none", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "0 4px 16px rgba(37,211,102,0.4)", zIndex: 9998 }} title="Assistenza WhatsApp">
         {aperto ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
     </>
