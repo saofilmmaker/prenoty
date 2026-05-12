@@ -678,21 +678,53 @@ useEffect(() => {
   // Dropdown notifiche (campanella)
   const [notificheAperte, setNotificheAperte] = useState(false);
 
-  // AudioContext persistente — ogni click sulla pagina lo mantiene "running"
-  // (il browser lo auto-sospende dopo ~1 min di silenzio; senza gesto utente
-  //  ctx.resume() fallisce silenziosamente e la notifica real-time non suona)
+  // AudioContext persistente — sbloccato su click/touchstart e mantenuto vivo
+  // iOS e Android auto-sospendono AudioContext dopo inattività; senza gesto
+  // ctx.resume() fallisce silenziosamente → nessun suono alla notifica.
+  // Fix: sblocca su touchstart (più affidabile di click su mobile),
+  //      ri-sblocca quando l'app torna in foreground (visibilitychange),
+  //      e manda un ping silenzioso ogni 25s per impedire la sospensione.
   const audioCtxRef = useRef(null);
   useEffect(() => {
     const sblocca = async () => {
-      if (!audioCtxRef.current) {
-        audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
-      }
-      if (audioCtxRef.current.state === "suspended") {
-        await audioCtxRef.current.resume();
-      }
+      try {
+        if (!audioCtxRef.current) {
+          audioCtxRef.current = new (window.AudioContext || window.webkitAudioContext)();
+        }
+        if (audioCtxRef.current.state === "suspended") {
+          await audioCtxRef.current.resume();
+        }
+      } catch(e) {}
     };
+
+    // Sblocca su primo gesto (touchstart = più reattivo su mobile rispetto a click)
+    document.addEventListener("touchstart", sblocca, { passive: true });
     document.addEventListener("click", sblocca);
-    return () => document.removeEventListener("click", sblocca);
+
+    // Ri-sblocca quando l'app torna in foreground (dopo lock screen / cambio app)
+    const onVisible = () => { if (document.visibilityState === "visible") sblocca(); };
+    document.addEventListener("visibilitychange", onVisible);
+
+    // Ping silenzioso ogni 25s — impedisce a iOS/Android di sospendere il contesto
+    const keepAlive = setInterval(() => {
+      try {
+        const ctx = audioCtxRef.current;
+        if (ctx && ctx.state === "running") {
+          const buf = ctx.createBuffer(1, 1, 22050);
+          const src = ctx.createBufferSource();
+          src.buffer = buf;
+          src.connect(ctx.destination);
+          src.start();
+        }
+      } catch(e) {}
+    }, 25000);
+
+    return () => {
+      document.removeEventListener("touchstart", sblocca);
+      document.removeEventListener("click", sblocca);
+      document.removeEventListener("visibilitychange", onVisible);
+      clearInterval(keepAlive);
+    };
   }, []);
 
   // Suoni disponibili per le notifiche
@@ -730,6 +762,9 @@ useEffect(() => {
       if (suono === "nova")     { [523,659,784,1047].forEach((f,i) => nota(f, i*0.06, 0.5, 0.22, "triangle")); }
       if (suono === "whatsapp") { nota(800, 0, 0.12); nota(1000, 0.13, 0.12); nota(800, 0.26, 0.2); }
       if (suono === "matrix")   { [1400,1100,880,660,520,380].forEach((f,i) => nota(f, i*0.055, 0.12, 0.18)); }
+
+      // Vibrazione Android (iOS la ignora silenziosamente)
+      if (navigator.vibrate) navigator.vibrate([150, 80, 150]);
     } catch(e) {}
   };
 
