@@ -8,6 +8,8 @@ import AdminGuard from './admin-guard';
 import BloccoAbbonamento from './blocco-abbonamento-v2';
 import Login from './login';
 import Registrazione from './registrazione';
+import RecuperaPassword from './recupera-password';
+import NuovaPassword from './nuova-password';
 import AppCliente from './app-cliente-v5';
 import { supabase } from './supabase';
 import { useState, useEffect } from 'react';
@@ -38,6 +40,8 @@ root.render(
       <Route path="/" element={<Home />} />
       <Route path="/login" element={<Login />} />
       <Route path="/registrazione" element={<Registrazione />} />
+      <Route path="/recupera-password" element={<RecuperaPassword />} />
+      <Route path="/nuova-password" element={<NuovaPassword />} />
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPrenoty /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminGuard><DashboardAdmin /></AdminGuard>} />
       <Route path="/blocco" element={<BloccoAbbonamento />} />

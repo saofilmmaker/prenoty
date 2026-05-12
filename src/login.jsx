@@ -83,7 +83,10 @@ export default function Login() {
                 className="login-input" />
             </div>
             <div style={{ marginBottom:20 }}>
-              <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase" }}>Password</label>
+              <div style={{ display:"flex", justifyContent:"space-between", alignItems:"center" }}>
+                <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase" }}>Password</label>
+                <a href="/recupera-password" style={{ fontSize:11, color:"#6c5ce7", textDecoration:"none" }}>Hai dimenticato la password?</a>
+              </div>
               <input type="password" placeholder="La tua password" value={password}
                 onChange={e => { setPassword(e.target.value); setErrore(""); }}
                 onKeyDown={e => e.key === "Enter" && handleLogin()}
