@@ -938,7 +938,7 @@ useEffect(() => {
       const dy = e.changedTouches[0].clientY - startY;
       pulling = false;
       if (indicator) { indicator.remove(); indicator = null; }
-      if (dy > 70 && window.scrollY === 0) {
+      if (dy > 70) {
         window.location.reload();
       }
     };
