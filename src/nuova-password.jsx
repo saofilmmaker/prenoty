@@ -7,13 +7,19 @@ export default function NuovaPassword() {
   const [loading, setLoading] = useState(false);
   const [salvato, setSalvato] = useState(false);
   const [errore, setErrore] = useState("");
-  const [sessionePronta, setSessionePronta] = useState(false);
+  const [linkScaduto, setLinkScaduto] = useState(false);
 
   useEffect(() => {
+    // Controlla se l'URL contiene un errore (link scaduto o già usato)
+    const hash = window.location.hash;
+    if (hash.includes("error=access_denied") || hash.includes("otp_expired") || hash.includes("error_code=otp")) {
+      setLinkScaduto(true);
+      return;
+    }
     // Supabase gestisce automaticamente il token dall'URL
     supabase.auth.onAuthStateChange((event) => {
       if (event === "PASSWORD_RECOVERY") {
-        setSessionePronta(true);
+        // sessione pronta
       }
     });
   }, []);
@@ -54,7 +60,22 @@ export default function NuovaPassword() {
         <div style={{ width: 340, background: "#f4f3ff", padding: 40, borderRadius: 20, border: "0.5px solid #e0dcff" }}>
           <img src="/Prenoty_Viola.png" alt="Prenoty" style={{ height: 28, objectFit: "contain", display: "block", margin: "0 auto 20px" }} />
 
-          {salvato ? (
+          {linkScaduto ? (
+            <div style={{ textAlign: "center" }}>
+              <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
+                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(231,76,60,0.08)", border: "1.5px solid rgba(231,76,60,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
+                  ⏱️
+                </div>
+              </div>
+              <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e74c3c", marginBottom: 8 }}>Link scaduto</h2>
+              <p style={{ color: "#9b96c8", fontSize: 13, lineHeight: 1.6, marginBottom: 24 }}>
+                Il link per reimpostare la password è scaduto o già usato.<br />Richiedine uno nuovo.
+              </p>
+              <a href="/recupera-password" style={{ display: "block", background: "#6c5ce7", color: "#fff", padding: "12px", borderRadius: 10, textDecoration: "none", fontWeight: 600, fontSize: 14, textAlign: "center" }}>
+                Richiedi nuovo link
+              </a>
+            </div>
+          ) : salvato ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
                 <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(93,226,121,0.12)", border: "1.5px solid rgba(93,226,121,0.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
