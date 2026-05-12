@@ -283,6 +283,13 @@ export default function Home(){
           .feat-grid{grid-template-columns:1fr!important;}
           .hero-h1{font-size:50px!important;}
         }
+        /* Cellulare hero: desktop scale 1.28, mobile più piccolo */
+        .hero-phone-scale{ transform:scale(1.28); transform-origin:top left; position:absolute; top:0; left:0; }
+        .hero-phone-wrap{ position:relative; width:358px; height:742px; flex-shrink:0; }
+        @media(max-width:960px){
+          .hero-phone-scale{ transform:scale(0.82)!important; }
+          .hero-phone-wrap{ width:230px!important; height:476px!important; }
+        }
       `}</style>
 
       <nav style={{borderBottom:"0.5px solid rgba(108,92,231,0.15)",position:"sticky",top:0,zIndex:100,background:"rgba(26,23,48,0.92)",backdropFilter:"blur(20px)"}}>
@@ -342,9 +349,8 @@ export default function Home(){
             </FadeIn>
           </div>
           <FadeIn delay={0.15} direction="right">
-            {/* Wrapper che alloca lo spazio visivo corretto dopo il transform scale */}
-            <div style={{position:"relative",width:358,height:742,flexShrink:0}}>
-              <div style={{position:"absolute",top:0,left:0,transform:"scale(1.28)",transformOrigin:"top left"}}>
+            <div className="hero-phone-wrap">
+              <div className="hero-phone-scale">
                 <IPhone/>
               </div>
             </div>
