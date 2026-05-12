@@ -903,6 +903,57 @@ useEffect(() => {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
+  // Pull-to-refresh per PWA mobile (iOS non ha pull-to-refresh nativo in standalone)
+  useEffect(() => {
+    const isPwa = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
+    if (!isPwa) return;
+
+    let startY = 0;
+    let pulling = false;
+    let indicator = null;
+
+    const onTouchStart = (e) => {
+      if (window.scrollY === 0) {
+        startY = e.touches[0].clientY;
+        pulling = true;
+      }
+    };
+
+    const onTouchMove = (e) => {
+      if (!pulling) return;
+      const dy = e.touches[0].clientY - startY;
+      if (dy > 10 && window.scrollY === 0) {
+        if (!indicator) {
+          indicator = document.createElement("div");
+          indicator.innerHTML = "↓ Rilascia per aggiornare";
+          indicator.style.cssText = "position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#6c5ce7;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:99999;transition:opacity 0.2s;pointer-events:none";
+          document.body.appendChild(indicator);
+        }
+        if (dy > 70) indicator.innerHTML = "↑ Rilascia per aggiornare";
+      }
+    };
+
+    const onTouchEnd = (e) => {
+      if (!pulling) return;
+      const dy = e.changedTouches[0].clientY - startY;
+      pulling = false;
+      if (indicator) { indicator.remove(); indicator = null; }
+      if (dy > 70 && window.scrollY === 0) {
+        window.location.reload();
+      }
+    };
+
+    document.addEventListener("touchstart", onTouchStart, { passive: true });
+    document.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("touchend", onTouchEnd, { passive: true });
+    return () => {
+      document.removeEventListener("touchstart", onTouchStart);
+      document.removeEventListener("touchmove", onTouchMove);
+      document.removeEventListener("touchend", onTouchEnd);
+      if (indicator) indicator.remove();
+    };
+  }, []);
+
   // Segna notifica come letta — salva in saloni.notifiche_lette (cross-device) + localStorage
   const segnaLetta = async (id) => {
     setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));

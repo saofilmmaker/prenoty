@@ -39,7 +39,7 @@ export default function WhatsAppAssistenza({ tema = "chiaro", numero = "39348925
   return (
     <>
       {aperto && (
-        <div style={{ position: "fixed", bottom: 90, left: 20, width: 300, background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", zIndex: 9999, fontFamily: "Georgia, 'Times New Roman', serif", overflow: "hidden" }}>
+        <div style={{ position: "fixed", bottom: 90, right: 20, width: 300, background: T.card, border: `1px solid ${T.border}`, borderRadius: 14, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", zIndex: 9999, fontFamily: "Georgia, 'Times New Roman', serif", overflow: "hidden" }}>
           <div style={{ background: verdeWA, color: "#fff", padding: "14px 16px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
             <div>
               <div style={{ fontSize: 15, fontWeight: 600 }}>Assistenza</div>
@@ -58,7 +58,7 @@ export default function WhatsAppAssistenza({ tema = "chiaro", numero = "39348925
           </div>
         </div>
       )}
-      <button onClick={() => setAperto(!aperto)} style={{ position: "fixed", bottom: 20, left: 20, width: 56, height: 56, borderRadius: "50%", background: verdeWA, color: "#fff", border: "none", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "0 4px 16px rgba(37,211,102,0.4)", zIndex: 9998 }} title="Assistenza WhatsApp">
+      <button onClick={() => setAperto(!aperto)} style={{ position: "fixed", bottom: 20, right: 20, width: 56, height: 56, borderRadius: "50%", background: verdeWA, color: "#fff", border: "none", cursor: "pointer", display: "flex", justifyContent: "center", alignItems: "center", boxShadow: "0 4px 16px rgba(37,211,102,0.4)", zIndex: 9998 }} title="Assistenza WhatsApp">
         {aperto ? <X size={24} /> : <MessageCircle size={24} />}
       </button>
     </>
