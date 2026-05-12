@@ -44,8 +44,11 @@ export default function RecuperaPassword() {
           {inviato ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
-                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(93,226,121,0.12)", border: "1.5px solid rgba(93,226,121,0.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
-                  ✉️
+                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(93,226,121,0.12)", border: "1.5px solid rgba(93,226,121,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <rect width="20" height="16" x="2" y="4" rx="2"/>
+                    <path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/>
+                  </svg>
                 </div>
               </div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#4a3cb5", marginBottom: 8 }}>Email inviata!</h2>

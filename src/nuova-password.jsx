@@ -63,8 +63,11 @@ export default function NuovaPassword() {
           {linkScaduto ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
-                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(231,76,60,0.08)", border: "1.5px solid rgba(231,76,60,0.3)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
-                  ⏱️
+                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(231,76,60,0.08)", border: "1.5px solid rgba(231,76,60,0.3)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#e74c3c" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <circle cx="12" cy="12" r="10"/>
+                    <polyline points="12 6 12 12 16 14"/>
+                  </svg>
                 </div>
               </div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#e74c3c", marginBottom: 8 }}>Link scaduto</h2>
@@ -78,8 +81,10 @@ export default function NuovaPassword() {
           ) : salvato ? (
             <div style={{ textAlign: "center" }}>
               <div style={{ marginBottom: 16, display: "flex", justifyContent: "center" }}>
-                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(93,226,121,0.12)", border: "1.5px solid rgba(93,226,121,0.35)", display: "flex", alignItems: "center", justifyContent: "center", fontSize: 26 }}>
-                  ✅
+                <div style={{ width: 60, height: 60, borderRadius: "50%", background: "rgba(93,226,121,0.12)", border: "1.5px solid rgba(93,226,121,0.35)", display: "flex", alignItems: "center", justifyContent: "center" }}>
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+                    <path d="M20 6 9 17l-5-5"/>
+                  </svg>
                 </div>
               </div>
               <h2 style={{ fontSize: 18, fontWeight: 700, color: "#4a3cb5", marginBottom: 8 }}>Password salvata!</h2>
