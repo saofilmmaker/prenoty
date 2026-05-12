@@ -1098,7 +1098,7 @@ useEffect(() => {
       {/* CONTENT */}
       <div className="flex-1 flex flex-col min-w-0">
         {/* HEADER mobile + notifiche */}
-        <header className="border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border }}>
+        <header className="border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <div className="md:hidden flex items-center gap-2">
             {salone.logo ? (
               <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 8 }} />
