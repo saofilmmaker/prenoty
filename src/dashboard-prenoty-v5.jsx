@@ -1079,7 +1079,11 @@ useEffect(() => {
               </button>
             </div>
           </div>
-          <button className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition" style={{ color: T.textSoft, borderRadius: 10 }}>
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
+            style={{ color: T.textSoft, borderRadius: 10 }}
+            onClick={async () => { await supabase.auth.signOut(); window.location.href = "/login"; }}
+          >
             <LogOut className="w-4 h-4" />
             Esci
           </button>
