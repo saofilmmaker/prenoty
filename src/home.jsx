@@ -271,7 +271,7 @@ export default function Home(){
 
         @media(max-width:960px){
           .hero-inner{flex-direction:column!important;padding:48px 24px 64px!important;min-height:auto!important;align-items:center!important;text-align:center;}
-          .hero-h1{font-size:46px!important;letter-spacing:-1px!important;}
+          .hero-h1{font-size:58px!important;letter-spacing:-1px!important;}
           .hero-btns{justify-content:center!important;}
           .hero-cats{justify-content:center!important;}
           .feat-grid{grid-template-columns:1fr 1fr!important;}
@@ -281,7 +281,7 @@ export default function Home(){
         }
         @media(max-width:600px){
           .feat-grid{grid-template-columns:1fr!important;}
-          .hero-h1{font-size:44px!important;}
+          .hero-h1{font-size:50px!important;}
         }
       `}</style>
 
@@ -312,7 +312,7 @@ export default function Home(){
               </div>
             </FadeIn>
             <FadeIn delay={0.1}>
-              <h1 className="hero-h1" style={{fontSize:56,fontWeight:800,color:"#fff",lineHeight:1.05,letterSpacing:-2,marginBottom:20}}>
+              <h1 className="hero-h1" style={{fontSize:76,fontWeight:800,color:"#fff",lineHeight:1.05,letterSpacing:-2,marginBottom:20}}>
                 Gestisci le<br/>prenotazioni.<br/><span style={{color:"#5de279"}}>Senza Stress.</span>
               </h1>
             </FadeIn>
@@ -342,7 +342,12 @@ export default function Home(){
             </FadeIn>
           </div>
           <FadeIn delay={0.15} direction="right">
-            <IPhone/>
+            {/* Wrapper che alloca lo spazio visivo corretto dopo il transform scale */}
+            <div style={{position:"relative",width:358,height:742,flexShrink:0}}>
+              <div style={{position:"absolute",top:0,left:0,transform:"scale(1.28)",transformOrigin:"top left"}}>
+                <IPhone/>
+              </div>
+            </div>
           </FadeIn>
         </div>
       </section>
