@@ -182,12 +182,12 @@ function IPhone(){
               <div style={{fontSize:6.5,color:textMuted,letterSpacing:"0.18em",marginBottom:5}}>GALLERIA</div>
               <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>
                 {[
-                  "https://images.unsplash.com/photo-1572814601679-4ef8f7b5ebd1?w=200&h=200&fit=crop&q=80",
-                  "https://images.unsplash.com/photo-1610545936431-9983d41e52b5?w=200&h=200&fit=crop&q=80",
-                  "https://images.unsplash.com/photo-1743620398937-e88aacb37be3?w=200&h=200&fit=crop&q=80",
-                  "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=200&h=200&fit=crop&q=80",
-                  "https://images.unsplash.com/photo-1505912755138-d45d8f4eb95e?w=200&h=200&fit=crop&q=80",
-                  "https://images.unsplash.com/photo-1595475884562-073c30d45670?w=200&h=200&fit=crop&q=80",
+                  "/gallery/gallery1.jpg",
+                  "/gallery/gallery2.jpg",
+                  "/gallery/gallery3.jpg",
+                  "/gallery/gallery4.jpg",
+                  "/gallery/gallery5.jpg",
+                  "/gallery/gallery6.jpg",
                 ].map((url,i)=>(
                   <div key={i} style={{aspectRatio:"1",borderRadius:6,overflow:"hidden"}}>
                     <img src={url} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
@@ -439,12 +439,12 @@ function Desktop(){
                 <div style={{fontSize:8.5,color:textMuted,letterSpacing:"0.18em",marginBottom:8}}>GALLERIA</div>
                 <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
                   {[
-                    "https://images.unsplash.com/photo-1572814601679-4ef8f7b5ebd1?w=200&h=200&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1610545936431-9983d41e52b5?w=200&h=200&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1743620398937-e88aacb37be3?w=200&h=200&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1604654894610-df63bc536371?w=200&h=200&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1505912755138-d45d8f4eb95e?w=200&h=200&fit=crop&q=80",
-                    "https://images.unsplash.com/photo-1595475884562-073c30d45670?w=200&h=200&fit=crop&q=80",
+                    "/gallery/gallery1.jpg",
+                    "/gallery/gallery2.jpg",
+                    "/gallery/gallery3.jpg",
+                    "/gallery/gallery4.jpg",
+                    "/gallery/gallery5.jpg",
+                    "/gallery/gallery6.jpg",
                   ].map((url,i)=>(
                     <div key={i} style={{aspectRatio:"1",borderRadius:7,overflow:"hidden"}}>
                       <img src={url} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
