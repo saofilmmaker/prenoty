@@ -506,32 +506,7 @@ export default function AppCliente() {
     <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
       {/* HEADER */}
       <header className="sticky top-0 z-10 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
-
-          {/* MOBILE: bottone Aggiungi home — DESKTOP: logo + nome */}
-          <div className="md:hidden">
-            <button
-              onClick={() => setPwaModalAperto(true)}
-              className="flex items-center gap-2"
-              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 20, cursor: "pointer", padding: "7px 14px", color: T.textSoft, fontFamily: "inherit", fontSize: 12 }}
-            >
-              <Smartphone style={{ width: 14, height: 14 }} />
-              <span style={{ letterSpacing: "0.05em" }}>Aggiungi home</span>
-            </button>
-          </div>
-          <div className="hidden md:flex items-center gap-3">
-            {salone.logo ? (
-              <img src={salone.logo} alt={salone.nome} className="w-10 h-10 rounded-full object-cover border" style={{ borderColor: T.border }} />
-            ) : (
-              <div
-                className="w-10 h-10 rounded-full flex items-center justify-center text-sm font-medium flex-shrink-0"
-                style={{ backgroundColor: T.accentSoft, color: T.accent, border: `1px solid ${T.border}` }}
-              >
-                {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-              </div>
-            )}
-            <h1 className="text-sm tracking-wide" style={{ letterSpacing: "0.1em" }}>{salone.nome.toUpperCase()}</h1>
-          </div>
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-end">
 
           <div className="flex items-center gap-1">
             <button
@@ -565,7 +540,7 @@ export default function AppCliente() {
               {/* FOTO DI COPERTINA — proporzioni Facebook 820×312, contenuta nel container */}
               {salone.copertina ? (
                 <div
-                  className="relative w-full overflow-hidden mb-6"
+                  className="relative w-full overflow-hidden"
                   style={{ aspectRatio: "820 / 312" }}
                 >
                   <img
@@ -578,6 +553,17 @@ export default function AppCliente() {
               ) : (
                 <div className="mb-4" />
               )}
+
+              {/* Logo centrato sovrapposto alla copertina */}
+              <div className="flex justify-center" style={{ marginTop: salone.copertina ? -32 : 0, marginBottom: 12, position: "relative", zIndex: 1 }}>
+                {salone.logo ? (
+                  <img src={salone.logo} alt={salone.nome} className="w-16 h-16 rounded-2xl object-cover" style={{ border: `4px solid ${T.card}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }} />
+                ) : (
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-semibold" style={{ backgroundColor: T.accentSoft, color: T.accent, border: `4px solid ${T.card}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}>
+                    {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                  </div>
+                )}
+              </div>
 
               <div className="text-center">
                 <h1 className="text-4xl mb-3 leading-tight">{salone.nome}</h1>
