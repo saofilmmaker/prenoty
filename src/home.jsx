@@ -459,11 +459,11 @@ function Desktop(){
               <div style={{marginTop:10}}>
                 <div style={{fontSize:7.5,color:textMuted,letterSpacing:"0.18em",marginBottom:6}}>I NOSTRI SERVIZI</div>
                 {[
-                  {n:"Taglio Donna",d:"45 min",p:"€35"},
-                  {n:"Colore",d:"90 min",p:"€65"},
-                  {n:"Piega",d:"30 min",p:"€25"},
+                  {n:"Taglio",d:"30 min",p:"€15"},
+                  {n:"Tagli + Barba",d:"50 min",p:"€25"},
+                  {n:"Colore",d:"60 min",p:"€45"},
                 ].map(({n,d,p})=>(
-                  <div key={n} style={{background:bg,border:`1px solid ${border}`,padding:"7px 12px",marginBottom:4,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
+                  <div key={n} style={{background:card,border:`1px solid ${border}`,padding:"7px 12px",marginBottom:4,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
                     <div>
                       <div style={{fontSize:10,color:textMain}}>{n}</div>
                       <div style={{fontSize:7.5,color:textMuted,marginTop:1}}>{d}</div>
