@@ -419,7 +419,7 @@ function Desktop(){
               </div>
             </div>
             {/* Cover photo */}
-            <div style={{padding:"0 18px",flexShrink:0}}>
+            <div style={{maxWidth:560,margin:"0 auto",padding:"0 28px",flexShrink:0}}>
               <div style={{height:110,position:"relative",overflow:"hidden",borderRadius:10}}>
                 <img src="/cover.jpg" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
                 <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.35) 100%)"}}/>
