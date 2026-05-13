@@ -162,9 +162,11 @@ function IPhone(){
               </div>
             </div>
             {/* Cover photo */}
-            <div style={{height:80,position:"relative",overflow:"hidden"}}>
-              <img src="https://images.unsplash.com/photo-1637777277337-f114350fb088?w=600&h=160&fit=crop&q=80" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
-              <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.3) 100%)"}}/>
+            <div style={{padding:"0 11px"}}>
+              <div style={{height:80,position:"relative",overflow:"hidden",borderRadius:8}}>
+                <img src="/cover.jpg" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
+                <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.3) 100%)"}}/>
+              </div>
             </div>
             {/* Profile */}
             <div style={{textAlign:"center",padding:"8px 12px 6px"}}>
@@ -417,9 +419,11 @@ function Desktop(){
               </div>
             </div>
             {/* Cover photo */}
-            <div style={{height:110,position:"relative",overflow:"hidden",flexShrink:0}}>
-              <img src="https://images.unsplash.com/photo-1637777277337-f114350fb088?w=800&h=220&fit=crop&q=80" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
-              <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.35) 100%)"}}/>
+            <div style={{padding:"0 18px",flexShrink:0}}>
+              <div style={{height:110,position:"relative",overflow:"hidden",borderRadius:10}}>
+                <img src="/cover.jpg" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
+                <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.35) 100%)"}}/>
+              </div>
             </div>
             {/* Profile section */}
             <div style={{maxWidth:560,margin:"0 auto",padding:"0 28px"}}>
