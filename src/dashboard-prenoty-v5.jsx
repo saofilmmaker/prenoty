@@ -1099,16 +1099,16 @@ useEffect(() => {
       {/* SIDEBAR */}
       <aside className="hidden md:flex flex-col w-56 border-r" style={{ backgroundColor: T.card, borderColor: T.border }}>
         <div className="p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-3">
             {salone.logo ? (
-              <img src={salone.logo} alt="Logo" className="w-10 h-10 object-contain rounded-2xl" />
+              <img src={salone.logo} alt="Logo" className="w-12 h-12 object-cover rounded-2xl flex-shrink-0" />
             ) : (
-              <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
-                <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
+              <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                <IconaAttivita className="w-5 h-5" style={{ color: "#fff" }} />
               </div>
             )}
             <div>
-              <div className="text-sm font-semibold" style={{ color: T.text }}>{salone.nome}</div>
+              <div className="text-base font-semibold" style={{ color: T.text }}>{salone.nome}</div>
             </div>
           </div>
         </div>
