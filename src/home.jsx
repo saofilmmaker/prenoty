@@ -40,8 +40,8 @@ function IPhone(){
             {/* Header */}
             <div style={{marginTop:50,background:card,borderBottom:`1px solid ${border}`,padding:"6px 11px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
               <div style={{display:"flex",alignItems:"center",gap:5}}>
-                <div style={{width:26,height:26,borderRadius:8,overflow:"hidden",background:`linear-gradient(135deg,#3d2b1f,#8b5e3c)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  <span style={{fontSize:11,color:"#f5d9b8",fontWeight:700}}>AB</span>
+                <div style={{width:26,height:26,borderRadius:8,overflow:"hidden",background:`linear-gradient(135deg,#6c5ce7,#a29bfe)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <span style={{fontSize:11,color:"#fff",fontWeight:700}}>A</span>
                 </div>
                 <div style={{fontSize:8.5,fontWeight:700,color:textMain,lineHeight:1}}>Atelier Bellezza</div>
               </div>
