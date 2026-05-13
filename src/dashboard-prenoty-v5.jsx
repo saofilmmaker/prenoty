@@ -1196,33 +1196,19 @@ useEffect(() => {
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
           <div className="flex items-center gap-2">
-            {/* TOGGLE TEMA mobile — mini pillola testuale */}
-            <div className="md:hidden flex border text-xs" style={{ borderColor: T.border }}>
-              <button
-                onClick={() => setTema("chiaro")}
-                className="px-2 py-1 tracking-widest transition"
-                style={{
-                  backgroundColor: tema === "chiaro" ? T.accent : "transparent",
-                  color: tema === "chiaro" ? "#fff" : T.textSoft,
-                  letterSpacing: "0.1em",
-                  fontSize: 10,
-                }}
-              >
-                CHIARO
-              </button>
-              <button
-                onClick={() => setTema("scuro")}
-                className="px-2 py-1 tracking-widest transition"
-                style={{
-                  backgroundColor: tema === "scuro" ? T.accent : "transparent",
-                  color: tema === "scuro" ? "#fff" : T.textSoft,
-                  letterSpacing: "0.1em",
-                  fontSize: 10,
-                }}
-              >
-                SCURO
-              </button>
-            </div>
+            {/* TOGGLE TEMA mobile — icona luna/sole */}
+            <button
+              className="md:hidden"
+              onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}
+              title={tema === "chiaro" ? "Tema scuro" : "Tema chiaro"}
+              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: T.textSoft }}
+            >
+              {tema === "chiaro" ? (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+              ) : (
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+              )}
+            </button>
             <div className="relative">
               <button
                 onClick={() => setNotificheAperte(!notificheAperte)}
