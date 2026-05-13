@@ -557,9 +557,9 @@ export default function AppCliente() {
               {/* Logo centrato sovrapposto alla copertina */}
               <div className="flex justify-center" style={{ marginTop: salone.copertina ? -32 : 0, marginBottom: 12, position: "relative", zIndex: 1 }}>
                 {salone.logo ? (
-                  <img src={salone.logo} alt={salone.nome} className="w-16 h-16 rounded-2xl object-cover" style={{ border: `4px solid ${T.bg}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }} />
+                  <img src={salone.logo} alt={salone.nome} className="w-16 h-16 rounded-2xl object-cover" />
                 ) : (
-                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-semibold" style={{ backgroundColor: T.accentSoft, color: T.accent, border: `4px solid ${T.bg}`, boxShadow: "0 2px 12px rgba(0,0,0,0.12)" }}>
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-semibold" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
                     {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
                   </div>
                 )}
