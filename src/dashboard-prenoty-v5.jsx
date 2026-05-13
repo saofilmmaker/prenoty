@@ -1109,7 +1109,6 @@ useEffect(() => {
             )}
             <div>
               <div className="text-sm font-semibold" style={{ color: T.text }}>{salone.nome}</div>
-              <div className="text-xs" style={{ color: T.accent, fontWeight: 500 }}>Powered by Prenoty</div>
             </div>
           </div>
         </div>
@@ -1174,8 +1173,8 @@ useEffect(() => {
             Esci
           </button>
           <div className="text-xs text-center pt-2 pb-1">
-            <a href="https://prenoty.com" target="_blank" rel="noopener noreferrer" style={{ color: T.accent, letterSpacing: "0.2em", fontWeight: 700 }}>
-              PRENOTY
+            <a href="https://prenoty.com" target="_blank" rel="noopener noreferrer" style={{ color: T.accent, letterSpacing: "0.05em", fontWeight: 500 }}>
+              Powered by Prenoty
             </a>
           </div>
         </div>
@@ -1187,7 +1186,7 @@ useEffect(() => {
         <header className="border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <div className="md:hidden flex items-center gap-2">
             {salone.logo ? (
-              <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 12 }} />
+              <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "cover", borderRadius: 8 }} />
             ) : (
               <div style={{ width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
