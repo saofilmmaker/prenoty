@@ -420,28 +420,27 @@ function Desktop(){
             </div>
             {/* Cover photo */}
             <div style={{maxWidth:560,margin:"0 auto",padding:"0 28px",flexShrink:0}}>
-              <div style={{height:110,position:"relative",overflow:"hidden",borderRadius:10}}>
+              <div style={{height:85,position:"relative",overflow:"hidden",borderRadius:10}}>
                 <img src="/cover.jpg" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
                 <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 30%,rgba(0,0,0,0.35) 100%)"}}/>
               </div>
             </div>
             {/* Profile section */}
             <div style={{maxWidth:560,margin:"0 auto",padding:"0 28px"}}>
-              <div style={{textAlign:"center",padding:"10px 0 10px"}}>
-                <div style={{width:52,height:52,borderRadius:16,background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",margin:"-34px auto 8px",color:"#fff",fontSize:19,fontWeight:700,border:`3px solid ${card}`,position:"relative",zIndex:1}}>A</div>
-                <h1 style={{fontSize:20,fontWeight:400,color:textMain,margin:"0 0 5px",letterSpacing:"0.02em"}}>Atelier Bellezza</h1>
-                <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:3,marginBottom:4}}>
-                  {[1,2,3,4,5].map(i=><span key={i} style={{fontSize:10,color:"#f9ca24"}}>★</span>)}
-                  <span style={{fontSize:9,color:textSoft,marginLeft:3}}>4.9 · 48 recensioni</span>
+              <div style={{textAlign:"center",padding:"6px 0 6px"}}>
+                <div style={{width:44,height:44,borderRadius:14,background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",margin:"-28px auto 6px",color:"#fff",fontSize:16,fontWeight:700,border:`3px solid ${card}`,position:"relative",zIndex:1}}>A</div>
+                <h1 style={{fontSize:16,fontWeight:400,color:textMain,margin:"0 0 4px",letterSpacing:"0.02em"}}>Atelier Bellezza</h1>
+                <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:3,marginBottom:3}}>
+                  {[1,2,3,4,5].map(i=><span key={i} style={{fontSize:9,color:"#f9ca24"}}>★</span>)}
+                  <span style={{fontSize:8,color:textSoft,marginLeft:3}}>4.9 · 48 recensioni</span>
                 </div>
-                <p style={{fontSize:9,color:textSoft,marginBottom:3,lineHeight:1.4}}>Siamo i migliori a Genova, vieni a trovarci!</p>
-                <p style={{fontSize:8.5,color:textMuted,marginBottom:12}}>Via Roma 12, Genova</p>
-                <button style={{background:dark,color:"#fff",border:"none",padding:"10px 32px",fontSize:9,letterSpacing:"0.2em",cursor:"pointer",borderRadius:3}}>PRENOTA ORA</button>
+                <p style={{fontSize:8,color:textSoft,marginBottom:8,lineHeight:1.4}}>Siamo i migliori a Genova, vieni a trovarci!</p>
+                <button style={{background:dark,color:"#fff",border:"none",padding:"7px 28px",fontSize:8,letterSpacing:"0.2em",cursor:"pointer",borderRadius:3}}>PRENOTA ORA</button>
               </div>
               {/* Galleria */}
-              <div style={{marginTop:14}}>
-                <div style={{fontSize:8.5,color:textMuted,letterSpacing:"0.18em",marginBottom:8}}>GALLERIA</div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
+              <div style={{marginTop:10}}>
+                <div style={{fontSize:7.5,color:textMuted,letterSpacing:"0.18em",marginBottom:6}}>GALLERIA</div>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:4}}>
                   {[
                     "/gallery/gallery1.jpg",
                     "/gallery/gallery2.jpg",
@@ -450,26 +449,26 @@ function Desktop(){
                     "/gallery/gallery5.jpg",
                     "/gallery/gallery6.jpg",
                   ].map((url,i)=>(
-                    <div key={i} style={{aspectRatio:"1",borderRadius:7,overflow:"hidden"}}>
+                    <div key={i} style={{height:85,borderRadius:7,overflow:"hidden"}}>
                       <img src={url} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
                     </div>
                   ))}
                 </div>
               </div>
               {/* I nostri servizi */}
-              <div style={{marginTop:14}}>
-                <div style={{fontSize:8.5,color:textMuted,letterSpacing:"0.18em",marginBottom:8}}>I NOSTRI SERVIZI</div>
+              <div style={{marginTop:10}}>
+                <div style={{fontSize:7.5,color:textMuted,letterSpacing:"0.18em",marginBottom:6}}>I NOSTRI SERVIZI</div>
                 {[
                   {n:"Taglio Donna",d:"45 min",p:"€35"},
                   {n:"Colore",d:"90 min",p:"€65"},
                   {n:"Piega",d:"30 min",p:"€25"},
                 ].map(({n,d,p})=>(
-                  <div key={n} style={{background:bg,border:`1px solid ${border}`,padding:"9px 12px",marginBottom:5,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
+                  <div key={n} style={{background:bg,border:`1px solid ${border}`,padding:"7px 12px",marginBottom:4,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
                     <div>
-                      <div style={{fontSize:11,color:textMain}}>{n}</div>
-                      <div style={{fontSize:8.5,color:textMuted,marginTop:1}}>{d}</div>
+                      <div style={{fontSize:10,color:textMain}}>{n}</div>
+                      <div style={{fontSize:7.5,color:textMuted,marginTop:1}}>{d}</div>
                     </div>
-                    <div style={{fontSize:11,color:accent,fontWeight:600}}>{p}</div>
+                    <div style={{fontSize:10,color:accent,fontWeight:600}}>{p}</div>
                   </div>
                 ))}
               </div>
@@ -594,19 +593,19 @@ export default function Home(){
           .hero-h1{font-size:50px!important;}
         }
         /* Desktop mockup — scala su schermi piccoli senza taglio */
-        .desktop-screen{ height:420px; }
+        .desktop-screen{ height:580px; }
         .desktop-outer{ width:100%; overflow:hidden; position:relative; }
         .desktop-inner{ width:860px; transform-origin:top left; }
         @media(max-width:960px){
-          .desktop-outer{ height:calc(462px * 0.65); }
+          .desktop-outer{ height:calc(622px * 0.65); }
           .desktop-inner{ transform:scale(0.65); }
-          .desktop-screen{ height:420px; }
+          .desktop-screen{ height:580px; }
         }
         @media(max-width:600px){
           /* 375px - 48px padding = 327px available; scale = 327/860 ≈ 0.38 */
-          .desktop-outer{ height:calc(462px * 0.38); }
+          .desktop-outer{ height:calc(622px * 0.38); }
           .desktop-inner{ transform:scale(0.38); }
-          .desktop-screen{ height:420px; }
+          .desktop-screen{ height:580px; }
         }
         /* Cellulare hero: desktop scale 1.28, mobile più piccolo */
         .hero-phone-scale{ transform:scale(1.28); transform-origin:top left; position:absolute; top:0; left:0; }
