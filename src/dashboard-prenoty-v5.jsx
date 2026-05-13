@@ -1137,33 +1137,6 @@ useEffect(() => {
         </nav>
 
         <div className="p-3 border-t space-y-1" style={{ borderColor: T.border }}>
-          <div className="px-2 py-2">
-            <div className="text-xs tracking-widest mb-2" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>TEMA</div>
-            <div className="flex border" style={{ borderColor: T.border, borderRadius: 14, overflow: "hidden" }}>
-              <button
-                onClick={() => setTema("chiaro")}
-                className="flex-1 py-2 text-xs tracking-widest transition"
-                style={{
-                  backgroundColor: tema === "chiaro" ? T.accent : "transparent",
-                  color: tema === "chiaro" ? "#fff" : T.textSoft,
-                  letterSpacing: "0.15em",
-                }}
-              >
-                CHIARO
-              </button>
-              <button
-                onClick={() => setTema("scuro")}
-                className="flex-1 py-2 text-xs tracking-widest transition"
-                style={{
-                  backgroundColor: tema === "scuro" ? T.accent : "transparent",
-                  color: tema === "scuro" ? "#fff" : T.textSoft,
-                  letterSpacing: "0.15em",
-                }}
-              >
-                SCURO
-              </button>
-            </div>
-          </div>
           <button
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
             style={{ color: T.textSoft, borderRadius: 10 }}
@@ -1196,9 +1169,9 @@ useEffect(() => {
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
           <div className="flex items-center gap-2">
-            {/* TOGGLE TEMA mobile — icona luna/sole */}
+            {/* TOGGLE TEMA — icona luna/sole (mobile + desktop) */}
             <button
-              className="md:hidden"
+              className=""
               onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}
               title={tema === "chiaro" ? "Tema scuro" : "Tema chiaro"}
               style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: T.textSoft }}
