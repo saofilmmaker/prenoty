@@ -703,11 +703,13 @@ export default function Home(){
             {d:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,t:"Personalizza tutto",s:"Servizi, durata, prezzi, orari. Configuri tutto in pochi minuti."},
             {d:<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>,t:"Primo mese gratis",s:"Nessuna carta richiesta. Provi, e solo se ti piace decidi di continuare."},
           ].map(({d,t,s},i)=>(
-            <FadeIn key={t} delay={i*0.07}>
-              <div style={{background:"rgba(108,92,231,0.05)",border:"0.5px solid rgba(108,92,231,0.15)",borderRadius:16,padding:"28px 24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{marginBottom:16}}><Ico d={d} size={22}/></div>
-                <h3 style={{fontSize:15,fontWeight:600,color:"#fff",marginBottom:8}}>{t}</h3>
-                <p style={{fontSize:14,color:"#9b96c8",lineHeight:1.7,margin:0}}>{s}</p>
+            <FadeIn key={t} delay={i*0.07} style={{height:"100%"}}>
+              <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
+                <div style={{background:"rgba(108,92,231,0.05)",borderRadius:16,padding:"28px 24px",height:"100%",boxSizing:"border-box"}}>
+                  <div style={{marginBottom:16}}><Ico d={d} size={22}/></div>
+                  <h3 style={{fontSize:15,fontWeight:600,color:"#fff",marginBottom:8}}>{t}</h3>
+                  <p style={{fontSize:14,color:"#9b96c8",lineHeight:1.7,margin:0}}>{s}</p>
+                </div>
               </div>
             </FadeIn>
           ))}
