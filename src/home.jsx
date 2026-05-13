@@ -180,7 +180,7 @@ function IPhone(){
             {/* Galleria */}
             <div style={{padding:"6px 11px 0"}}>
               <div style={{fontSize:6.5,color:textMuted,letterSpacing:"0.18em",marginBottom:5}}>GALLERIA</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3}}>
+              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3,padding:"0 8px"}}>
                 {[
                   "/gallery/gallery1.jpg",
                   "/gallery/gallery2.jpg",
@@ -437,7 +437,7 @@ function Desktop(){
               {/* Galleria */}
               <div style={{marginTop:14}}>
                 <div style={{fontSize:8.5,color:textMuted,letterSpacing:"0.18em",marginBottom:8}}>GALLERIA</div>
-                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5}}>
+                <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:5,padding:"0 12px"}}>
                   {[
                     "/gallery/gallery1.jpg",
                     "/gallery/gallery2.jpg",
