@@ -404,11 +404,7 @@ function Desktop(){
           {/* ── SCREEN 3: App Cliente con cover + galleria ── */}
           <div style={{position:"absolute",inset:0,opacity:sc===2?1:0,transition:"opacity 0.8s ease",background:card,overflow:"hidden",fontFamily:"Georgia,'Times New Roman',serif"}}>
             {/* Header PWA */}
-            <div style={{background:card,borderBottom:`1px solid ${border}`,padding:"8px 20px",display:"flex",alignItems:"center",justifyContent:"space-between",flexShrink:0}}>
-              <div style={{display:"flex",alignItems:"center",gap:6,border:`1px solid ${border}`,borderRadius:20,padding:"4px 12px"}}>
-                <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={textMuted} strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span style={{fontSize:9,color:textSoft}}>Aggiungi home</span>
-              </div>
+            <div style={{background:card,borderBottom:`1px solid ${border}`,padding:"8px 20px",display:"flex",alignItems:"center",justifyContent:"flex-end",flexShrink:0}}>
               <div style={{display:"flex",gap:5}}>
                 <div style={{width:26,height:26,borderRadius:"50%",border:`1px solid ${border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
                   <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke={textSoft} strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
@@ -460,7 +456,6 @@ function Desktop(){
                 <div style={{fontSize:7.5,color:textMuted,letterSpacing:"0.18em",marginBottom:6}}>I NOSTRI SERVIZI</div>
                 {[
                   {n:"Taglio",d:"30 min",p:"€15"},
-                  {n:"Tagli + Barba",d:"50 min",p:"€25"},
                   {n:"Colore",d:"60 min",p:"€45"},
                 ].map(({n,d,p})=>(
                   <div key={n} style={{background:card,border:`1px solid ${border}`,padding:"7px 12px",marginBottom:4,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
