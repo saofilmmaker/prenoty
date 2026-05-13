@@ -1101,7 +1101,7 @@ useEffect(() => {
         <div className="p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
           <div className="flex items-center gap-2">
             {salone.logo ? (
-              <img src={salone.logo} alt="Logo" className="w-10 h-10 object-contain rounded-xl" />
+              <img src={salone.logo} alt="Logo" className="w-10 h-10 object-contain rounded-2xl" />
             ) : (
               <div style={{ width: 36, height: 36, borderRadius: 10, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
@@ -1187,7 +1187,7 @@ useEffect(() => {
         <header className="border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <div className="md:hidden flex items-center gap-2">
             {salone.logo ? (
-              <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 8 }} />
+              <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "contain", borderRadius: 12 }} />
             ) : (
               <div style={{ width: 28, height: 28, borderRadius: 8, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
                 <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
