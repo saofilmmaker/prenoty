@@ -705,7 +705,7 @@ export default function Home(){
           ].map(({d,t,s},i)=>(
             <FadeIn key={t} delay={i*0.07} style={{height:"100%"}}>
               <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(108,92,231,0.05)",borderRadius:16,padding:"28px 24px",height:"100%",boxSizing:"border-box"}}>
+                <div style={{background:"#13112b",borderRadius:16,padding:"28px 24px",height:"100%",boxSizing:"border-box"}}>
                   <div style={{marginBottom:16}}><Ico d={d} size={22}/></div>
                   <h3 style={{fontSize:15,fontWeight:600,color:"#fff",marginBottom:8}}>{t}</h3>
                   <p style={{fontSize:14,color:"#9b96c8",lineHeight:1.7,margin:0}}>{s}</p>
