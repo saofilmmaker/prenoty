@@ -506,7 +506,17 @@ export default function AppCliente() {
     <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
       {/* HEADER */}
       <header className="sticky top-0 z-10 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
-        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-end">
+        <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
+
+          {/* Aggiungi home — solo mobile */}
+          <button
+            onClick={() => setPwaModalAperto(true)}
+            className="md:hidden flex items-center gap-2"
+            style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: 20, cursor: "pointer", padding: "7px 14px", color: T.textSoft, fontFamily: "inherit", fontSize: 12 }}
+          >
+            <Smartphone style={{ width: 14, height: 14 }} />
+            <span style={{ letterSpacing: "0.05em" }}>Aggiungi home</span>
+          </button>
 
           <div className="flex items-center gap-1">
             <button
