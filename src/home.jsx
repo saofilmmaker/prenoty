@@ -844,24 +844,29 @@ export default function Home(){
             <span className="btn-glass-lens"/>
             <span className="btn-glass-text">Registrati gratis</span>
           </a>
-          <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:20,marginTop:28}}>
-            <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.6,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.6}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9b96c8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-              </svg>
-            </a>
-            <a href="https://www.facebook.com/prenotyapp" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.6,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.6}>
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#9b96c8" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/>
-              </svg>
-            </a>
-          </div>
         </FadeIn>
       </section>
 
       <footer style={{background:"#0f0d24",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
         <div className="nav-wrap" style={{padding:"24px 56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:18,objectFit:"contain",opacity:0.4}}/>
+          <div style={{display:"flex",alignItems:"center",gap:18}}>
+            {/* Instagram — stile outline rounded square */}
+            <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.75,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.75}>
+              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a29bfe" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
+                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
+                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
+              </svg>
+            </a>
+            {/* Facebook — stile cerchio pieno con "f" */}
+            <a href="https://www.facebook.com/prenotyapp" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.75,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.75}>
+              <svg width="26" height="26" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" fill="#a29bfe"/>
+                <path d="M13.5 7H15V5h-1.5C12.1 5 11 6.1 11 7.5V9.5H9.5V12H11v7h2v-7h2l.5-2.5H13V7.5c0-.28.22-.5.5-.5z" fill="#0f0d24"/>
+              </svg>
+            </a>
+          </div>
           <span style={{color:"rgba(155,150,200,0.3)",fontSize:12}}>© 2026 Prenoty — Genova, Italia</span>
         </div>
       </footer>
