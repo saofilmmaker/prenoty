@@ -337,7 +337,7 @@ function Desktop(){
                         <div style={{fontSize:11,fontWeight:600,color:textMain}}>{ora}</div>
                         <div style={{fontSize:8,color:textMuted}}>{dur}</div>
                       </div>
-                      <div style={{width:2,alignSelf:"stretch",background:nuovo?accent:border,borderRadius:2,flexShrink:0}}/>
+                      <div style={{width:2,alignSelf:"stretch",background:accent,borderRadius:2,flexShrink:0}}/>
                       <div style={{flex:1,minWidth:0}}>
                         <div style={{display:"flex",alignItems:"center",gap:5}}>
                           <span style={{fontSize:12,fontWeight:600,color:textMain}}>{nome}</span>
