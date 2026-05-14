@@ -505,7 +505,7 @@ export default function Home(){
         *{box-sizing:border-box;}
         html,body{
           background:#0f0d24!important;
-          overscroll-behavior:none;
+          overscroll-behavior-x:none;
           -webkit-overflow-scrolling:touch;
         }
 
