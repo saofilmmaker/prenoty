@@ -850,19 +850,19 @@ export default function Home(){
       <footer style={{background:"#0f0d24",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
         <div className="nav-wrap" style={{padding:"24px 56px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:18,objectFit:"contain",opacity:0.4}}/>
-          <div style={{display:"flex",alignItems:"center",gap:18}}>
+          <div style={{display:"flex",alignItems:"center",gap:20}}>
             {/* Instagram — stile outline rounded square */}
-            <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.75,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.75}>
-              <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#a29bfe" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
+            <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.55,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.55}>
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
                 <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
                 <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
               </svg>
             </a>
             {/* Facebook — stile cerchio pieno con "f" */}
-            <a href="https://www.facebook.com/prenotyapp" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.75,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.75}>
-              <svg width="26" height="26" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="#a29bfe"/>
+            <a href="https://www.facebook.com/prenotyapp" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.55,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.55}>
+              <svg width="28" height="28" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.85)"/>
                 <path d="M13.5 7H15V5h-1.5C12.1 5 11 6.1 11 7.5V9.5H9.5V12H11v7h2v-7h2l.5-2.5H13V7.5c0-.28.22-.5.5-.5z" fill="#0f0d24"/>
               </svg>
             </a>
