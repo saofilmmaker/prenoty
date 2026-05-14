@@ -375,10 +375,10 @@ function Desktop(){
                   </div>
                   {[
                     {n:"Taglio Donna",d:"45 min",p:"€35",col:"#6c5ce7"},
-                    {n:"Colore",d:"90 min",p:"€65",col:"#e17055"},
-                    {n:"Piega",d:"30 min",p:"€25",col:"#00b894"},
-                    {n:"Taglio + Piega",d:"60 min",p:"€50",col:"#fdcb6e"},
-                    {n:"Trattamento",d:"45 min",p:"€40",col:"#74b9ff"},
+                    {n:"Colore",d:"90 min",p:"€65",col:"#6c5ce7"},
+                    {n:"Piega",d:"30 min",p:"€25",col:"#6c5ce7"},
+                    {n:"Taglio + Piega",d:"60 min",p:"€50",col:"#6c5ce7"},
+                    {n:"Trattamento",d:"45 min",p:"€40",col:"#6c5ce7"},
                   ].map(({n,d,p,col})=>(
                     <div key={n} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 14px",borderBottom:`1px solid ${border}`}}>
                       <div style={{width:3,height:36,background:col,borderRadius:2,flexShrink:0}}/>
