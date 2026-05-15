@@ -79,8 +79,8 @@ export default function Registrazione() {
           .reg-toplogo{display:none!important;}
           .reg-wrap{flex-direction:column;gap:20px}
           .reg-benefit{order:2;width:100%}
-          .reg-form{order:1;width:100%;box-sizing:border-box}
-          .reg-content{min-height:unset!important;padding-bottom:48px!important}
+          .reg-form{order:1;width:100%;box-sizing:border-box;padding:28px 24px!important;margin-top:24px}
+          .reg-content{min-height:unset!important;padding:24px 16px 48px!important;align-items:flex-start!important}
         }
       `}</style>
 
