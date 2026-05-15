@@ -74,6 +74,7 @@ export default function Registrazione() {
         .reg-form{width:340px;flex-shrink:0;background:#f4f3ff;padding:40px;border-radius:20px;border:0.5px solid #e0dcff}
         .reg-input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
         .reg-input::placeholder{color:#9b96c8}
+        .reg-input:-webkit-autofill,.reg-input:-webkit-autofill:hover,.reg-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 30px #fff inset!important;-webkit-text-fill-color:#1e1b3a!important;border:1px solid #e0dcff!important}
         @media(max-width:720px){
           .reg-wrap{flex-direction:column;gap:20px}
           .reg-benefit{order:2;width:100%}
