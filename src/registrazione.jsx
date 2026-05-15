@@ -76,6 +76,7 @@ export default function Registrazione() {
         .reg-input::placeholder{color:#9b96c8}
         .reg-input:-webkit-autofill,.reg-input:-webkit-autofill:hover,.reg-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 30px #fff inset!important;-webkit-text-fill-color:#1e1b3a!important;border:1px solid #e0dcff!important}
         @media(max-width:720px){
+          .reg-toplogo{display:none!important;}
           .reg-wrap{flex-direction:column;gap:20px}
           .reg-benefit{order:2;width:100%}
           .reg-form{order:1;width:100%;box-sizing:border-box}
@@ -83,8 +84,8 @@ export default function Registrazione() {
         }
       `}</style>
 
-      {/* LOGO */}
-      <div style={{ padding:"28px 32px" }}>
+      {/* LOGO — nascosto su mobile, visibile su desktop */}
+      <div className="reg-toplogo" style={{ padding:"28px 32px" }}>
         <a href="/" style={{ display:"inline-block" }}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{ height:22, objectFit:"contain" }} />
         </a>
