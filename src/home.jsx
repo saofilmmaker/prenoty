@@ -484,6 +484,49 @@ function Desktop(){
   );
 }
 
+function CookieBanner(){
+  const[visible,setVisible]=useState(()=>!localStorage.getItem("prenoty_cookie_consent"));
+  if(!visible)return null;
+  const accept=()=>{localStorage.setItem("prenoty_cookie_consent","accepted");setVisible(false);};
+  const reject=()=>{localStorage.setItem("prenoty_cookie_consent","rejected");setVisible(false);};
+  return(
+    <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:9999,padding:"0 16px 16px",display:"flex",justifyContent:"center",pointerEvents:"none"}}>
+      <div style={{
+        background:"rgba(13,11,28,0.97)",
+        backdropFilter:"blur(16px)",
+        WebkitBackdropFilter:"blur(16px)",
+        border:"1px solid rgba(108,92,231,0.25)",
+        borderRadius:16,
+        padding:"20px 24px",
+        maxWidth:640,
+        width:"100%",
+        display:"flex",
+        gap:20,
+        alignItems:"center",
+        flexWrap:"wrap",
+        pointerEvents:"all",
+        boxShadow:"0 8px 40px rgba(0,0,0,0.5)",
+      }}>
+        <div style={{flex:1,minWidth:200}}>
+          <div style={{color:"#fff",fontSize:14,fontWeight:600,marginBottom:4}}>🍪 Utilizziamo i cookie</div>
+          <div style={{color:"rgba(200,196,255,0.7)",fontSize:13,lineHeight:1.6}}>
+            Usiamo cookie tecnici per il corretto funzionamento del sito. Nessun cookie di profilazione o tracciamento.{" "}
+            <a href="/privacy" style={{color:"#a29bfe",textDecoration:"underline"}}>Privacy policy</a>
+          </div>
+        </div>
+        <div style={{display:"flex",gap:10,flexShrink:0}}>
+          <button onClick={reject} style={{padding:"10px 18px",borderRadius:8,border:"1px solid rgba(108,92,231,0.4)",background:"transparent",color:"rgba(200,196,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>
+            Rifiuta
+          </button>
+          <button onClick={accept} style={{padding:"10px 20px",borderRadius:8,border:"none",background:"#6c5ce7",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+            Accetta
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export default function Home(){
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
@@ -870,6 +913,7 @@ export default function Home(){
         </div>
       </footer>
       </div>{/* fine wrapper zIndex:1 */}
+      <CookieBanner/>
     </div>
   );
 }
