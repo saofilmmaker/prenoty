@@ -486,47 +486,115 @@ function Desktop(){
 
 function CookieBanner(){
   const[visible,setVisible]=useState(false);
+  const[modal,setModal]=useState(false);
+  const[analisi,setAnalisi]=useState(false);
+  const[marketing,setMarketing]=useState(false);
+
   useEffect(()=>{
     try{ if(!localStorage.getItem("prenoty_cookie_consent")) setVisible(true); }catch(e){}
   },[]);
+
+  const save=(value)=>{
+    try{ localStorage.setItem("prenoty_cookie_consent",value); }catch(e){}
+    setVisible(false); setModal(false);
+  };
+  const acceptAll=()=>save("accepted");
+  const rejectAll=()=>{ setAnalisi(false); setMarketing(false); save("rejected"); };
+  const savePrefs=()=>save(JSON.stringify({necessari:true,analisi,marketing}));
+
   if(!visible)return null;
-  const accept=()=>{localStorage.setItem("prenoty_cookie_consent","accepted");setVisible(false);};
-  const reject=()=>{localStorage.setItem("prenoty_cookie_consent","rejected");setVisible(false);};
+
+  const rowStyle={borderBottom:"1px solid rgba(108,92,231,0.15)",paddingBottom:16,marginBottom:16};
+  const toggleStyle=(on)=>({
+    width:40,height:22,borderRadius:11,border:"none",cursor:"pointer",position:"relative",
+    background:on?"#6c5ce7":"rgba(108,92,231,0.2)",transition:"background 0.2s",flexShrink:0,
+  });
+  const dotStyle=(on)=>({
+    position:"absolute",top:3,left:on?20:3,width:16,height:16,borderRadius:"50%",
+    background:"#fff",transition:"left 0.2s",
+  });
+
   return(
-    <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:9999,padding:"0 16px 16px",display:"flex",justifyContent:"center",pointerEvents:"none"}}>
-      <div style={{
-        background:"rgba(13,11,28,0.97)",
-        backdropFilter:"blur(16px)",
-        WebkitBackdropFilter:"blur(16px)",
-        border:"1px solid rgba(108,92,231,0.25)",
-        borderRadius:16,
-        padding:"20px 24px",
-        maxWidth:640,
-        width:"100%",
-        display:"flex",
-        gap:20,
-        alignItems:"center",
-        flexWrap:"wrap",
-        pointerEvents:"all",
-        boxShadow:"0 8px 40px rgba(0,0,0,0.5)",
-      }}>
-        <div style={{flex:1,minWidth:200}}>
-          <div style={{color:"#fff",fontSize:14,fontWeight:600,marginBottom:4}}>🍪 Utilizziamo i cookie</div>
-          <div style={{color:"rgba(200,196,255,0.7)",fontSize:13,lineHeight:1.6}}>
-            Usiamo cookie tecnici per il corretto funzionamento del sito. Nessun cookie di profilazione o tracciamento.{" "}
-            <a href="/privacy" style={{color:"#a29bfe",textDecoration:"underline"}}>Privacy policy</a>
+    <>
+      {/* OVERLAY modale */}
+      {modal && (
+        <div style={{position:"fixed",inset:0,zIndex:10000,background:"rgba(0,0,0,0.6)",display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div style={{background:"#0f0d24",border:"1px solid rgba(108,92,231,0.3)",borderRadius:20,width:"100%",maxWidth:520,maxHeight:"90vh",overflowY:"auto",padding:32,boxShadow:"0 24px 80px rgba(0,0,0,0.7)"}}>
+            {/* Header */}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:24}}>
+              <div style={{color:"#fff",fontSize:18,fontWeight:700}}>Preferenze cookie</div>
+              <button onClick={()=>setModal(false)} style={{background:"transparent",border:"none",cursor:"pointer",color:"rgba(200,196,255,0.5)",fontSize:22,lineHeight:1}}>✕</button>
+            </div>
+            <p style={{color:"rgba(200,196,255,0.65)",fontSize:13,lineHeight:1.7,marginBottom:24}}>
+              Scegli quali cookie accettare. I cookie necessari sono sempre attivi perché indispensabili al funzionamento del sito.{" "}
+              <a href="/privacy" style={{color:"#a29bfe",textDecoration:"underline"}}>Privacy policy</a>
+            </p>
+
+            {/* Necessari — sempre attivi */}
+            <div style={rowStyle}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                <div style={{color:"#fff",fontSize:14,fontWeight:600}}>Necessari</div>
+                <span style={{fontSize:12,color:"#a29bfe",fontWeight:600}}>Sempre attivi</span>
+              </div>
+              <div style={{color:"rgba(200,196,255,0.55)",fontSize:13,lineHeight:1.6}}>Cookie indispensabili per il funzionamento del sito, come la sessione di accesso.</div>
+            </div>
+
+            {/* Analisi */}
+            <div style={rowStyle}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                <div style={{color:"#fff",fontSize:14,fontWeight:600}}>Analisi</div>
+                <button onClick={()=>setAnalisi(v=>!v)} style={toggleStyle(analisi)}>
+                  <div style={dotStyle(analisi)}/>
+                </button>
+              </div>
+              <div style={{color:"rgba(200,196,255,0.55)",fontSize:13,lineHeight:1.6}}>Ci aiutano a capire come gli utenti interagiscono con il sito, per migliorarne il funzionamento.</div>
+            </div>
+
+            {/* Marketing */}
+            <div style={{...rowStyle,borderBottom:"none",marginBottom:0,paddingBottom:0}}>
+              <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}>
+                <div style={{color:"#fff",fontSize:14,fontWeight:600}}>Marketing</div>
+                <button onClick={()=>setMarketing(v=>!v)} style={toggleStyle(marketing)}>
+                  <div style={dotStyle(marketing)}/>
+                </button>
+              </div>
+              <div style={{color:"rgba(200,196,255,0.55)",fontSize:13,lineHeight:1.6}}>Cookie usati per mostrare contenuti e annunci pertinenti in base ai tuoi interessi.</div>
+            </div>
+
+            {/* Bottoni modal */}
+            <div style={{display:"flex",gap:10,marginTop:28,flexWrap:"wrap"}}>
+              <button onClick={rejectAll} style={{flex:1,padding:"11px 16px",borderRadius:10,border:"1px solid rgba(108,92,231,0.35)",background:"transparent",color:"rgba(200,196,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer"}}>Rifiuta tutto</button>
+              <button onClick={savePrefs} style={{flex:1,padding:"11px 16px",borderRadius:10,border:"1px solid rgba(108,92,231,0.35)",background:"transparent",color:"#a29bfe",fontSize:13,fontWeight:600,cursor:"pointer"}}>Salva le mie scelte</button>
+              <button onClick={acceptAll} style={{flex:1,padding:"11px 16px",borderRadius:10,border:"none",background:"#6c5ce7",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer"}}>Accetta tutto</button>
+            </div>
           </div>
         </div>
-        <div style={{display:"flex",gap:10,flexShrink:0}}>
-          <button onClick={reject} style={{padding:"10px 18px",borderRadius:8,border:"1px solid rgba(108,92,231,0.4)",background:"transparent",color:"rgba(200,196,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>
-            Rifiuta
-          </button>
-          <button onClick={accept} style={{padding:"10px 20px",borderRadius:8,border:"none",background:"#6c5ce7",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
-            Accetta
-          </button>
+      )}
+
+      {/* BANNER */}
+      <div style={{position:"fixed",bottom:0,left:0,right:0,zIndex:9999,padding:"0 16px 16px",display:"flex",justifyContent:"center",pointerEvents:"none"}}>
+        <div style={{background:"rgba(13,11,28,0.97)",backdropFilter:"blur(16px)",WebkitBackdropFilter:"blur(16px)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:16,padding:"20px 24px",maxWidth:680,width:"100%",display:"flex",gap:20,alignItems:"center",flexWrap:"wrap",pointerEvents:"all",boxShadow:"0 8px 40px rgba(0,0,0,0.5)"}}>
+          <div style={{flex:1,minWidth:200}}>
+            <div style={{color:"#fff",fontSize:14,fontWeight:600,marginBottom:4}}>Utilizziamo i cookie</div>
+            <div style={{color:"rgba(200,196,255,0.65)",fontSize:13,lineHeight:1.6}}>
+              Usiamo cookie tecnici per il corretto funzionamento del sito.{" "}
+              <a href="/privacy" style={{color:"#a29bfe",textDecoration:"underline"}}>Privacy policy</a>
+            </div>
+          </div>
+          <div style={{display:"flex",gap:10,flexShrink:0,flexWrap:"wrap"}}>
+            <button onClick={()=>setModal(true)} style={{padding:"10px 16px",borderRadius:8,border:"1px solid rgba(108,92,231,0.3)",background:"transparent",color:"rgba(200,196,255,0.65)",fontSize:13,fontWeight:500,cursor:"pointer",whiteSpace:"nowrap"}}>
+              Gestisci preferenze
+            </button>
+            <button onClick={rejectAll} style={{padding:"10px 18px",borderRadius:8,border:"1px solid rgba(108,92,231,0.4)",background:"transparent",color:"rgba(200,196,255,0.8)",fontSize:13,fontWeight:600,cursor:"pointer",whiteSpace:"nowrap"}}>
+              Rifiuta
+            </button>
+            <button onClick={acceptAll} style={{padding:"10px 20px",borderRadius:8,border:"none",background:"#6c5ce7",color:"#fff",fontSize:13,fontWeight:700,cursor:"pointer",whiteSpace:"nowrap"}}>
+              Accetta
+            </button>
+          </div>
         </div>
       </div>
-    </div>
+    </>
   );
 }
 
