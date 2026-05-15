@@ -700,6 +700,8 @@ export default function Home(){
         @media(max-width:600px){
           .feat-grid{grid-template-columns:1fr!important;}
           .hero-h1{font-size:50px!important;}
+          .footer-inner{flex-direction:column!important;align-items:center!important;gap:14px!important;padding:20px 24px!important;}
+          .footer-icons{position:static!important;transform:none!important;}
         }
         /* Desktop mockup — scala su schermi piccoli senza taglio */
         .desktop-screen{ height:580px; }
@@ -962,10 +964,10 @@ export default function Home(){
       </section>
 
       <footer style={{background:"#0f0d24",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
-        <div className="nav-wrap" style={{padding:"24px 56px",position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
+        <div className="nav-wrap footer-inner" style={{padding:"24px 56px",position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:18,objectFit:"contain",opacity:0.4}}/>
-          {/* Icone centrate in modo assoluto */}
-          <div style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:20}}>
+          {/* Icone centrate in modo assoluto (desktop) / statiche (mobile via CSS) */}
+          <div className="footer-icons" style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:20}}>
             <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.55,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.55}>
               <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
                 <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
