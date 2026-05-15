@@ -6,6 +6,7 @@ export default function Login() {
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errore, setErrore] = useState("");
+  const [showPw, setShowPw] = useState(false);
 
   const handleLogin = async () => {
     setLoading(true);
@@ -87,10 +88,31 @@ export default function Login() {
                 <label style={{ fontSize:10, color:"#9b96c8", letterSpacing:1, textTransform:"uppercase" }}>Password</label>
                 <a href="/recupera-password" style={{ fontSize:11, color:"#6c5ce7", textDecoration:"none" }}>Hai dimenticato la password?</a>
               </div>
-              <input type="password" placeholder="La tua password" value={password}
-                onChange={e => { setPassword(e.target.value); setErrore(""); }}
-                onKeyDown={e => e.key === "Enter" && handleLogin()}
-                className="login-input" />
+              <div style={{ position:"relative" }}>
+                <input type={showPw ? "text" : "password"} placeholder="La tua password" value={password}
+                  onChange={e => { setPassword(e.target.value); setErrore(""); }}
+                  onKeyDown={e => e.key === "Enter" && handleLogin()}
+                  className="login-input" style={{ paddingRight:44 }} />
+                <button
+                  type="button"
+                  onClick={() => setShowPw(v => !v)}
+                  style={{ position:"absolute", right:12, top:"50%", transform:"translateY(-50%)", background:"transparent", border:"none", cursor:"pointer", padding:4, color:"#9b96c8", display:"flex", alignItems:"center" }}
+                  tabIndex={-1}
+                >
+                  {showPw ? (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94"/>
+                      <path d="M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19"/>
+                      <line x1="1" y1="1" x2="23" y2="23"/>
+                    </svg>
+                  ) : (
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#9b96c8" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+                      <circle cx="12" cy="12" r="3"/>
+                    </svg>
+                  )}
+                </button>
+              </div>
             </div>
             {errore && <div style={{ background:"rgba(231,76,60,0.08)", color:"#e74c3c", padding:"10px 14px", borderRadius:8, fontSize:13, marginBottom:14 }}>{errore}</div>}
             <button onClick={handleLogin} disabled={loading}
