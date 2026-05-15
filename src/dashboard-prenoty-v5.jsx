@@ -272,6 +272,7 @@ useEffect(() => {
         nome: s.nome,
         durata: s.durata,
         prezzo: s.prezzo,
+        nota: s.nota || "",
       })) : []);
 
       // Carica prenotazioni reali da Supabase
@@ -524,6 +525,9 @@ useEffect(() => {
   // Modifica inline servizi: tiene traccia di quale servizio si sta modificando
   const [modificaServizio, setModificaServizio] = useState(null);
 
+  // Menu tre puntini servizi
+  const [menuServizio, setMenuServizio] = useState(null);
+
   // Modal di conferma per cambio tipo attività
   const [confermaCambioTipo, setConfermaCambioTipo] = useState(null);
 
@@ -566,14 +570,14 @@ useEffect(() => {
   };
 
   const nuovoServizio = async () => {
-    const servizioTemp = { nome: "Nuovo servizio", durata: 30, prezzo: 0 };
+    const servizioTemp = { nome: "Nuovo servizio", durata: 30, prezzo: 0, nota: "" };
     if (salone.dbId) {
       const { data } = await supabase.from("servizi")
-        .insert({ ...servizioTemp, salone_id: salone.dbId })
+        .insert({ nome: servizioTemp.nome, durata: servizioTemp.durata, prezzo: servizioTemp.prezzo, salone_id: salone.dbId })
         .select()
         .single();
       if (data) {
-        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo }]);
+        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo, nota: data.nota || "" }]);
         setModificaServizio({ id: data.id, campo: "nome" });
         return;
       }
@@ -1601,128 +1605,224 @@ useEffect(() => {
               <div className="grid md:grid-cols-2 gap-3">
                 {servizi.map(s => {
                   const inMod = (campo) => modificaServizio?.id === s.id && modificaServizio?.campo === campo;
+                  const menuAperto = menuServizio === s.id;
 
                   return (
                     <div
                       key={s.id}
-                      className="p-5 border flex items-center justify-between"
-                      style={{ backgroundColor: T.card, borderColor: T.border }}
+                      className="p-5 border"
+                      style={{ backgroundColor: T.card, borderColor: T.border, position: "relative" }}
+                      onClick={() => { if (menuAperto) setMenuServizio(null); }}
                     >
-                      <div style={{ flex: 1 }}>
-                        {/* NOME — clic per modificare */}
-                        {inMod("nome") ? (
-                          <input
-                            autoFocus
-                            type="text"
-                            value={s.nome}
-                            onChange={(e) => aggiornaServizio(s.id, "nome", e.target.value)}
-                            onBlur={() => setModificaServizio(null)}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
-                            style={{
-                              fontSize: 18,
-                              fontFamily: "inherit",
-                              background: "transparent",
-                              color: T.text,
-                              border: "none",
-                              borderBottom: `2px solid ${T.accent}`,
-                              outline: "none",
-                              width: "100%",
-                              padding: "2px 0",
-                            }}
-                          />
-                        ) : (
-                          <div
-                            onClick={() => setModificaServizio({ id: s.id, campo: "nome" })}
-                            className="text-lg cursor-pointer"
-                            style={{ borderBottom: `1px dashed ${T.border}` }}
-                            title="Tocca per modificare"
-                          >
-                            {s.nome}
-                          </div>
-                        )}
-
-                        <div className="text-sm flex items-center gap-3 mt-2" style={{ color: T.textSoft }}>
-                          {/* DURATA — clic per modificare */}
-                          <span className="flex items-center gap-1">
-                            <Clock className="w-3 h-3" />
-                            {inMod("durata") ? (
-                              <input
-                                autoFocus
-                                type="number"
-                                min="5"
-                                step="5"
-                                value={s.durata}
-                                onChange={(e) => aggiornaServizio(s.id, "durata", e.target.value)}
-                                onBlur={() => setModificaServizio(null)}
-                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
-                                style={{
-                                  fontFamily: "inherit",
-                                  background: "transparent",
-                                  color: T.text,
-                                  border: `1px solid ${T.accent}`,
-                                  outline: "none",
-                                  width: 60,
-                                  padding: "2px 6px",
-                                  fontSize: 14,
-                                }}
-                              />
-                            ) : (
-                              <span
-                                onClick={() => setModificaServizio({ id: s.id, campo: "durata" })}
-                                className="cursor-pointer"
-                                style={{ borderBottom: `1px dashed ${T.borderStrong}` }}
-                              >
-                                {s.durata} min
-                              </span>
-                            )}
-                          </span>
-
-                          {/* PREZZO — clic per modificare */}
-                          {inMod("prezzo") ? (
-                            <span style={{ color: T.accent, display: "flex", alignItems: "center", gap: 2 }}>
-                              €
-                              <input
-                                autoFocus
-                                type="number"
-                                min="0"
-                                step="1"
-                                value={s.prezzo}
-                                onChange={(e) => aggiornaServizio(s.id, "prezzo", e.target.value)}
-                                onBlur={() => setModificaServizio(null)}
-                                onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
-                                style={{
-                                  fontFamily: "inherit",
-                                  background: "transparent",
-                                  color: T.accent,
-                                  border: `1px solid ${T.accent}`,
-                                  outline: "none",
-                                  width: 70,
-                                  padding: "2px 6px",
-                                  fontSize: 14,
-                                }}
-                              />
-                            </span>
+                      {/* Header riga: nome + tre puntini */}
+                      <div className="flex items-start justify-between gap-2">
+                        <div style={{ flex: 1 }}>
+                          {/* NOME — clic per modificare */}
+                          {inMod("nome") ? (
+                            <input
+                              autoFocus
+                              type="text"
+                              value={s.nome}
+                              onChange={(e) => aggiornaServizio(s.id, "nome", e.target.value)}
+                              onBlur={() => setModificaServizio(null)}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
+                              style={{
+                                fontSize: 18,
+                                fontFamily: "inherit",
+                                background: "transparent",
+                                color: T.text,
+                                border: "none",
+                                borderBottom: `2px solid ${T.accent}`,
+                                outline: "none",
+                                width: "100%",
+                                padding: "2px 0",
+                              }}
+                            />
                           ) : (
-                            <span
-                              onClick={() => setModificaServizio({ id: s.id, campo: "prezzo" })}
-                              className="cursor-pointer"
-                              style={{ color: T.accent, borderBottom: `1px dashed ${T.accent}` }}
+                            <div
+                              onClick={() => setModificaServizio({ id: s.id, campo: "nome" })}
+                              className="text-lg cursor-pointer"
+                              style={{ borderBottom: `1px dashed ${T.border}` }}
+                              title="Tocca per modificare"
                             >
-                              €{s.prezzo}
-                            </span>
+                              {s.nome}
+                            </div>
+                          )}
+                        </div>
+
+                        {/* MENU TRE PUNTINI */}
+                        <div style={{ position: "relative", flexShrink: 0 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); setMenuServizio(menuAperto ? null : s.id); }}
+                            className="p-1 rounded"
+                            style={{ color: T.textMuted, lineHeight: 1 }}
+                            title="Opzioni"
+                          >
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor">
+                              <circle cx="12" cy="5" r="1.5"/><circle cx="12" cy="12" r="1.5"/><circle cx="12" cy="19" r="1.5"/>
+                            </svg>
+                          </button>
+                          {menuAperto && (
+                            <div
+                              style={{
+                                position: "absolute",
+                                right: 0,
+                                top: "100%",
+                                marginTop: 4,
+                                background: T.card,
+                                border: `1px solid ${T.border}`,
+                                borderRadius: 8,
+                                boxShadow: "0 4px 16px rgba(0,0,0,0.12)",
+                                zIndex: 50,
+                                minWidth: 140,
+                                overflow: "hidden",
+                              }}
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              <button
+                                className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition"
+                                style={{ color: T.text }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = T.accentSoft}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                                onClick={() => { setModificaServizio({ id: s.id, campo: "nome" }); setMenuServizio(null); }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg>
+                                Modifica
+                              </button>
+                              <button
+                                className="w-full text-left px-4 py-3 text-sm flex items-center gap-2 transition"
+                                style={{ color: T.danger }}
+                                onMouseEnter={(e) => e.currentTarget.style.background = T.accentSoft}
+                                onMouseLeave={(e) => e.currentTarget.style.background = "transparent"}
+                                onClick={() => { eliminaServizio(s.id); setMenuServizio(null); }}
+                              >
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14H6L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4h6v2"/></svg>
+                                Elimina
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>
 
-                      <div className="flex gap-1">
-                        <button
-                          onClick={() => eliminaServizio(s.id)}
-                          className="p-2 rounded transition"
-                          style={{ color: T.danger }}
-                          title="Elimina"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
+                      {/* DURATA + PREZZO */}
+                      <div className="text-sm flex items-center gap-3 mt-2" style={{ color: T.textSoft }}>
+                        <span className="flex items-center gap-1">
+                          <Clock className="w-3 h-3" />
+                          {inMod("durata") ? (
+                            <input
+                              autoFocus
+                              type="number"
+                              min="5"
+                              step="5"
+                              value={s.durata}
+                              onChange={(e) => aggiornaServizio(s.id, "durata", e.target.value)}
+                              onBlur={() => setModificaServizio(null)}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
+                              style={{
+                                fontFamily: "inherit",
+                                background: "transparent",
+                                color: T.text,
+                                border: `1px solid ${T.accent}`,
+                                outline: "none",
+                                width: 60,
+                                padding: "2px 6px",
+                                fontSize: 14,
+                              }}
+                            />
+                          ) : (
+                            <span
+                              onClick={() => setModificaServizio({ id: s.id, campo: "durata" })}
+                              className="cursor-pointer"
+                              style={{ borderBottom: `1px dashed ${T.borderStrong}` }}
+                            >
+                              {s.durata} min
+                            </span>
+                          )}
+                        </span>
+
+                        {inMod("prezzo") ? (
+                          <span style={{ color: T.accent, display: "flex", alignItems: "center", gap: 2 }}>
+                            €
+                            <input
+                              autoFocus
+                              type="number"
+                              min="0"
+                              step="1"
+                              value={s.prezzo}
+                              onChange={(e) => aggiornaServizio(s.id, "prezzo", e.target.value)}
+                              onBlur={() => setModificaServizio(null)}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
+                              style={{
+                                fontFamily: "inherit",
+                                background: "transparent",
+                                color: T.accent,
+                                border: `1px solid ${T.accent}`,
+                                outline: "none",
+                                width: 70,
+                                padding: "2px 6px",
+                                fontSize: 14,
+                              }}
+                            />
+                          </span>
+                        ) : (
+                          <span
+                            onClick={() => setModificaServizio({ id: s.id, campo: "prezzo" })}
+                            className="cursor-pointer"
+                            style={{ color: T.accent, borderBottom: `1px dashed ${T.accent}` }}
+                          >
+                            €{s.prezzo}
+                          </span>
+                        )}
+                      </div>
+
+                      {/* NOTA — campo opzionale */}
+                      <div className="mt-3">
+                        {inMod("nota") ? (
+                          <textarea
+                            autoFocus
+                            rows={2}
+                            value={s.nota || ""}
+                            onChange={(e) => aggiornaServizio(s.id, "nota", e.target.value)}
+                            onBlur={() => setModificaServizio(null)}
+                            onKeyDown={(e) => { if (e.key === "Escape") setModificaServizio(null); }}
+                            placeholder="Aggiungi una nota per i clienti..."
+                            style={{
+                              fontFamily: "inherit",
+                              fontSize: 13,
+                              background: "transparent",
+                              color: T.text,
+                              border: `1px solid ${T.accent}`,
+                              borderRadius: 6,
+                              outline: "none",
+                              width: "100%",
+                              padding: "6px 10px",
+                              resize: "none",
+                            }}
+                          />
+                        ) : s.nota ? (
+                          <div
+                            onClick={() => setModificaServizio({ id: s.id, campo: "nota" })}
+                            className="cursor-pointer text-xs"
+                            style={{
+                              color: T.textSoft,
+                              borderLeft: `2px solid ${T.accent}`,
+                              paddingLeft: 8,
+                              fontStyle: "italic",
+                            }}
+                            title="Tocca per modificare la nota"
+                          >
+                            {s.nota}
+                          </div>
+                        ) : (
+                          <div
+                            onClick={() => setModificaServizio({ id: s.id, campo: "nota" })}
+                            className="cursor-pointer text-xs"
+                            style={{ color: T.textMuted, fontStyle: "italic" }}
+                            title="Aggiungi nota"
+                          >
+                            + Aggiungi nota...
+                          </div>
+                        )}
                       </div>
                     </div>
                   );
@@ -1730,7 +1830,7 @@ useEffect(() => {
               </div>
 
               <p className="text-xs mt-4" style={{ color: T.textMuted, fontStyle: "italic" }}>
-                💡 Tocca direttamente nome, durata o prezzo per modificarli. Premi Invio o tocca fuori per salvare.
+                💡 Tocca direttamente nome, durata, prezzo o nota per modificarli. Premi Invio o tocca fuori per salvare.
               </p>
             </div>
           )}

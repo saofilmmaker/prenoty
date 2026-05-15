@@ -935,6 +935,9 @@ export default function AppCliente() {
                           <div className="text-xs mt-1 flex items-center gap-1" style={{ color: T.textMuted }}>
                             <Clock className="w-3 h-3" /> {s.durata} min
                           </div>
+                          {s.nota && (
+                            <div className="text-xs mt-1" style={{ color: T.textSoft, fontStyle: "italic" }}>{s.nota}</div>
+                          )}
                         </div>
                       </div>
                       <div className="text-xl" style={{ color: T.accent }}>€{s.prezzo}</div>
