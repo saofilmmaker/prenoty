@@ -547,7 +547,7 @@ useEffect(() => {
   };
 
   const aggiornaServizio = async (id, campo, valore) => {
-    const valoreFinale = campo === "nome" ? valore : Number(valore) || 0;
+    const valoreFinale = (campo === "nome" || campo === "nota") ? valore : Number(valore) || 0;
     setServizi(servizi.map(s => s.id === id ? { ...s, [campo]: valoreFinale } : s));
     if (!salone.dbId) return;
     await supabase.from("servizi").update({ [campo]: valoreFinale }).eq("id", id).eq("salone_id", salone.dbId);
