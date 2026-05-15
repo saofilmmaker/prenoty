@@ -485,7 +485,10 @@ function Desktop(){
 }
 
 function CookieBanner(){
-  const[visible,setVisible]=useState(()=>!localStorage.getItem("prenoty_cookie_consent"));
+  const[visible,setVisible]=useState(false);
+  useEffect(()=>{
+    try{ if(!localStorage.getItem("prenoty_cookie_consent")) setVisible(true); }catch(e){}
+  },[]);
   if(!visible)return null;
   const accept=()=>{localStorage.setItem("prenoty_cookie_consent","accepted");setVisible(false);};
   const reject=()=>{localStorage.setItem("prenoty_cookie_consent","rejected");setVisible(false);};
