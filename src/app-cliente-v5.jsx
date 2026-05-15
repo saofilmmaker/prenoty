@@ -656,6 +656,7 @@ export default function AppCliente() {
                     <div>
                       <div className="text-sm">{s.nome}</div>
                       <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{s.durata} min</div>
+                      {s.nota && <div className="text-xs mt-1" style={{ color: T.textSoft, fontStyle: "italic" }}>{s.nota}</div>}
                     </div>
                     <div className="text-sm" style={{ color: T.accent }}>€{s.prezzo}</div>
                   </div>
