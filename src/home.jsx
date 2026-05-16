@@ -806,7 +806,7 @@ export default function Home(){
                     {["Nessun abbonamento","Setup in 2 minuti","Supporto in italiano"].map(item=>(
                       <div key={item} style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(108,92,231,0.07)",borderRadius:20,padding:"6px 14px"}}>
                         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
-                        <span style={{fontSize:13,color:"#3d35a8",fontWeight:500}}>{item}</span>
+                        <span style={{fontSize:13,color:"#6c5ce7",fontWeight:500}}>{item}</span>
                       </div>
                     ))}
                   </div>
