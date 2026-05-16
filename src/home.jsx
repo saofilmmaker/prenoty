@@ -791,23 +791,21 @@ export default function Home(){
         </div>
 
         {/* Dropdown mobile — solo quando menuOpen */}
-        <div className="mobile-menu" style={{display: menuOpen ? "flex" : "none",flexDirection:"column",gap:10,padding:"16px 24px 20px",background:"#f4f3ff",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
+        <div className="mobile-menu" style={{display: menuOpen ? "flex" : "none",flexDirection:"column",gap:4,padding:"12px 24px 20px",background:"#f4f3ff",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
+          {/* Chi siamo e Prezzi — testo semplice */}
           <button onClick={()=>{setChiSiamoOpen(true);setMenuOpen(false);}}
-            className="btn-glass btn-glass-light"
-            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,width:"100%",justifyContent:"flex-start",textAlign:"left"}}>
-            <span className="btn-glass-lens"/>
-            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Chi siamo</span>
+            style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#1e1b3a",width:"100%"}}>
+            Chi siamo
           </button>
           <a href="#prezzi" onClick={()=>setMenuOpen(false)}
-            className="btn-glass btn-glass-light"
-            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,textDecoration:"none",width:"100%",justifyContent:"flex-start"}}>
-            <span className="btn-glass-lens"/>
-            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Prezzi</span>
+            style={{textDecoration:"none",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#1e1b3a",display:"block"}}>
+            Prezzi
           </a>
-          <div style={{height:1,background:"rgba(108,92,231,0.12)",margin:"4px 0"}}/>
+          <div style={{height:1,background:"rgba(108,92,231,0.12)",margin:"8px 0"}}/>
+          {/* Accedi e Registrati — effetto glass */}
           <a href="/login" onClick={()=>setMenuOpen(false)}
             className="btn-glass btn-glass-light"
-            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,textDecoration:"none",width:"100%",justifyContent:"flex-start"}}>
+            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,textDecoration:"none",width:"100%",justifyContent:"flex-start",marginBottom:2}}>
             <span className="btn-glass-lens"/>
             <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Accedi</span>
           </a>
