@@ -823,7 +823,7 @@ export default function Home(){
                 style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block"}}
               />
               {/* Chip notifica */}
-              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(255,255,255,0.55)",borderRadius:16,padding:"11px 16px",boxShadow:"0 4px 20px rgba(0,0,0,0.10)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(16px) saturate(180%)",WebkitBackdropFilter:"blur(16px) saturate(180%)",border:"1px solid rgba(255,255,255,0.5)"}}>
+              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(245,245,247,0.82)",borderRadius:16,padding:"11px 16px",boxShadow:"0 2px 16px rgba(0,0,0,0.08)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(20px) saturate(160%)",WebkitBackdropFilter:"blur(20px) saturate(160%)",border:"1px solid rgba(255,255,255,0.6)"}}>
                 <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>Nuova prenotazione</div>
