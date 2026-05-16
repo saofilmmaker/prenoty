@@ -599,6 +599,7 @@ function CookieBanner(){
 
 export default function Home(){
   const [chiSiamoOpen, setChiSiamoOpen] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
       {/* ── SVG filter per liquid glass displacement ── */}
@@ -711,6 +712,11 @@ export default function Home(){
           .steps-grid{grid-template-columns:1fr!important;gap:24px!important;}
           .nav-wrap{padding:12px 24px!important;}
         .nav-links{display:none!important;}
+        .hamburger-btn{display:none;}
+        @media(max-width:960px){
+          .hamburger-btn{display:flex!important;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:6px;margin-left:auto;}
+          .mobile-menu{display:flex!important;}
+        }
         .nav-gradient-border{ border:none!important; border-image:linear-gradient(90deg,rgba(108,92,231,0.2) 0%,rgba(108,92,231,0.75) 25%,rgba(93,226,121,0.45) 50%,rgba(108,92,231,0.75) 75%,rgba(108,92,231,0.2) 100%) 1; border-bottom-width:1.5px!important; border-bottom-style:solid!important; }
         @media(max-width:960px){ .nav-gradient-border{ border:none!important; border-image:none!important; } }
           .sec-pad{padding:56px 24px!important;}
@@ -748,19 +754,27 @@ export default function Home(){
             <img src="/Prenoty_Viola.png" alt="Prenoty" style={{height:24,objectFit:"contain"}}/>
           </a>
 
-          {/* Link centrali */}
+          {/* Link centrali — solo desktop */}
           <div className="nav-links" style={{display:"flex",gap:32,position:"absolute",left:"50%",transform:"translateX(-50%)"}}>
             <a href="#prezzi" style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
               onMouseEnter={e=>e.target.style.color="#6c5ce7"}
               onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Prezzi</a>
             <button onClick={()=>setChiSiamoOpen(true)}
-              style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,background:"none",border:"none",cursor:"pointer",padding:0,transition:"color 0.2s"}}
+              style={{fontSize:14,color:"#1e1b3a",fontWeight:500,background:"none",border:"none",cursor:"pointer",padding:0,transition:"color 0.2s"}}
               onMouseEnter={e=>e.target.style.color="#6c5ce7"}
               onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Chi siamo</button>
           </div>
 
-          {/* Bottoni */}
-          <div style={{display:"flex",gap:8,flexShrink:0}}>
+          {/* Bottoni CTA + hamburger mobile */}
+          <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+            {/* Hamburger — solo mobile */}
+            <button className="hamburger-btn" onClick={()=>setMenuOpen(o=>!o)}
+              aria-label="Menu" style={{marginRight:4}}>
+              {menuOpen
+                ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+              }
+            </button>
             <a href="/login" className="btn-glass btn-glass-light" style={{fontSize:13,padding:"8px 18px",borderRadius:10,textDecoration:"none"}}>
               <span className="btn-glass-lens"/>
               <span className="btn-glass-text">Accedi</span>
@@ -772,6 +786,23 @@ export default function Home(){
           </div>
 
         </div>
+
+        {/* Dropdown mobile — solo quando menuOpen */}
+        <div className="mobile-menu" style={{display:"none",flexDirection:"column",gap:10,padding:"16px 24px 20px",background:"#f4f3ff",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
+          <a href="#prezzi" onClick={()=>setMenuOpen(false)}
+            className="btn-glass btn-glass-light"
+            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,textDecoration:"none",width:"100%",justifyContent:"flex-start"}}>
+            <span className="btn-glass-lens"/>
+            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Prezzi</span>
+          </a>
+          <button onClick={()=>{setChiSiamoOpen(true);setMenuOpen(false);}}
+            className="btn-glass btn-glass-light"
+            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,width:"100%",justifyContent:"flex-start",textAlign:"left"}}>
+            <span className="btn-glass-lens"/>
+            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Chi siamo</span>
+          </button>
+        </div>
+
       </nav>
 
       <section style={{background:"transparent",position:"relative",overflow:"hidden",padding:"56px 32px 80px"}}>
