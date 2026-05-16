@@ -690,6 +690,11 @@ export default function Home(){
         .btn-glass-dark .btn-glass-lens{ background:rgba(18,16,44,0.90); }
         .btn-glass-dark:hover .btn-glass-lens{ background:rgba(18,16,44,0.97); }
 
+        /* Green — CTA principale */
+        .btn-glass-green-cta{ color:#1a3a24 !important; font-weight:700 !important; }
+        .btn-glass-green-cta .btn-glass-lens{ background:rgba(93,226,121,0.92); }
+        .btn-glass-green-cta:hover .btn-glass-lens{ background:rgba(93,226,121,1); }
+
         /* Ghost su sfondo chiaro */
         .btn-glass-light{ color:#3d35a8 !important; }
         .btn-glass-light .btn-glass-lens{ background:rgba(108,92,231,0.06); border:1.5px solid rgba(108,92,231,0.22); }
@@ -847,7 +852,7 @@ export default function Home(){
                 </FadeIn>
                 <FadeIn delay={0.27}>
                   <div className="hero-btns">
-                    <a href="/registrazione" className="btn-glass btn-glass-dark" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
+                    <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
                       <span className="btn-glass-lens"/>
                       <span className="btn-glass-text">Inizia gratis</span>
                     </a>
