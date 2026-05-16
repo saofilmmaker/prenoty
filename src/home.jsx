@@ -721,6 +721,7 @@ export default function Home(){
           .nav-cta-btns{display:none!important;}
           .nav-gradient-border{ border:none!important; border-image:none!important; }
           .sec-pad{padding:56px 24px!important;}
+          .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
         @media(max-width:600px){
           .feat-grid{grid-template-columns:1fr!important;}
@@ -819,7 +820,7 @@ export default function Home(){
 
       </nav>
 
-      <section style={{background:"transparent",position:"relative",overflow:"hidden",padding:"56px 32px 80px"}}>
+      <section className="hero-section" style={{background:"transparent",position:"relative",overflow:"hidden",padding:"56px 32px 80px"}}>
         <FadeIn delay={0.05}>
           <div className="hero-card" style={{maxWidth:1100,margin:"0 auto",borderRadius:32,boxShadow:"0 32px 80px rgba(108,92,231,0.14),0 0 0 1px rgba(108,92,231,0.07)"}}>
 
