@@ -788,7 +788,7 @@ export default function Home(){
                 </FadeIn>
                 <FadeIn delay={0.15}>
                   <h1 className="hero-h1">
-                    Prenota.<br/>Conferma.<br/><span style={{color:"#6c5ce7"}}>Senza stress.</span>
+                    Gestisci le prenotazioni.<br/><span style={{color:"#6c5ce7"}}>Senza stress.</span>
                   </h1>
                 </FadeIn>
                 <FadeIn delay={0.21}>
