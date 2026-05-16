@@ -1158,7 +1158,7 @@ export default function Home(){
               <div style={{flex:"1 1 260px",minWidth:0,display:"flex",flexDirection:"column",gap:12}}>
                 {/* Team card */}
                 <div style={{background:"#fff",borderRadius:18,padding:"28px 24px",textAlign:"center",boxShadow:"0 4px 24px rgba(108,92,231,0.08)",border:"1px solid rgba(108,92,231,0.08)"}}>
-                  <div style={{width:60,height:60,borderRadius:"50%",background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",fontSize:22,fontWeight:700,color:"#fff"}}>P</div>
+                  <img src="/team-photo.png" alt="Il Team Prenoty" style={{width:80,height:80,borderRadius:"50%",objectFit:"cover",margin:"0 auto 14px",display:"block",border:"3px solid rgba(108,92,231,0.15)"}}/>
                   <div style={{fontSize:15,fontWeight:700,color:"#1e1b3a",marginBottom:4}}>Il Team Prenoty</div>
                   <div style={{fontSize:13,color:"#9b96c8",marginBottom:16}}>Genova, Italia</div>
                   <div style={{fontSize:13,color:"#6c5ce7",fontStyle:"italic",lineHeight:1.65}}>"Vogliamo che ogni professionista possa dedicarsi al suo lavoro, non alla burocrazia degli appuntamenti."</div>
@@ -1167,9 +1167,9 @@ export default function Home(){
                 {/* Stats 2×2 */}
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
                   {[
-                    {v:"2025",c:"#6c5ce7",label:"Anno di fondazione"},
+                    {v:"2026",c:"#6c5ce7",label:"Anno di fondazione"},
                     {v:"🇮🇹",c:"#1e1b3a",label:"100% italiano"},
-                    {v:"24h",c:"#f39c12",label:"Risposta supporto"},
+                    {v:"24h",c:"#6c5ce7",label:"Risposta supporto"},
                     {v:"30gg",c:"#5de279",label:"Gratis, senza carta"},
                   ].map(({v,c,label})=>(
                     <div key={label} style={{background:"#fff",borderRadius:14,padding:"16px 14px",textAlign:"center",border:"1px solid rgba(108,92,231,0.08)"}}>
