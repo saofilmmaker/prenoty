@@ -710,6 +710,7 @@ export default function Home(){
           .steps-grid{grid-template-columns:1fr!important;gap:24px!important;}
           .nav-wrap{padding:12px 24px!important;}
         .nav-links{display:none!important;}
+        .nav-gradient-border{ border:none!important; border-image:linear-gradient(90deg,rgba(108,92,231,0.2) 0%,rgba(108,92,231,0.75) 25%,rgba(93,226,121,0.45) 50%,rgba(108,92,231,0.75) 75%,rgba(108,92,231,0.2) 100%) 1; border-bottom-width:1.5px!important; border-bottom-style:solid!important; }
           .sec-pad{padding:56px 24px!important;}
         }
         @media(max-width:600px){
@@ -737,7 +738,7 @@ export default function Home(){
         }
       `}</style>
 
-      <nav style={{borderBottom:"1.5px solid #6c5ce7",position:"sticky",top:0,zIndex:100,background:"#ffffff"}}>
+      <nav className="nav-gradient-border" style={{position:"sticky",top:0,zIndex:100,background:"#f4f3ff"}}>
         <div className="nav-wrap" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 56px",position:"relative"}}>
 
           {/* Logo */}
