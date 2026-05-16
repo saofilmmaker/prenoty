@@ -827,7 +827,7 @@ export default function Home(){
                 <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>Nuova prenotazione</div>
-                  <div style={{fontSize:11,color:"#6c5ce7",marginTop:2,fontWeight:500}}>Oggi alle 15:30 · Confermata</div>
+                  <div style={{fontSize:11,color:"#9b9faa",marginTop:2,fontWeight:400}}>Oggi alle 15:30 · Confermata</div>
                 </div>
               </div>
             </div>
