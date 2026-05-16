@@ -610,7 +610,7 @@ export default function AppCliente() {
                 <button
                   onClick={() => setStep(1)}
                   className="mt-8 px-12 py-4 tracking-widest text-sm transition"
-                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.2em" }}
+                  style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
                 >
                   PRENOTA ORA
                 </button>
@@ -883,7 +883,7 @@ export default function AppCliente() {
               <button
                 onClick={() => setStep(1)}
                 className="px-12 py-4 tracking-widest text-sm transition"
-                style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.2em" }}
+                style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
               >
                 PRENOTA ORA
               </button>
