@@ -1113,8 +1113,7 @@ export default function Home(){
 
               {/* Colonna sinistra */}
               <div style={{flex:"1 1 340px",minWidth:0}}>
-                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
-                  <div style={{width:28,height:1.5,background:"#6c5ce7"}}/>
+                <div style={{marginBottom:20}}>
                   <span style={{fontSize:11,fontWeight:700,color:"#6c5ce7",letterSpacing:2,textTransform:"uppercase"}}>Chi siamo</span>
                 </div>
                 <h2 style={{fontSize:36,fontWeight:800,color:"#1e1b3a",lineHeight:1.1,letterSpacing:-1,marginBottom:20}}>
@@ -1129,12 +1128,12 @@ export default function Home(){
 
                 {/* Feature list */}
                 {[
-                  {emoji:"🎯",t:"Semplicità prima di tutto",s:"Setup in 2 minuti, nessun manuale, nessuna formazione necessaria."},
-                  {emoji:"🤝",t:"Supporto in italiano",s:"Siamo raggiungibili via email e risponderemo in meno di 24 ore."},
-                  {emoji:"💡",t:"In continua evoluzione",s:"Ogni aggiornamento nasce dai feedback reali dei nostri utenti."},
-                ].map(({emoji,t,s})=>(
-                  <div key={t} style={{display:"flex",gap:14,marginBottom:20}}>
-                    <div style={{width:36,height:36,borderRadius:10,background:"rgba(108,92,231,0.08)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:17}}>{emoji}</div>
+                  {emoji:"🎯",bg:"rgba(255,99,88,0.12)",t:"Semplicità prima di tutto",s:"Setup in 5 minuti, nessuna formazione necessaria."},
+                  {emoji:"⚡",bg:"rgba(253,196,0,0.15)",t:"Supporto in italiano",s:"Siamo raggiungibili su Whatsapp o via email, e risponderemo a ogni tua richiesta in meno di 24 ore."},
+                  {emoji:"💡",bg:"rgba(108,92,231,0.10)",t:"In continua evoluzione",s:"Ogni aggiornamento nasce dai feedback reali dei nostri utenti."},
+                ].map(({emoji,bg,t,s})=>(
+                  <div key={t} style={{display:"flex",gap:14,marginBottom:22}}>
+                    <div style={{width:44,height:44,borderRadius:13,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:20,boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>{emoji}</div>
                     <div>
                       <div style={{fontSize:14,fontWeight:700,color:"#1e1b3a",marginBottom:3}}>{t}</div>
                       <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>{s}</div>
