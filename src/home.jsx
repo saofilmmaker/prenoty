@@ -1128,12 +1128,24 @@ export default function Home(){
 
                 {/* Feature list */}
                 {[
-                  {emoji:"🎯",bg:"rgba(255,99,88,0.12)",t:"Semplicità prima di tutto",s:"Setup in 5 minuti, nessuna formazione necessaria."},
-                  {emoji:"⚡",bg:"rgba(253,196,0,0.15)",t:"Supporto in italiano",s:"Siamo raggiungibili su Whatsapp o via email, e risponderemo a ogni tua richiesta in meno di 24 ore."},
-                  {emoji:"💡",bg:"rgba(108,92,231,0.10)",t:"In continua evoluzione",s:"Ogni aggiornamento nasce dai feedback reali dei nostri utenti."},
-                ].map(({emoji,bg,t,s})=>(
+                  {
+                    bg:"rgba(108,92,231,0.10)", color:"#6c5ce7",
+                    icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
+                    t:"Semplicità prima di tutto",s:"Setup in 5 minuti, nessuna formazione necessaria."
+                  },
+                  {
+                    bg:"rgba(93,226,121,0.12)", color:"#27ae60",
+                    icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
+                    t:"Supporto in italiano",s:"Siamo raggiungibili su Whatsapp o via email, e risponderemo a ogni tua richiesta in meno di 24 ore."
+                  },
+                  {
+                    bg:"rgba(108,92,231,0.08)", color:"#6c5ce7",
+                    icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><polyline points="23 4 23 10 17 10"/><polyline points="1 20 1 14 7 14"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/></svg>,
+                    t:"In continua evoluzione",s:"Ogni aggiornamento nasce dai feedback reali dei nostri utenti."
+                  },
+                ].map(({icon,bg,t,s})=>(
                   <div key={t} style={{display:"flex",gap:14,marginBottom:22}}>
-                    <div style={{width:44,height:44,borderRadius:13,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:20,boxShadow:"0 2px 8px rgba(0,0,0,0.06)"}}>{emoji}</div>
+                    <div style={{width:44,height:44,borderRadius:13,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>{icon}</div>
                     <div>
                       <div style={{fontSize:14,fontWeight:700,color:"#1e1b3a",marginBottom:3}}>{t}</div>
                       <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>{s}</div>
