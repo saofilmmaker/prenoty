@@ -714,7 +714,7 @@ export default function Home(){
         }
         .hamburger-btn{display:none;}
         .nav-cta-btns{}
-        .nav-gradient-border{ border:none!important; border-image:linear-gradient(90deg,rgba(108,92,231,0.2) 0%,rgba(108,92,231,0.75) 25%,rgba(93,226,121,0.45) 50%,rgba(108,92,231,0.75) 75%,rgba(108,92,231,0.2) 100%) 1; border-bottom-width:1.5px!important; border-bottom-style:solid!important; }
+        .nav-gradient-border{ border:none!important; border-image:none!important; }
         @media(max-width:960px){
           .nav-links{display:none!important;}
           .hamburger-btn{display:flex!important;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:6px;margin-left:auto;}
