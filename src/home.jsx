@@ -711,6 +711,7 @@ export default function Home(){
           .nav-wrap{padding:12px 24px!important;}
         .nav-links{display:none!important;}
         .nav-gradient-border{ border:none!important; border-image:linear-gradient(90deg,rgba(108,92,231,0.2) 0%,rgba(108,92,231,0.75) 25%,rgba(93,226,121,0.45) 50%,rgba(108,92,231,0.75) 75%,rgba(108,92,231,0.2) 100%) 1; border-bottom-width:1.5px!important; border-bottom-style:solid!important; }
+        @media(max-width:960px){ .nav-gradient-border{ border:none!important; border-image:none!important; } }
           .sec-pad{padding:56px 24px!important;}
         }
         @media(max-width:600px){
