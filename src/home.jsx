@@ -687,11 +687,29 @@ export default function Home(){
         .btn-glass-purple .btn-glass-lens{ background:rgba(108,92,231,0.35); }
         .btn-glass-purple:hover .btn-glass-lens{ background:rgba(108,92,231,0.48); }
 
+        /* Dark — hero su sfondo chiaro */
+        .btn-glass-dark{ color:#fff !important; }
+        .btn-glass-dark .btn-glass-lens{ background:rgba(18,16,44,0.90); }
+        .btn-glass-dark:hover .btn-glass-lens{ background:rgba(18,16,44,0.97); }
+
+        /* Ghost su sfondo chiaro */
+        .btn-glass-light{ color:#3d35a8 !important; }
+        .btn-glass-light .btn-glass-lens{ background:rgba(108,92,231,0.06); border:1.5px solid rgba(108,92,231,0.22); }
+        .btn-glass-light:hover .btn-glass-lens{ background:rgba(108,92,231,0.12); }
+        .btn-glass-light .btn-glass-text{ text-shadow:none; }
+
+        /* Hero card */
+        .hero-card{ display:flex; align-items:stretch; overflow:hidden; }
+        .hero-left-panel{ flex:0 0 56%; padding:56px 52px; display:flex; flex-direction:column; justify-content:space-between; background:#fff; }
+        .hero-photo-panel{ flex:0 0 44%; position:relative; overflow:hidden; min-height:540px; }
+        .hero-h1{ font-size:58px; font-weight:800; color:#1e1b3a; line-height:1.08; letter-spacing:-1.5px; margin-bottom:16px; }
+        .hero-btns{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:0; }
         @media(max-width:960px){
-          .hero-inner{flex-direction:column!important;padding:48px 24px 64px!important;min-height:auto!important;align-items:center!important;text-align:center;}
-          .hero-h1{font-size:58px!important;letter-spacing:-1px!important;}
-          .hero-btns{justify-content:center!important;}
-          .hero-cats{justify-content:center!important;}
+          .hero-card{flex-direction:column!important;}
+          .hero-left-panel{flex:none!important;width:100%!important;padding:40px 32px!important;order:2;}
+          .hero-photo-panel{flex:none!important;width:100%!important;min-height:260px!important;order:1;border-radius:0!important;}
+          .hero-h1{font-size:46px!important;letter-spacing:-1px!important;}
+          .hero-btns{justify-content:flex-start!important;}
           .feat-grid{grid-template-columns:1fr 1fr!important;}
           .steps-grid{grid-template-columns:1fr!important;gap:24px!important;}
           .nav-wrap{padding:14px 24px!important;}
@@ -699,7 +717,9 @@ export default function Home(){
         }
         @media(max-width:600px){
           .feat-grid{grid-template-columns:1fr!important;}
-          .hero-h1{font-size:50px!important;}
+          .hero-h1{font-size:40px!important;}
+          .hero-left-panel{padding:32px 24px!important;}
+          .hero-photo-panel{min-height:200px!important;}
           .footer-inner{flex-direction:column!important;align-items:center!important;gap:14px!important;padding:20px 24px!important;}
           .footer-icons{position:static!important;transform:none!important;}
         }
@@ -717,13 +737,6 @@ export default function Home(){
           .desktop-outer{ height:calc(622px * 0.38); }
           .desktop-inner{ transform:scale(0.38); }
           .desktop-screen{ height:580px; }
-        }
-        /* Cellulare hero: desktop scale 1.28, mobile più piccolo */
-        .hero-phone-scale{ transform:scale(1.28); transform-origin:top left; position:absolute; top:0; left:0; }
-        .hero-phone-wrap{ position:relative; width:358px; height:742px; flex-shrink:0; }
-        @media(max-width:960px){
-          .hero-phone-scale{ transform:scale(0.82)!important; }
-          .hero-phone-wrap{ width:230px!important; height:476px!important; }
         }
       `}</style>
 
@@ -743,54 +756,92 @@ export default function Home(){
         </div>
       </nav>
 
-      <section style={{background:"transparent",position:"relative",overflow:"hidden"}}>
-        <div style={{position:"absolute",width:600,height:600,borderRadius:"50%",background:"rgba(108,92,231,0.06)",filter:"blur(80px)",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
-        <div className="hero-inner" style={{display:"flex",alignItems:"center",justifyContent:"center",padding:"80px 56px",minHeight:"90vh",minHeight:"90svh",gap:72,position:"relative",zIndex:1}}>
-          <div style={{flex:1,maxWidth:500}}>
-            <FadeIn delay={0.05}>
-              <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(108,92,231,0.12)",border:"0.5px solid rgba(108,92,231,0.3)",borderRadius:8,padding:"5px 14px",marginBottom:24}}>
-                <div style={{width:5,height:5,borderRadius:"50%",background:"#5de279"}}/>
-                <span style={{fontSize:11,color:"#9b96c8",letterSpacing:1,textTransform:"uppercase"}}>30 giorni gratis — nessuna carta</span>
+      <section style={{background:"transparent",position:"relative",overflow:"hidden",padding:"56px 32px 80px"}}>
+        <FadeIn delay={0.05}>
+          <div className="hero-card" style={{maxWidth:1100,margin:"0 auto",borderRadius:32,boxShadow:"0 32px 80px rgba(108,92,231,0.14),0 0 0 1px rgba(108,92,231,0.07)"}}>
+
+            {/* ── Pannello sinistro — testo ── */}
+            <div className="hero-left-panel">
+
+              {/* Top: badge + titolo + subtitle + CTA */}
+              <div>
+                <FadeIn delay={0.1}>
+                  <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(108,92,231,0.06)",border:"1px solid rgba(108,92,231,0.16)",borderRadius:8,padding:"5px 14px",marginBottom:22}}>
+                    <div style={{width:5,height:5,borderRadius:"50%",background:"#5de279"}}/>
+                    <span style={{fontSize:11,color:"#6c5ce7",letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>30 giorni gratis — nessuna carta</span>
+                  </div>
+                </FadeIn>
+                <FadeIn delay={0.15}>
+                  <h1 className="hero-h1">
+                    Prenota.<br/>Conferma.<br/><span style={{color:"#6c5ce7"}}>Senza stress.</span>
+                  </h1>
+                </FadeIn>
+                <FadeIn delay={0.21}>
+                  <p style={{fontSize:16,color:"#7a748a",lineHeight:1.75,maxWidth:400,marginBottom:32}}>
+                    Prenoty semplifica la gestione degli appuntamenti per professionisti e saloni. Tutto in un posto, tutto automatico.
+                  </p>
+                </FadeIn>
+                <FadeIn delay={0.27}>
+                  <div className="hero-btns">
+                    <a href="/registrazione" className="btn-glass btn-glass-dark" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
+                      <span className="btn-glass-lens"/>
+                      <span className="btn-glass-text">Inizia gratis</span>
+                    </a>
+                    <a href="#come-funziona" className="btn-glass btn-glass-light" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:500,textDecoration:"none"}}>
+                      <span className="btn-glass-lens"/>
+                      <span className="btn-glass-text">Scopri come funziona</span>
+                    </a>
+                  </div>
+                </FadeIn>
               </div>
-            </FadeIn>
-            <FadeIn delay={0.1}>
-              <h1 className="hero-h1" style={{fontSize:76,fontWeight:800,color:"#fff",lineHeight:1.05,letterSpacing:-2,marginBottom:20}}>
-                Gestisci le<br/>prenotazioni.<br/><span style={{color:"#5de279"}}>Senza Stress.</span>
-              </h1>
-            </FadeIn>
-            <FadeIn delay={0.18}>
-              <p style={{fontSize:16,color:"#9b96c8",lineHeight:1.8,maxWidth:400,marginBottom:32}}>
-                Un link. I tuoi clienti prenotano da soli. Tu ricevi tutto organizzato in tempo reale.
-              </p>
-            </FadeIn>
-            <FadeIn delay={0.25}>
-              <div className="hero-btns" style={{display:"flex",gap:12,marginBottom:32,flexWrap:"wrap"}}>
-                <a href="/registrazione" className="btn-glass btn-glass-green" style={{padding:"14px 32px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>
-                  <span className="btn-glass-lens"/>
-                  <span className="btn-glass-text">Inizia gratis</span>
-                </a>
-                <a href="#come-funziona" className="btn-glass btn-glass-ghost" style={{padding:"14px 24px",borderRadius:12,fontSize:15,textDecoration:"none"}}>
-                  <span className="btn-glass-lens"/>
-                  <span className="btn-glass-text">Come funziona</span>
-                </a>
-              </div>
-            </FadeIn>
-            <FadeIn delay={0.32}>
-              <div className="hero-cats" style={{display:"flex",gap:7,flexWrap:"wrap"}}>
-                {["Parrucchieri","Estetiste","Spa & benessere","Insegnanti & coach","Studi medici","Fotografi","Personal trainer"].map(c=>(
-                  <span key={c} style={{background:"rgba(108,92,231,0.08)",border:"0.5px solid rgba(108,92,231,0.2)",borderRadius:7,padding:"4px 12px",fontSize:11,color:"#9b96c8"}}>{c}</span>
-                ))}
-              </div>
-            </FadeIn>
-          </div>
-          <FadeIn delay={0.15} direction="right">
-            <div className="hero-phone-wrap">
-              <div className="hero-phone-scale">
-                <IPhone/>
+
+              {/* Bottom: LANCIO UFFICIALE + checkmarks */}
+              <FadeIn delay={0.33}>
+                <div style={{borderTop:"1px solid rgba(108,92,231,0.1)",paddingTop:24,display:"flex",gap:24,justifyContent:"space-between",alignItems:"flex-start",flexWrap:"wrap"}}>
+                  <div>
+                    <div style={{display:"inline-flex",alignItems:"center",gap:6,background:"rgba(93,226,121,0.1)",border:"1px solid rgba(93,226,121,0.35)",borderRadius:20,padding:"3px 12px",marginBottom:10}}>
+                      <div style={{width:6,height:6,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 6px #5de279"}}/>
+                      <span style={{fontSize:10,color:"#1e8a40",fontWeight:700,letterSpacing:0.8,textTransform:"uppercase"}}>Lancio Ufficiale</span>
+                    </div>
+                    <div style={{fontSize:19,fontWeight:700,color:"#1e1b3a",marginBottom:5}}>Sei tra i primi.</div>
+                    <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>Accesso immediato, 30 giorni gratis.<br/>Nessuna carta richiesta.</div>
+                  </div>
+                  <div style={{display:"flex",flexDirection:"column",gap:9,paddingTop:4}}>
+                    {["Nessun abbonamento","Setup in 2 minuti","Supporto in italiano"].map(item=>(
+                      <div key={item} style={{display:"flex",alignItems:"center",gap:8}}>
+                        <div style={{width:18,height:18,background:"rgba(108,92,231,0.09)",borderRadius:5,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                          <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        </div>
+                        <span style={{fontSize:13,color:"#1e1b3a",fontWeight:500}}>{item}</span>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </FadeIn>
+
+            </div>
+
+            {/* ── Pannello destro — foto ── */}
+            <div className="hero-photo-panel">
+              <img
+                src="/hero-woman.png"
+                alt="Professionista che usa Prenoty"
+                style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block"}}
+              />
+              {/* Chip notifica */}
+              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(255,255,255,0.95)",borderRadius:14,padding:"10px 14px",boxShadow:"0 8px 28px rgba(0,0,0,0.14)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(8px)",border:"1px solid rgba(255,255,255,0.6)"}}>
+                <div style={{width:32,height:32,borderRadius:9,background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
+                </div>
+                <div>
+                  <div style={{fontSize:12,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>Nuova prenotazione</div>
+                  <div style={{fontSize:10,color:"#9b96c8",marginTop:1}}>Oggi alle 15:30 · Confermata</div>
+                </div>
               </div>
             </div>
-          </FadeIn>
-        </div>
+
+          </div>
+        </FadeIn>
       </section>
 
       {/* ── Sezione Desktop Mockup ── */}
