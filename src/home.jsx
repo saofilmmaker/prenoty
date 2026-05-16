@@ -805,7 +805,7 @@ export default function Home(){
                   <div style={{display:"flex",flexDirection:"column",gap:8,paddingTop:4}}>
                     {["Nessun abbonamento","Setup in 2 minuti","Supporto in italiano"].map(item=>(
                       <div key={item} style={{display:"inline-flex",alignItems:"center",gap:8,background:"rgba(108,92,231,0.07)",borderRadius:20,padding:"6px 14px"}}>
-                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#22c55e" strokeWidth="3" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
                         <span style={{fontSize:13,color:"#3d35a8",fontWeight:500}}>{item}</span>
                       </div>
                     ))}
@@ -823,7 +823,7 @@ export default function Home(){
                 style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block"}}
               />
               {/* Chip notifica */}
-              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(255,255,255,0.96)",borderRadius:16,padding:"11px 16px",boxShadow:"0 8px 32px rgba(0,0,0,0.13)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(12px)",border:"1px solid rgba(255,255,255,0.7)"}}>
+              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(255,255,255,0.55)",borderRadius:16,padding:"11px 16px",boxShadow:"0 4px 20px rgba(0,0,0,0.10)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(16px) saturate(180%)",WebkitBackdropFilter:"blur(16px) saturate(180%)",border:"1px solid rgba(255,255,255,0.5)"}}>
                 <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
                 <div>
                   <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>Nuova prenotazione</div>
