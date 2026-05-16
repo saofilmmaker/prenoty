@@ -691,7 +691,7 @@ export default function Home(){
         .btn-glass-dark:hover .btn-glass-lens{ background:rgba(18,16,44,0.97); }
 
         /* Green — CTA principale */
-        .btn-glass-green-cta{ color:#1a3a24 !important; font-weight:700 !important; }
+        .btn-glass-green-cta{ color:#fff !important; font-weight:700 !important; }
         .btn-glass-green-cta .btn-glass-lens{ background:rgba(93,226,121,0.92); }
         .btn-glass-green-cta:hover .btn-glass-lens{ background:rgba(93,226,121,1); }
 
