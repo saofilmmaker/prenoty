@@ -713,9 +713,11 @@ export default function Home(){
           .nav-wrap{padding:12px 24px!important;}
         .nav-links{display:none!important;}
         .hamburger-btn{display:none;}
+        .nav-cta-btns{}
         @media(max-width:960px){
           .hamburger-btn{display:flex!important;align-items:center;justify-content:center;background:none;border:none;cursor:pointer;padding:6px;margin-left:auto;}
           .mobile-menu{display:flex!important;}
+          .nav-cta-btns{display:none!important;}
         }
         .nav-gradient-border{ border:none!important; border-image:linear-gradient(90deg,rgba(108,92,231,0.2) 0%,rgba(108,92,231,0.75) 25%,rgba(93,226,121,0.45) 50%,rgba(108,92,231,0.75) 75%,rgba(108,92,231,0.2) 100%) 1; border-bottom-width:1.5px!important; border-bottom-style:solid!important; }
         @media(max-width:960px){ .nav-gradient-border{ border:none!important; border-image:none!important; } }
@@ -765,24 +767,26 @@ export default function Home(){
               onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Chi siamo</button>
           </div>
 
-          {/* Bottoni CTA + hamburger mobile */}
+          {/* Lato destro */}
           <div style={{display:"flex",gap:8,alignItems:"center",flexShrink:0}}>
+            {/* Bottoni CTA — solo desktop */}
+            <div className="nav-cta-btns" style={{display:"flex",gap:8}}>
+              <a href="/login" className="btn-glass btn-glass-light" style={{fontSize:13,padding:"8px 18px",borderRadius:10,textDecoration:"none"}}>
+                <span className="btn-glass-lens"/>
+                <span className="btn-glass-text">Accedi</span>
+              </a>
+              <a href="/registrazione" className="btn-glass btn-glass-dark" style={{fontSize:13,fontWeight:600,padding:"8px 20px",borderRadius:10,textDecoration:"none"}}>
+                <span className="btn-glass-lens"/>
+                <span className="btn-glass-text">Registrati</span>
+              </a>
+            </div>
             {/* Hamburger — solo mobile */}
-            <button className="hamburger-btn" onClick={()=>setMenuOpen(o=>!o)}
-              aria-label="Menu" style={{marginRight:4}}>
+            <button className="hamburger-btn" onClick={()=>setMenuOpen(o=>!o)} aria-label="Menu">
               {menuOpen
-                ? <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
-                : <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+                ? <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                : <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.2" strokeLinecap="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
               }
             </button>
-            <a href="/login" className="btn-glass btn-glass-light" style={{fontSize:13,padding:"8px 18px",borderRadius:10,textDecoration:"none"}}>
-              <span className="btn-glass-lens"/>
-              <span className="btn-glass-text">Accedi</span>
-            </a>
-            <a href="/registrazione" className="btn-glass btn-glass-dark" style={{fontSize:13,fontWeight:600,padding:"8px 20px",borderRadius:10,textDecoration:"none"}}>
-              <span className="btn-glass-lens"/>
-              <span className="btn-glass-text">Registrati</span>
-            </a>
           </div>
 
         </div>
@@ -801,6 +805,19 @@ export default function Home(){
             <span className="btn-glass-lens"/>
             <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Chi siamo</span>
           </button>
+          <div style={{height:1,background:"rgba(108,92,231,0.12)",margin:"4px 0"}}/>
+          <a href="/login" onClick={()=>setMenuOpen(false)}
+            className="btn-glass btn-glass-light"
+            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:500,textDecoration:"none",width:"100%",justifyContent:"flex-start"}}>
+            <span className="btn-glass-lens"/>
+            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Accedi</span>
+          </a>
+          <a href="/registrazione" onClick={()=>setMenuOpen(false)}
+            className="btn-glass btn-glass-dark"
+            style={{padding:"14px 20px",borderRadius:14,fontSize:15,fontWeight:700,textDecoration:"none",width:"100%",justifyContent:"flex-start"}}>
+            <span className="btn-glass-lens"/>
+            <span className="btn-glass-text" style={{justifyContent:"flex-start"}}>Registrati</span>
+          </a>
         </div>
 
       </nav>
