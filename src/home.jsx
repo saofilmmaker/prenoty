@@ -708,7 +708,8 @@ export default function Home(){
           .hero-btns{justify-content:flex-start!important;}
           .feat-grid{grid-template-columns:1fr 1fr!important;}
           .steps-grid{grid-template-columns:1fr!important;gap:24px!important;}
-          .nav-wrap{padding:14px 24px!important;}
+          .nav-wrap{padding:12px 24px!important;}
+        .nav-links{display:none!important;}
           .sec-pad{padding:56px 24px!important;}
         }
         @media(max-width:600px){
@@ -736,19 +737,37 @@ export default function Home(){
         }
       `}</style>
 
-      <nav style={{borderBottom:"0.5px solid rgba(108,92,231,0.15)",position:"sticky",top:0,zIndex:100,background:"rgba(26,23,48,0.92)",backdropFilter:"blur(20px)"}}>
-        <div className="nav-wrap" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"14px 56px"}}>
-          <a href="/" style={{display:"inline-block"}}><img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:22,objectFit:"contain"}}/></a>
-          <div style={{display:"flex",gap:10}}>
-            <a href="/login" className="btn-glass btn-glass-ghost" style={{fontSize:13,padding:"8px 18px",borderRadius:10,textDecoration:"none"}}>
+      <nav style={{borderBottom:"1.5px solid #6c5ce7",position:"sticky",top:0,zIndex:100,background:"#ffffff"}}>
+        <div className="nav-wrap" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 56px",position:"relative"}}>
+
+          {/* Logo */}
+          <a href="/" style={{display:"inline-block",flexShrink:0}}>
+            <img src="/Prenoty_Viola.png" alt="Prenoty" style={{height:24,objectFit:"contain"}}/>
+          </a>
+
+          {/* Link centrali */}
+          <div className="nav-links" style={{display:"flex",gap:32,position:"absolute",left:"50%",transform:"translateX(-50%)"}}>
+            {[["Come funziona","#come-funziona"],["Prezzi","#prezzi"],["Chi siamo","#chi-siamo"]].map(([label,href])=>(
+              <a key={label} href={href} style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
+                onMouseEnter={e=>e.target.style.color="#6c5ce7"}
+                onMouseLeave={e=>e.target.style.color="#1e1b3a"}>
+                {label}
+              </a>
+            ))}
+          </div>
+
+          {/* Bottoni */}
+          <div style={{display:"flex",gap:8,flexShrink:0}}>
+            <a href="/login" className="btn-glass btn-glass-light" style={{fontSize:13,padding:"8px 18px",borderRadius:10,textDecoration:"none"}}>
               <span className="btn-glass-lens"/>
               <span className="btn-glass-text">Accedi</span>
             </a>
-            <a href="/registrazione" className="btn-glass btn-glass-purple" style={{fontSize:13,fontWeight:600,padding:"8px 20px",borderRadius:10,textDecoration:"none"}}>
+            <a href="/registrazione" className="btn-glass btn-glass-dark" style={{fontSize:13,fontWeight:600,padding:"8px 20px",borderRadius:10,textDecoration:"none"}}>
               <span className="btn-glass-lens"/>
               <span className="btn-glass-text">Registrati</span>
             </a>
           </div>
+
         </div>
       </nav>
 
