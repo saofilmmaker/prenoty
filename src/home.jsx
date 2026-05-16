@@ -598,6 +598,7 @@ function CookieBanner(){
 }
 
 export default function Home(){
+  const [chiSiamoOpen, setChiSiamoOpen] = useState(false);
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
       {/* ── SVG filter per liquid glass displacement ── */}
@@ -749,13 +750,13 @@ export default function Home(){
 
           {/* Link centrali */}
           <div className="nav-links" style={{display:"flex",gap:32,position:"absolute",left:"50%",transform:"translateX(-50%)"}}>
-            {[["Come funziona","#come-funziona"],["Prezzi","#prezzi"],["Chi siamo","#chi-siamo"]].map(([label,href])=>(
-              <a key={label} href={href} style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
-                onMouseEnter={e=>e.target.style.color="#6c5ce7"}
-                onMouseLeave={e=>e.target.style.color="#1e1b3a"}>
-                {label}
-              </a>
-            ))}
+            <a href="#prezzi" style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
+              onMouseEnter={e=>e.target.style.color="#6c5ce7"}
+              onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Prezzi</a>
+            <button onClick={()=>setChiSiamoOpen(true)}
+              style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,background:"none",border:"none",cursor:"pointer",padding:0,transition:"color 0.2s"}}
+              onMouseEnter={e=>e.target.style.color="#6c5ce7"}
+              onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Chi siamo</button>
           </div>
 
           {/* Bottoni */}
@@ -919,7 +920,7 @@ export default function Home(){
       </section>
 
       {/* ── Sezione Prezzo ── */}
-      <section className="sec-pad" style={{padding:"80px 56px",background:"#1a1730",borderTop:"0.5px solid rgba(108,92,231,0.12)",textAlign:"center"}}>
+      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#1a1730",borderTop:"0.5px solid rgba(108,92,231,0.12)",textAlign:"center"}}>
         <FadeIn>
           <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Prezzo</p>
           <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
@@ -1051,6 +1052,81 @@ export default function Home(){
       </footer>
       </div>{/* fine wrapper zIndex:1 */}
       <CookieBanner/>
+
+      {/* ── Modal Chi Siamo ── */}
+      {chiSiamoOpen && (
+        <div onClick={()=>setChiSiamoOpen(false)} style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(30,27,58,0.55)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"24px"}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#f4f3ff",borderRadius:24,maxWidth:900,width:"100%",maxHeight:"90vh",overflowY:"auto",padding:"48px 52px",position:"relative",boxShadow:"0 32px 80px rgba(30,27,58,0.25)"}}>
+
+            {/* Chiudi */}
+            <button onClick={()=>setChiSiamoOpen(false)} style={{position:"absolute",top:20,right:20,background:"rgba(108,92,231,0.08)",border:"none",borderRadius:"50%",width:36,height:36,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            </button>
+
+            <div style={{display:"flex",gap:48,alignItems:"flex-start",flexWrap:"wrap"}}>
+
+              {/* Colonna sinistra */}
+              <div style={{flex:"1 1 340px",minWidth:0}}>
+                <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:20}}>
+                  <div style={{width:28,height:1.5,background:"#6c5ce7"}}/>
+                  <span style={{fontSize:11,fontWeight:700,color:"#6c5ce7",letterSpacing:2,textTransform:"uppercase"}}>Chi siamo</span>
+                </div>
+                <h2 style={{fontSize:36,fontWeight:800,color:"#1e1b3a",lineHeight:1.1,letterSpacing:-1,marginBottom:20}}>
+                  Nati a Genova.<br/>Fatti per i <span style={{color:"#6c5ce7"}}>professionisti.</span>
+                </h2>
+                <p style={{fontSize:15,color:"#7a748a",lineHeight:1.75,marginBottom:14}}>
+                  Prenoty nasce dall'idea semplice che un parrucchiere, un'estetista o un personal trainer non dovrebbe perdere tempo con chiamate e messaggi per gestire gli appuntamenti.
+                </p>
+                <p style={{fontSize:15,color:"#7a748a",lineHeight:1.75,marginBottom:32}}>
+                  Siamo un piccolo team con un obiettivo grande: dare a ogni professionista uno strumento semplice, bello e che funziona davvero.
+                </p>
+
+                {/* Feature list */}
+                {[
+                  {emoji:"🎯",t:"Semplicità prima di tutto",s:"Setup in 2 minuti, nessun manuale, nessuna formazione necessaria."},
+                  {emoji:"🤝",t:"Supporto in italiano",s:"Siamo raggiungibili via email e risponderemo in meno di 24 ore."},
+                  {emoji:"💡",t:"In continua evoluzione",s:"Ogni aggiornamento nasce dai feedback reali dei nostri utenti."},
+                ].map(({emoji,t,s})=>(
+                  <div key={t} style={{display:"flex",gap:14,marginBottom:20}}>
+                    <div style={{width:36,height:36,borderRadius:10,background:"rgba(108,92,231,0.08)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,fontSize:17}}>{emoji}</div>
+                    <div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#1e1b3a",marginBottom:3}}>{t}</div>
+                      <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>{s}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+
+              {/* Colonna destra */}
+              <div style={{flex:"1 1 260px",minWidth:0,display:"flex",flexDirection:"column",gap:12}}>
+                {/* Team card */}
+                <div style={{background:"#fff",borderRadius:18,padding:"28px 24px",textAlign:"center",boxShadow:"0 4px 24px rgba(108,92,231,0.08)",border:"1px solid rgba(108,92,231,0.08)"}}>
+                  <div style={{width:60,height:60,borderRadius:"50%",background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",margin:"0 auto 14px",fontSize:22,fontWeight:700,color:"#fff"}}>P</div>
+                  <div style={{fontSize:15,fontWeight:700,color:"#1e1b3a",marginBottom:4}}>Il Team Prenoty</div>
+                  <div style={{fontSize:13,color:"#9b96c8",marginBottom:16}}>Genova, Italia</div>
+                  <div style={{fontSize:13,color:"#6c5ce7",fontStyle:"italic",lineHeight:1.65}}>"Vogliamo che ogni professionista possa dedicarsi al suo lavoro, non alla burocrazia degli appuntamenti."</div>
+                </div>
+
+                {/* Stats 2×2 */}
+                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:10}}>
+                  {[
+                    {v:"2025",c:"#6c5ce7",label:"Anno di fondazione"},
+                    {v:"🇮🇹",c:"#1e1b3a",label:"100% italiano"},
+                    {v:"24h",c:"#f39c12",label:"Risposta supporto"},
+                    {v:"30gg",c:"#5de279",label:"Gratis, senza carta"},
+                  ].map(({v,c,label})=>(
+                    <div key={label} style={{background:"#fff",borderRadius:14,padding:"16px 14px",textAlign:"center",border:"1px solid rgba(108,92,231,0.08)"}}>
+                      <div style={{fontSize:22,fontWeight:800,color:c,marginBottom:4}}>{v}</div>
+                      <div style={{fontSize:11,color:"#9b96c8"}}>{label}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
