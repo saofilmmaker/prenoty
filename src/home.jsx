@@ -597,9 +597,28 @@ function CookieBanner(){
   );
 }
 
+const HERO_SLIDES = [
+  {
+    src: "/hero-woman.png",
+    notifica: { testo: "Nuova prenotazione", sub: "Oggi alle 15:30 · Confermata", side: "right" },
+  },
+  {
+    src: "/hero-mancell.png",
+    notifica: { testo: "Appuntamento confermato", sub: "Domani alle 10:00 · Taglio", side: "left" },
+  },
+];
+
 export default function Home(){
   const [chiSiamoOpen, setChiSiamoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
+  const [heroSlide, setHeroSlide] = useState(0);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroSlide(i => (i + 1) % HERO_SLIDES.length);
+    }, 3000);
+    return () => clearInterval(timer);
+  }, []);
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
       {/* ── SVG filter per liquid glass displacement ── */}
@@ -888,21 +907,49 @@ export default function Home(){
 
             </div>
 
-            {/* ── Pannello destro — foto ── */}
-            <div className="hero-photo-panel">
-              <img
-                src="/hero-woman.png"
-                alt="Professionista che usa Prenoty"
-                style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block"}}
-              />
-              {/* Chip notifica */}
-              <div style={{position:"absolute",bottom:20,right:20,background:"rgba(245,245,247,0.82)",borderRadius:16,padding:"11px 16px",boxShadow:"0 2px 16px rgba(0,0,0,0.08)",display:"flex",alignItems:"center",gap:10,backdropFilter:"blur(20px) saturate(160%)",WebkitBackdropFilter:"blur(20px) saturate(160%)",border:"1px solid rgba(255,255,255,0.6)"}}>
-                <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
-                <div>
-                  <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>Nuova prenotazione</div>
-                  <div style={{fontSize:11,color:"#9b9faa",marginTop:2,fontWeight:400}}>Oggi alle 15:30 · Confermata</div>
+            {/* ── Pannello destro — foto con carosello ── */}
+            <div className="hero-photo-panel" style={{position:"relative"}}>
+              {HERO_SLIDES.map((slide, i) => (
+                <img
+                  key={slide.src}
+                  src={slide.src}
+                  alt="Professionista che usa Prenoty"
+                  style={{
+                    position:"absolute",top:0,left:0,
+                    width:"100%",height:"100%",
+                    objectFit:"cover",objectPosition:"center top",
+                    display:"block",
+                    opacity: i === heroSlide ? 1 : 0,
+                    transition:"opacity 0.9s ease-in-out",
+                  }}
+                />
+              ))}
+              {/* Chip notifica — cambia posizione e testo con lo slide */}
+              {HERO_SLIDES.map((slide, i) => (
+                <div
+                  key={i}
+                  style={{
+                    position:"absolute",bottom:20,
+                    [slide.notifica.side]: 20,
+                    background:"rgba(245,245,247,0.82)",
+                    borderRadius:16,padding:"11px 16px",
+                    boxShadow:"0 2px 16px rgba(0,0,0,0.08)",
+                    display:"flex",alignItems:"center",gap:10,
+                    backdropFilter:"blur(20px) saturate(160%)",
+                    WebkitBackdropFilter:"blur(20px) saturate(160%)",
+                    border:"1px solid rgba(255,255,255,0.6)",
+                    opacity: i === heroSlide ? 1 : 0,
+                    transition:"opacity 0.9s ease-in-out",
+                    pointerEvents:"none",
+                  }}
+                >
+                  <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
+                  <div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>{slide.notifica.testo}</div>
+                    <div style={{fontSize:11,color:"#9b9faa",marginTop:2,fontWeight:400}}>{slide.notifica.sub}</div>
+                  </div>
                 </div>
-              </div>
+              ))}
             </div>
 
           </div>
