@@ -562,11 +562,23 @@ useEffect(() => {
 
   const eseguiEliminaServizio = async () => {
     if (!confermaEliminaServizio) return;
-    setServizi(servizi.filter(s => s.id !== confermaEliminaServizio));
-    if (salone.dbId) {
-      await supabase.from("servizi").delete().eq("id", confermaEliminaServizio).eq("salone_id", salone.dbId);
-    }
+    const idDaEliminare = confermaEliminaServizio;
     setConfermaEliminaServizio(null);
+    // Aggiorna stato locale ottimisticamente
+    setServizi(prev => prev.filter(s => s.id !== idDaEliminare));
+    if (salone.dbId) {
+      const { error } = await supabase
+        .from("servizi")
+        .delete()
+        .eq("id", idDaEliminare)
+        .eq("salone_id", salone.dbId);
+      if (error) {
+        console.error("Errore eliminazione servizio:", error);
+        // Ripristina lista dal DB se il delete è fallito
+        const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId);
+        if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "" })));
+      }
+    }
   };
 
   const nuovoServizio = async () => {
