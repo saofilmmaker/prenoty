@@ -566,18 +566,12 @@ useEffect(() => {
     setConfermaEliminaServizio(null);
     // Aggiorna stato locale ottimisticamente
     setServizi(prev => prev.filter(s => s.id !== idDaEliminare));
+    // Elimina dal DB — la RLS garantisce che solo il titolare possa farlo
+    await supabase.from("servizi").delete().eq("id", idDaEliminare);
+    // Ricarica sempre dal DB per confermare lo stato reale
     if (salone.dbId) {
-      const { error } = await supabase
-        .from("servizi")
-        .delete()
-        .eq("id", idDaEliminare)
-        .eq("salone_id", salone.dbId);
-      if (error) {
-        console.error("Errore eliminazione servizio:", error);
-        // Ripristina lista dal DB se il delete è fallito
-        const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId);
-        if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "" })));
-      }
+      const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId);
+      if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "" })));
     }
   };
 
