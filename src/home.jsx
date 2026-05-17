@@ -909,6 +909,14 @@ export default function Home(){
 
             {/* ── Pannello destro — foto con carosello ── */}
             <div className="hero-photo-panel" style={{position:"relative"}}>
+              {/* Placeholder invisibile per mantenere le dimensioni originali */}
+              <img
+                src="/hero-woman.png"
+                alt=""
+                aria-hidden="true"
+                style={{width:"100%",height:"100%",objectFit:"cover",objectPosition:"center top",display:"block",visibility:"hidden"}}
+              />
+              {/* Slides sovrapposti */}
               {HERO_SLIDES.map((slide, i) => (
                 <img
                   key={slide.src}
