@@ -600,10 +600,12 @@ function CookieBanner(){
 const HERO_SLIDES = [
   {
     src: "/hero-woman.png",
+    pos: "center top",
     notifica: { testo: "Nuova prenotazione", sub: "Oggi alle 15:30 · Confermata", side: "right" },
   },
   {
     src: "/hero-mancell.png",
+    pos: "center 35%",
     notifica: { testo: "Appuntamento confermato", sub: "Domani alle 10:00 · Taglio", side: "left" },
   },
 ];
@@ -925,7 +927,7 @@ export default function Home(){
                   style={{
                     position:"absolute",top:0,left:0,
                     width:"100%",height:"100%",
-                    objectFit:"cover",objectPosition:"center top",
+                    objectFit:"cover",objectPosition:slide.pos,
                     display:"block",
                     opacity: i === heroSlide ? 1 : 0,
                     transition:"opacity 0.9s ease-in-out",
