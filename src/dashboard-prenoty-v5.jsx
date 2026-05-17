@@ -566,9 +566,11 @@ useEffect(() => {
     setConfermaEliminaServizio(null);
     // Aggiorna stato locale ottimisticamente
     setServizi(prev => prev.filter(s => s.id !== idDaEliminare));
-    // Elimina dal DB — la RLS garantisce che solo il titolare possa farlo
+    // 1. Azzera servizio_id nelle prenotazioni esistenti (evita blocco FK)
+    await supabase.from("prenotazioni").update({ servizio_id: null }).eq("servizio_id", idDaEliminare);
+    // 2. Elimina il servizio
     await supabase.from("servizi").delete().eq("id", idDaEliminare);
-    // Ricarica sempre dal DB per confermare lo stato reale
+    // 3. Ricarica dal DB per confermare
     if (salone.dbId) {
       const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId);
       if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "" })));
