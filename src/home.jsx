@@ -605,7 +605,7 @@ const HERO_SLIDES = [
   },
   {
     src: "/hero-mancell.png",
-    pos: "center 35%",
+    pos: "center 60%",
     notifica: { testo: "Appuntamento confermato", sub: "Domani alle 10:00 · Taglio", side: "left" },
   },
 ];
