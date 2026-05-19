@@ -822,15 +822,15 @@ export default function Home(){
         <FadeIn>
           <div className="desktop-row" style={{display:"flex",alignItems:"center",gap:32,maxWidth:1400,margin:"0 auto"}}>
             <div className="desktop-text" style={{flex:"0 0 420px",maxWidth:420}}>
-              <p style={{fontSize:13,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Dashboard completa</p>
-              <h2 style={{fontSize:56,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:24,lineHeight:1.08}}>Anche su desktop,<br/>tutto sotto controllo.</h2>
-              <p style={{fontSize:19,color:"#9b96c8",lineHeight:1.7,margin:0}}>Gestisci agenda, servizi e clienti da computer. Stesso account, stesso dato in tempo reale.</p>
+              <p style={{fontSize:13,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Ovunque, sempre</p>
+              <h2 style={{fontSize:56,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:24,lineHeight:1.08}}>Ovunque tu sia,<br/>tutto sotto controllo.</h2>
+              <p style={{fontSize:19,color:"#9b96c8",lineHeight:1.7,margin:0}}>Gestisci agenda, servizi e clienti da computer o da smartphone. Stesso account, tutto in tempo reale.</p>
             </div>
             <div className="desktop-img-wrap" style={{flex:1,display:"flex",justifyContent:"flex-end",alignItems:"center",minWidth:0}}>
               <img
                 src="/laptopeiphoneinsieme.png"
                 alt="Dashboard Prenoty su desktop e mobile"
-                style={{width:"100%",maxWidth:1400,height:"auto",objectFit:"contain",marginRight:"-100px"}}
+                style={{width:"calc(100% + 380px)",maxWidth:"none",height:"auto",objectFit:"contain",marginRight:"-280px",marginLeft:"-100px"}}
               />
             </div>
           </div>
