@@ -261,11 +261,12 @@ useEffect(() => {
 
       if (!saloneDb?.id) return;
 
-      // Carica servizi da Supabase usando salone_id
+      // Carica servizi da Supabase usando salone_id (ordinati per posizione)
       const { data: serviziDb } = await supabase
         .from("servizi")
         .select("*")
-        .eq("salone_id", saloneDb.id);
+        .eq("salone_id", saloneDb.id)
+        .order("posizione", { ascending: true });
 
       setServizi(serviziDb && serviziDb.length > 0 ? serviziDb.map(s => ({
         id: s.id,
@@ -273,6 +274,7 @@ useEffect(() => {
         durata: s.durata,
         prezzo: s.prezzo,
         nota: s.nota || "",
+        posizione: s.posizione ?? 0,
       })) : []);
 
       // Carica prenotazioni reali da Supabase
@@ -555,6 +557,7 @@ useEffect(() => {
 
   // Modal eliminazione servizio
   const [confermaEliminaServizio, setConfermaEliminaServizio] = useState(null);
+  const [assistenzaAperta, setAssistenzaAperta] = useState(false);
 
   const eliminaServizio = (id) => {
     setConfermaEliminaServizio(id);
@@ -572,20 +575,21 @@ useEffect(() => {
     await supabase.from("servizi").delete().eq("id", idDaEliminare);
     // 3. Ricarica dal DB per confermare
     if (salone.dbId) {
-      const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId);
-      if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "" })));
+      const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId).order("posizione", { ascending: true });
+      if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "", posizione: s.posizione ?? 0 })));
     }
   };
 
   const nuovoServizio = async () => {
-    const servizioTemp = { nome: "Nuovo servizio", durata: 30, prezzo: 0, nota: "" };
+    const nuovaPosizione = servizi.length;
+    const servizioTemp = { nome: "Nuovo servizio", durata: 30, prezzo: 0, nota: "", posizione: nuovaPosizione };
     if (salone.dbId) {
       const { data } = await supabase.from("servizi")
-        .insert({ nome: servizioTemp.nome, durata: servizioTemp.durata, prezzo: servizioTemp.prezzo, salone_id: salone.dbId })
+        .insert({ nome: servizioTemp.nome, durata: servizioTemp.durata, prezzo: servizioTemp.prezzo, salone_id: salone.dbId, posizione: nuovaPosizione })
         .select()
         .single();
       if (data) {
-        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo, nota: data.nota || "" }]);
+        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo, nota: data.nota || "", posizione: nuovaPosizione }]);
         setModificaServizio({ id: data.id, campo: "nome" });
         return;
       }
@@ -594,6 +598,22 @@ useEffect(() => {
     const nuovoId = Math.max(0, ...servizi.map(s => s.id)) + 1;
     setServizi(prev => [...prev, { id: nuovoId, ...servizioTemp }]);
     setModificaServizio({ id: nuovoId, campo: "nome" });
+  };
+
+  const spostaPosizione = async (id, direzione) => {
+    const idx = servizi.findIndex(s => s.id === id);
+    if (direzione === "su" && idx === 0) return;
+    if (direzione === "giu" && idx === servizi.length - 1) return;
+    const swapIdx = direzione === "su" ? idx - 1 : idx + 1;
+    const nuovi = [...servizi];
+    [nuovi[idx], nuovi[swapIdx]] = [nuovi[swapIdx], nuovi[idx]];
+    setServizi(nuovi);
+    if (salone.dbId) {
+      await Promise.all([
+        supabase.from("servizi").update({ posizione: swapIdx }).eq("id", nuovi[swapIdx].id).eq("salone_id", salone.dbId),
+        supabase.from("servizi").update({ posizione: idx }).eq("id", nuovi[idx].id).eq("salone_id", salone.dbId),
+      ]);
+    }
   };
 
   // CLIENTI
@@ -1148,7 +1168,46 @@ useEffect(() => {
           })}
         </nav>
 
-        <div className="p-3 border-t space-y-1" style={{ borderColor: T.border }}>
+        <div className="p-3 border-t space-y-1" style={{ borderColor: T.border, position: "relative" }}>
+          {/* POPUP ASSISTENZA */}
+          {assistenzaAperta && (
+            <div style={{ position: "absolute", bottom: "100%", left: 8, right: 8, marginBottom: 8, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 200 }}>
+              <div style={{ background: "#25D366", color: "#fff", padding: "12px 14px", display: "flex", justifyContent: "space-between", alignItems: "center" }}>
+                <div>
+                  <div style={{ fontSize: 14, fontWeight: 600 }}>Assistenza</div>
+                  <div style={{ fontSize: 11, opacity: 0.9 }}>Risposta entro 1 ora</div>
+                </div>
+                <button onClick={() => setAssistenzaAperta(false)} style={{ background: "transparent", border: "none", color: "#fff", cursor: "pointer", padding: 4, display: "flex" }}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+              </div>
+              <div style={{ padding: 10 }}>
+                <p style={{ fontSize: 11, color: T.textSoft, margin: "2px 4px 10px", fontStyle: "italic" }}>Scegli un argomento per scriverci:</p>
+                {[
+                  { titolo: "Problema tecnico", testo: "Ciao, ho un problema con la dashboard e ho bisogno di aiuto." },
+                  { titolo: "Abbonamento", testo: "Ciao, ho una domanda sul mio abbonamento." },
+                  { titolo: "Suggerimento", testo: "Ciao, ho un suggerimento per migliorare l'app." },
+                ].map((m, i) => (
+                  <button key={i}
+                    onClick={() => { window.open(`https://wa.me/393489259863?text=${encodeURIComponent(m.testo)}`, "_blank"); setAssistenzaAperta(false); }}
+                    style={{ display: "block", width: "100%", textAlign: "left", padding: "10px 12px", marginBottom: 5, background: "transparent", border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 13, cursor: "pointer" }}
+                  >
+                    <div style={{ fontWeight: 500, marginBottom: 1 }}>{m.titolo}</div>
+                    <div style={{ fontSize: 11, color: T.textSoft }}>{m.testo}</div>
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+          {/* BOTTONE ASSISTENZA WHATSAPP */}
+          <button
+            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
+            style={{ borderRadius: 10, color: "#25D366", background: assistenzaAperta ? "rgba(37,211,102,0.08)" : "transparent" }}
+            onClick={() => setAssistenzaAperta(a => !a)}
+          >
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347z"/><path d="M12 0C5.373 0 0 5.373 0 12c0 2.138.563 4.143 1.543 5.881L.057 23.428a.75.75 0 00.921.921l5.547-1.486A11.952 11.952 0 0012 24c6.627 0 12-5.373 12-12S18.627 0 12 0zm0 22c-1.907 0-3.693-.516-5.223-1.414l-.374-.217-3.882 1.04 1.04-3.882-.217-.374A9.956 9.956 0 012 12C2 6.477 6.477 2 12 2s10 4.477 10 10-4.477 10-10 10z"/></svg>
+            Assistenza
+          </button>
           <button
             className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
             style={{ color: T.textSoft, borderRadius: 10 }}
@@ -1658,6 +1717,24 @@ useEffect(() => {
                           )}
                         </div>
 
+                        {/* FRECCE RIORDINO + MENU TRE PUNTINI */}
+                        <div style={{ display: "flex", alignItems: "center", gap: 2, flexShrink: 0 }}>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); spostaPosizione(s.id, "su"); }}
+                            disabled={servizi.indexOf(s) === 0}
+                            style={{ background: "transparent", border: "none", cursor: servizi.indexOf(s) === 0 ? "default" : "pointer", color: servizi.indexOf(s) === 0 ? T.border : T.textMuted, padding: "2px 4px", lineHeight: 1, borderRadius: 4 }}
+                            title="Sposta su"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="18 15 12 9 6 15"/></svg>
+                          </button>
+                          <button
+                            onClick={(e) => { e.stopPropagation(); spostaPosizione(s.id, "giu"); }}
+                            disabled={servizi.indexOf(s) === servizi.length - 1}
+                            style={{ background: "transparent", border: "none", cursor: servizi.indexOf(s) === servizi.length - 1 ? "default" : "pointer", color: servizi.indexOf(s) === servizi.length - 1 ? T.border : T.textMuted, padding: "2px 4px", lineHeight: 1, borderRadius: 4 }}
+                            title="Sposta giù"
+                          >
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round"><polyline points="6 9 12 15 18 9"/></svg>
+                          </button>
                         {/* MENU TRE PUNTINI */}
                         <div style={{ position: "relative", flexShrink: 0 }}>
                           <button
@@ -1710,6 +1787,7 @@ useEffect(() => {
                             </div>
                           )}
                         </div>
+                        </div>{/* fine wrapper frecce + menu */}
                       </div>
 
                       {/* DURATA + PREZZO */}
@@ -3376,7 +3454,6 @@ useEffect(() => {
         </div>
       )}
 
-      <WhatsAppAssistenza tema={tema} numero="393489259863" />
     </div>
   );
 }

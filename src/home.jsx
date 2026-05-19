@@ -15,211 +15,11 @@ function Ico({d,size=20}){
 }
 
 function IPhone(){
-  const[sc,setSc]=useState(0);
-  useEffect(()=>{const t=setInterval(()=>setSc(s=>(s+1)%2),4500);return()=>clearInterval(t);},[]);
-  const accent="#6c5ce7",green="#00b894",textMain="#1e1b3a",textSoft="#4a4580",textMuted="#9b96c8",border="#e0dcff",card="#fff",bg="#f4f3ff";
-
   return(
-    <div style={{position:"relative",width:280,flexShrink:0}}>
-      <div style={{width:280,height:580,background:"linear-gradient(145deg,#2a2a2a 0%,#1a1a1a 40%,#2a2a2a 100%)",borderRadius:50,padding:"8px",boxShadow:"0 0 0 1px #3a3a3a,inset 0 0 0 1px #444,0 40px 100px rgba(0,0,0,0.7),0 0 80px rgba(108,92,231,0.2)",position:"relative"}}>
-        <div style={{position:"absolute",left:-3,top:100,width:3,height:32,background:"#333",borderRadius:"2px 0 0 2px"}}/>
-        <div style={{position:"absolute",left:-3,top:145,width:3,height:56,background:"#333",borderRadius:"2px 0 0 2px"}}/>
-        <div style={{position:"absolute",left:-3,top:215,width:3,height:56,background:"#333",borderRadius:"2px 0 0 2px"}}/>
-        <div style={{position:"absolute",right:-3,top:160,width:3,height:80,background:"#333",borderRadius:"0 2px 2px 0"}}/>
-
-        <div style={{width:"100%",height:"100%",background:bg,borderRadius:44,overflow:"hidden",position:"relative"}}>
-          {/* Dynamic Island */}
-          <div style={{position:"absolute",top:12,left:"50%",transform:"translateX(-50%)",width:100,height:30,background:"#000",borderRadius:20,zIndex:10,display:"flex",alignItems:"center",justifyContent:"space-between",padding:"0 10px"}}>
-            <div style={{width:8,height:8,borderRadius:"50%",background:"#1a1a1a",border:"1px solid #333"}}/>
-            <div style={{width:10,height:10,borderRadius:"50%",background:"#1a1a1a",border:"1px solid #333"}}/>
-          </div>
-
-          {/* ── SCREEN A: Dashboard Titolare ── */}
-          <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,opacity:sc===0?1:0,transition:"opacity 0.8s ease",overflow:"hidden"}}>
-            {/* Header */}
-            <div style={{marginTop:50,background:card,borderBottom:`1px solid ${border}`,padding:"6px 11px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",alignItems:"center",gap:5}}>
-                <div style={{width:26,height:26,borderRadius:8,overflow:"hidden",background:`linear-gradient(135deg,#6c5ce7,#a29bfe)`,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                  <span style={{fontSize:11,color:"#fff",fontWeight:700}}>A</span>
-                </div>
-                <div style={{fontSize:8.5,fontWeight:700,color:textMain,lineHeight:1}}>Atelier Bellezza</div>
-              </div>
-              <div style={{display:"flex",alignItems:"center",gap:4}}>
-                <div style={{width:20,height:20,borderRadius:"50%",border:`1px solid ${border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={textSoft} strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </div>
-                <div style={{width:20,height:20,borderRadius:"50%",background:"rgba(108,92,231,0.1)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                </div>
-              </div>
-            </div>
-
-            {/* Tab nav */}
-            <div style={{background:card,borderBottom:`1px solid ${border}`,display:"flex",overflowX:"hidden"}}>
-              {[["Agenda",true],["Clienti",false],["Servizi",false],["Staff",false],["Recensioni",false],["Report",false]].map(([lbl,on])=>(
-                <div key={lbl} style={{padding:"5px 7px",fontSize:6.5,fontWeight:on?600:400,color:on?accent:textMuted,borderBottom:on?`2px solid ${accent}`:"2px solid transparent",letterSpacing:"0.03em",flexShrink:0}}>{lbl}</div>
-              ))}
-            </div>
-
-            {/* Stats 2×2 */}
-            <div style={{padding:"7px 9px 0",display:"grid",gridTemplateColumns:"1fr 1fr",gap:4}}>
-              <div style={{background:accent,borderRadius:10,padding:"7px 9px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
-                  <div style={{width:15,height:15,background:"rgba(255,255,255,0.2)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M3 10h18M8 2v4M16 2v4"/></svg>
-                  </div>
-                  <span style={{fontSize:5.5,color:"rgba(255,255,255,0.75)",letterSpacing:0.5}}>OGGI</span>
-                </div>
-                <div style={{fontSize:19,fontWeight:700,color:"#fff",lineHeight:1}}>7</div>
-                <div style={{fontSize:6.5,color:"rgba(255,255,255,0.75)",marginTop:1}}>appuntamenti</div>
-              </div>
-              <div style={{background:green,borderRadius:10,padding:"7px 9px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
-                  <div style={{width:15,height:15,background:"rgba(255,255,255,0.2)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
-                  </div>
-                  <span style={{fontSize:5.5,color:"rgba(255,255,255,0.75)",letterSpacing:0.5}}>OGGI</span>
-                </div>
-                <div style={{fontSize:19,fontWeight:700,color:"#fff",lineHeight:1}}>€135</div>
-                <div style={{fontSize:6.5,color:"rgba(255,255,255,0.75)",marginTop:1}}>incasso previsto</div>
-              </div>
-              <div style={{background:card,border:`1px solid ${border}`,borderRadius:10,padding:"7px 9px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
-                  <div style={{width:15,height:15,background:"rgba(108,92,231,0.1)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
-                  </div>
-                  <span style={{fontSize:5.5,color:textMuted,letterSpacing:0.5}}>MESE</span>
-                </div>
-                <div style={{fontSize:17,fontWeight:700,color:textMain,lineHeight:1}}>€225</div>
-                <div style={{fontSize:6.5,color:textMuted,marginTop:1}}>confermate</div>
-              </div>
-              <div style={{background:card,border:`1px solid ${border}`,borderRadius:10,padding:"7px 9px"}}>
-                <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:2}}>
-                  <div style={{width:15,height:15,background:"rgba(108,92,231,0.1)",borderRadius:4,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <svg width="8" height="8" viewBox="0 0 24 24" fill="none" stroke={accent} strokeWidth="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-                  </div>
-                  <span style={{fontSize:5,color:textMuted,letterSpacing:0.3}}>PAGATO ONLINE</span>
-                </div>
-                <div style={{fontSize:17,fontWeight:700,color:textMain,lineHeight:1}}>€0</div>
-                <div style={{fontSize:6.5,color:textMuted,marginTop:1}}>ricevuto oggi</div>
-              </div>
-            </div>
-
-            {/* Lista prenotazioni */}
-            <div style={{margin:"6px 9px 0",background:card,border:`1px solid ${border}`,borderRadius:10,overflow:"hidden"}}>
-              <div style={{padding:"4px 9px",borderBottom:`1px solid ${border}`,display:"flex",justifyContent:"space-between",alignItems:"center"}}>
-                <span style={{fontSize:6.5,fontWeight:600,color:textMuted,letterSpacing:"0.1em"}}>PRENOTAZIONI (7)</span>
-                <div style={{display:"flex",gap:2}}>
-                  {["OGGI","SETTIMANA","TUTTI"].map((v,i)=>(
-                    <span key={v} style={{fontSize:5.5,padding:"2px 4px",borderRadius:3,background:i===0?"#1e1b3a":"transparent",color:i===0?"#fff":textMuted}}>{v}</span>
-                  ))}
-                </div>
-              </div>
-              <div style={{padding:"2px 9px",background:bg,borderBottom:`1px solid ${border}`}}>
-                <span style={{fontSize:6,color:textMuted,letterSpacing:"0.1em"}}>MAR 12 MAG</span>
-              </div>
-              {[
-                {ora:"08:00",dur:"30m",nome:"Valentina R.",serv:"Taglio Donna · Sao",prezzo:"€35",pagato:false},
-                {ora:"09:00",dur:"90m",nome:"Maria B.",serv:"Colore · Sao",prezzo:"€65",pagato:true},
-                {ora:"10:30",dur:"60m",nome:"Elena F.",serv:"Taglio + Piega · Sao",prezzo:"€50",pagato:false},
-                {ora:"11:00",dur:"30m",nome:"Sara E.",serv:"Piega · Sao",prezzo:"€25",pagato:true},
-              ].map(({ora,dur,nome,serv,prezzo,pagato})=>(
-                <div key={ora} style={{display:"flex",alignItems:"center",gap:5,padding:"4px 9px",borderBottom:`1px solid ${border}`}}>
-                  <div style={{textAlign:"right",minWidth:24,flexShrink:0}}>
-                    <div style={{fontSize:7.5,fontWeight:600,color:textMain}}>{ora}</div>
-                    <div style={{fontSize:5.5,color:textMuted}}>{dur}</div>
-                  </div>
-                  <div style={{width:2,alignSelf:"stretch",background:accent,borderRadius:2,flexShrink:0,opacity:0.5}}/>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontSize:7.5,fontWeight:600,color:textMain,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{nome}</div>
-                    <div style={{fontSize:6,color:textSoft,overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>{serv}</div>
-                  </div>
-                  <div style={{textAlign:"right",flexShrink:0}}>
-                    <div style={{fontSize:8,fontWeight:600,color:accent}}>{prezzo}</div>
-                    <div style={{fontSize:5.5,color:pagato?green:textMuted}}>{pagato?"✓ Pagato":"In salone"}</div>
-                  </div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* ── SCREEN B: App Cliente con cover + galleria ── */}
-          <div style={{position:"absolute",top:0,left:0,right:0,bottom:0,opacity:sc===1?1:0,transition:"opacity 0.8s ease",overflow:"hidden",fontFamily:"Georgia,'Times New Roman',serif",background:card}}>
-            {/* Header PWA */}
-            <div style={{marginTop:50,background:card,borderBottom:`1px solid ${border}`,padding:"5px 11px",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-              <div style={{display:"flex",alignItems:"center",gap:5,border:`1px solid ${border}`,borderRadius:20,padding:"3px 8px"}}>
-                <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke={textMuted} strokeWidth="2"><rect x="5" y="2" width="14" height="20" rx="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
-                <span style={{fontSize:7,color:textSoft}}>Aggiungi home</span>
-              </div>
-              <div style={{display:"flex",gap:3}}>
-                <div style={{width:22,height:22,borderRadius:"50%",border:`1px solid ${border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={textSoft} strokeWidth="2"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></svg>
-                </div>
-                <div style={{width:22,height:22,borderRadius:"50%",border:`1px solid ${border}`,display:"flex",alignItems:"center",justifyContent:"center"}}>
-                  <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke={textSoft} strokeWidth="2"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
-                </div>
-              </div>
-            </div>
-            {/* Cover photo */}
-            <div style={{padding:"0 11px"}}>
-              <div style={{height:80,position:"relative",overflow:"hidden",borderRadius:8}}>
-                <img src="/cover.jpg" style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
-                <div style={{position:"absolute",inset:0,background:"linear-gradient(to bottom,transparent 40%,rgba(0,0,0,0.3) 100%)"}}/>
-              </div>
-            </div>
-            {/* Profile */}
-            <div style={{textAlign:"center",padding:"8px 12px 6px"}}>
-              <div style={{width:40,height:40,borderRadius:13,background:"linear-gradient(135deg,#6c5ce7,#a29bfe)",display:"flex",alignItems:"center",justifyContent:"center",margin:"-24px auto 6px",color:"#fff",fontSize:15,fontWeight:700,border:`2px solid ${card}`,position:"relative",zIndex:1}}>A</div>
-              <div style={{fontSize:13,fontWeight:600,color:textMain,letterSpacing:"0.02em",marginBottom:2}}>Atelier Bellezza</div>
-              <div style={{display:"flex",justifyContent:"center",alignItems:"center",gap:2,marginBottom:2}}>
-                {[1,2,3,4,5].map(i=><span key={i} style={{fontSize:8,color:"#f9ca24"}}>★</span>)}
-                <span style={{fontSize:6.5,color:textSoft,marginLeft:2}}>4.9 · 48 recensioni</span>
-              </div>
-              <p style={{fontSize:6.5,color:textMuted,margin:"0 0 7px"}}>Siamo i migliori a Genova, vieni a trovarci!</p>
-              <button style={{background:textMain,color:"#fff",border:"none",padding:"7px 22px",fontSize:7.5,letterSpacing:"0.18em",cursor:"pointer",borderRadius:2,width:"80%"}}>PRENOTA ORA</button>
-            </div>
-            {/* Galleria */}
-            <div style={{padding:"6px 11px 0"}}>
-              <div style={{fontSize:6.5,color:textMuted,letterSpacing:"0.18em",marginBottom:5}}>GALLERIA</div>
-              <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:3,padding:"0 8px"}}>
-                {[
-                  "/gallery/gallery1.jpg",
-                  "/gallery/gallery2.jpg",
-                  "/gallery/gallery3.jpg",
-                  "/gallery/gallery4.jpg",
-                  "/gallery/gallery5.jpg",
-                  "/gallery/gallery6.jpg",
-                ].map((url,i)=>(
-                  <div key={i} style={{aspectRatio:"1",borderRadius:6,overflow:"hidden"}}>
-                    <img src={url} style={{width:"100%",height:"100%",objectFit:"cover"}} alt=""/>
-                  </div>
-                ))}
-              </div>
-            </div>
-            {/* Servizi preview */}
-            <div style={{padding:"7px 11px 0"}}>
-              <div style={{fontSize:6.5,color:textMuted,letterSpacing:"0.18em",marginBottom:4}}>I NOSTRI SERVIZI</div>
-              {[
-                {n:"Taglio",d:"30 min",p:"€15"},
-                {n:"Colore",d:"60 min",p:"€45"},
-              ].map(({n,d,p})=>(
-                <div key={n} style={{background:bg,border:`1px solid ${border}`,padding:"5px 9px",marginBottom:3,display:"flex",justifyContent:"space-between",alignItems:"center",borderRadius:4}}>
-                  <div>
-                    <div style={{fontSize:8,color:textMain}}>{n}</div>
-                    <div style={{fontSize:6,color:textMuted}}>{d}</div>
-                  </div>
-                  <div style={{fontSize:8,color:accent,fontWeight:600}}>{p}</div>
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* Dots */}
-          <div style={{position:"absolute",bottom:14,left:"50%",transform:"translateX(-50%)",display:"flex",gap:6}}>
-            {[0,1].map(i=><div key={i} style={{width:6,height:6,borderRadius:"50%",background:sc===i?accent:"rgba(108,92,231,0.2)",transition:"background 0.5s"}}/>)}
-          </div>
-        </div>
-      </div>
+    <div style={{position:"relative",width:280,height:502,flexShrink:0}}>
+      <img src="/Iphone17neroconombra.png" alt="iPhone mockup"
+        style={{width:"100%",height:"100%",display:"block",pointerEvents:"none"}}
+      />
     </div>
   );
 }
@@ -600,13 +400,30 @@ function CookieBanner(){
 const HERO_SLIDES = [
   {
     src: "/hero-woman.png",
+    mobileSrc: "/MOBILE/hero-womanmobile.png",
     pos: "center top",
-    notifica: { testo: "Nuova prenotazione", sub: "Oggi alle 15:30 · Confermata", side: "right" },
+    notifica: { testo: "Appuntamento confermato", sub: "Oggi alle 11:30 · Colorazione", side: "right" },
   },
   {
     src: "/hero-mancell.png",
+    mobileSrc: "/MOBILE/hero-mancellmobile.png",
     pos: "center 100%",
     notifica: { testo: "Appuntamento confermato", sub: "Domani alle 10:00 · Taglio", side: "left" },
+  },
+  {
+    src: "/hero-woman2.png",
+    mobileSrc: "/MOBILE/hero-woman2mobile.png",
+    pos: "center 100%",
+  },
+  {
+    src: "/hero-man2.png",
+    mobileSrc: "/MOBILE/hero-man2mobile.png",
+    pos: "center 100%",
+  },
+  {
+    src: "/hero-woman3.png",
+    mobileSrc: "/MOBILE/hero-woman3mobile.png",
+    pos: "center 100%",
   },
 ];
 
@@ -614,11 +431,18 @@ export default function Home(){
   const [chiSiamoOpen, setChiSiamoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const [heroSlide, setHeroSlide] = useState(0);
+  const [isMobile, setIsMobile] = useState(() => window.innerWidth <= 960);
+
+  useEffect(() => {
+    const onResize = () => setIsMobile(window.innerWidth <= 960);
+    window.addEventListener("resize", onResize);
+    return () => window.removeEventListener("resize", onResize);
+  }, []);
 
   useEffect(() => {
     const timer = setInterval(() => {
       setHeroSlide(i => (i + 1) % HERO_SLIDES.length);
-    }, 3000);
+    }, 4500);
     return () => clearInterval(timer);
   }, []);
   return(
@@ -772,6 +596,27 @@ export default function Home(){
           .desktop-inner{ transform:scale(0.38); }
           .desktop-screen{ height:580px; }
         }
+        /* Dashboard section — testo sinistra + composizione destra */
+        .dash-layout{ display:flex; align-items:center; gap:8px; }
+        .dash-text-col{ flex:0 0 44%; max-width:44%; }
+        .dash-mockup-col{ flex:1; min-width:0; display:flex; justify-content:center; }
+        .dash-combo-img{ width:100%; display:block; }
+        .dash-mobile-only{ display:none; }
+        .dash-label{ font-size:13px; letter-spacing:3px; color:#6c5ce7; text-transform:uppercase; margin-bottom:18px; }
+        .dash-h2{ font-size:64px; font-weight:700; color:#1e1b3a; letter-spacing:-2.5px; margin-bottom:22px; line-height:1.06; }
+        .dash-desc{ font-size:19px; color:#7a748a; line-height:1.6; max-width:460px; margin:0; }
+        @media(max-width:960px){
+          .dash-layout{ flex-direction:column; gap:36px; }
+          .dash-text-col{ flex:none; max-width:100%; }
+          .dash-mockup-col{ width:100%; }
+          .dash-combo-img{ display:none; }
+          .dash-mobile-only{ display:block; }
+          .dash-label{ font-size:11px; }
+          .dash-h2{ font-size:32px; letter-spacing:-1px; }
+          .dash-desc{ font-size:15px; }
+          .desktop-mockup-row{flex-direction:column!important;}
+          .desktop-mockup-text{flex:unset!important;max-width:100%!important;}
+        }
       `}</style>
 
       <nav className="nav-gradient-border" style={{position:"sticky",top:0,zIndex:100,background:"#f4f3ff"}}>
@@ -922,7 +767,7 @@ export default function Home(){
               {HERO_SLIDES.map((slide, i) => (
                 <img
                   key={slide.src}
-                  src={slide.src}
+                  src={isMobile && slide.mobileSrc ? slide.mobileSrc : slide.src}
                   alt="Professionista che usa Prenoty"
                   style={{
                     position:"absolute",top:0,left:0,
@@ -934,8 +779,8 @@ export default function Home(){
                   }}
                 />
               ))}
-              {/* Chip notifica — cambia posizione e testo con lo slide */}
-              {HERO_SLIDES.map((slide, i) => (
+              {/* Chip notifica — solo per le slide con notifica definita */}
+              {HERO_SLIDES.map((slide, i) => slide.notifica ? (
                 <div
                   key={i}
                   style={{
@@ -959,7 +804,7 @@ export default function Home(){
                     <div style={{fontSize:11,color:"#9b9faa",marginTop:2,fontWeight:400}}>{slide.notifica.sub}</div>
                   </div>
                 </div>
-              ))}
+              ) : null)}
             </div>
 
           </div>
@@ -967,14 +812,24 @@ export default function Home(){
       </section>
 
       {/* ── Sezione Desktop Mockup ── */}
-      <section className="sec-pad" style={{padding:"80px 56px",background:"#0f0d24",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
+      <section className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
         <FadeIn>
-          <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Dashboard completa</p>
-          <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Anche su desktop,<br/>tutto sotto controllo.</h2>
-          <p style={{fontSize:15,color:"#9b96c8",marginBottom:44,maxWidth:480}}>Gestisci agenda, servizi e clienti da computer. Stesso account, stesso dato in tempo reale.</p>
-        </FadeIn>
-        <FadeIn delay={0.1}>
-          <Desktop/>
+          <div style={{display:"flex",alignItems:"center",gap:64}} className="desktop-mockup-row">
+            {/* Testo — solo desktop affiancato, mobile impilato */}
+            <div style={{flex:"0 0 380px",maxWidth:380}} className="desktop-mockup-text">
+              <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:16}}>Dashboard completa</p>
+              <h2 style={{fontSize:52,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:20,lineHeight:1.1}}>Anche su desktop,<br/>tutto sotto<br/>controllo.</h2>
+              <p style={{fontSize:18,color:"#9b96c8",lineHeight:1.75,maxWidth:340}}>Gestisci agenda, servizi e clienti da computer. Stesso account, stesso dato in tempo reale.</p>
+            </div>
+            {/* Immagine mockup */}
+            <div style={{flex:1,display:"flex",justifyContent:"center",alignItems:"center"}}>
+              <img
+                src="/laptopeiphoneinsieme.png"
+                alt="Dashboard Prenoty su desktop e mobile"
+                style={{width:"100%",maxWidth:780,height:"auto",objectFit:"contain"}}
+              />
+            </div>
+          </div>
         </FadeIn>
       </section>
 
@@ -1179,7 +1034,7 @@ export default function Home(){
                   <span style={{fontSize:11,fontWeight:700,color:"#6c5ce7",letterSpacing:2,textTransform:"uppercase"}}>Chi siamo</span>
                 </div>
                 <h2 style={{fontSize:36,fontWeight:800,color:"#1e1b3a",lineHeight:1.1,letterSpacing:-1,marginBottom:20}}>
-                  Nati a Genova.<br/>Fatti per i <span style={{color:"#6c5ce7"}}>professionisti.</span>
+                  Da Genova,<br/>per i <span style={{color:"#6c5ce7"}}>professionisti.</span>
                 </h2>
                 <p style={{fontSize:15,color:"#7a748a",lineHeight:1.75,marginBottom:14}}>
                   Prenoty nasce dall'idea semplice che un parrucchiere, un'estetista o un personal trainer non dovrebbe perdere tempo con chiamate e messaggi per gestire gli appuntamenti.

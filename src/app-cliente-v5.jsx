@@ -172,7 +172,7 @@ export default function AppCliente() {
         })(),
       }));
       const { data: serviziDb } = await supabase
-        .from("servizi").select("*").eq("salone_id", saloneDb.id);
+        .from("servizi").select("*").eq("salone_id", saloneDb.id).order("posizione", { ascending: true });
       if (serviziDb) setServizi(serviziDb);
       if (Array.isArray(saloneDb.recensioni)) setRecensioni(saloneDb.recensioni.filter(r => !r.nascosta));
       setCaricamento(false);
