@@ -830,7 +830,7 @@ export default function Home(){
               <img
                 src="/laptopeiphoneinsieme.png"
                 alt="Dashboard Prenoty su desktop e mobile"
-                style={{width:"100%",maxWidth:1100,height:"auto",objectFit:"contain",marginRight:"-80px"}}
+                style={{width:"100%",maxWidth:1400,height:"auto",objectFit:"contain",marginRight:"-100px"}}
               />
             </div>
           </div>
