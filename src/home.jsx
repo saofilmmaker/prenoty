@@ -616,6 +616,12 @@ export default function Home(){
           .dash-desc{ font-size:15px; }
           .desktop-mockup-row{flex-direction:column!important;}
           .desktop-mockup-text{flex:unset!important;max-width:100%!important;}
+          .desktop-row{flex-direction:column!important;gap:32px!important;}
+          .desktop-text{flex:unset!important;max-width:100%!important;text-align:center;}
+          .desktop-text h2{font-size:36px!important;letter-spacing:-1px!important;}
+          .desktop-text p{font-size:15px!important;}
+          .desktop-img-wrap{justify-content:center!important;}
+          .desktop-img-wrap img{margin-right:0!important;max-width:100%!important;}
         }
       `}</style>
 
@@ -812,21 +818,19 @@ export default function Home(){
       </section>
 
       {/* ── Sezione Desktop Mockup ── */}
-      <section className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff",borderTop:"0.5px solid rgba(108,92,231,0.1)"}}>
+      <section className="sec-pad desktop-section" style={{padding:"80px 56px",background:"#f4f3ff",borderTop:"0.5px solid rgba(108,92,231,0.1)",overflow:"hidden"}}>
         <FadeIn>
-          <div style={{display:"flex",alignItems:"center",gap:64}} className="desktop-mockup-row">
-            {/* Testo — solo desktop affiancato, mobile impilato */}
-            <div style={{flex:"0 0 380px",maxWidth:380}} className="desktop-mockup-text">
-              <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:16}}>Dashboard completa</p>
-              <h2 style={{fontSize:52,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:20,lineHeight:1.1}}>Anche su desktop,<br/>tutto sotto<br/>controllo.</h2>
-              <p style={{fontSize:18,color:"#9b96c8",lineHeight:1.75,maxWidth:340}}>Gestisci agenda, servizi e clienti da computer. Stesso account, stesso dato in tempo reale.</p>
+          <div className="desktop-row" style={{display:"flex",alignItems:"center",gap:32,maxWidth:1400,margin:"0 auto"}}>
+            <div className="desktop-text" style={{flex:"0 0 420px",maxWidth:420}}>
+              <p style={{fontSize:13,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Dashboard completa</p>
+              <h2 style={{fontSize:56,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:24,lineHeight:1.08}}>Anche su desktop,<br/>tutto sotto controllo.</h2>
+              <p style={{fontSize:19,color:"#9b96c8",lineHeight:1.7,margin:0}}>Gestisci agenda, servizi e clienti da computer. Stesso account, stesso dato in tempo reale.</p>
             </div>
-            {/* Immagine mockup */}
-            <div style={{flex:1,display:"flex",justifyContent:"center",alignItems:"center"}}>
+            <div className="desktop-img-wrap" style={{flex:1,display:"flex",justifyContent:"flex-end",alignItems:"center",minWidth:0}}>
               <img
                 src="/laptopeiphoneinsieme.png"
                 alt="Dashboard Prenoty su desktop e mobile"
-                style={{width:"100%",maxWidth:780,height:"auto",objectFit:"contain"}}
+                style={{width:"100%",maxWidth:1100,height:"auto",objectFit:"contain",marginRight:"-80px"}}
               />
             </div>
           </div>
