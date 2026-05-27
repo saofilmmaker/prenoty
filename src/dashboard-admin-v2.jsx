@@ -150,16 +150,20 @@ export default function DashboardAdmin() {
     { lbl: "Sospendi account", azione: (s) => alert(`Sospensione account di ${s.nome}\n\nIn produzione: blocca login, mostra schermata "abbonamento sospeso", da Supabase aggiorni il campo stato.`), pericoloso: true },
   ];
 
-  const concediUsoGratis = () => {
+  const concediUsoGratis = async () => {
     if (!modalUsoGratis) return;
     const { salone: s, durata } = modalUsoGratis;
-    const messaggi = {
-      "1mese": `${s.nome} avrà 1 mese di uso gratis aggiuntivo.`,
-      "3mesi": `${s.nome} avrà 3 mesi di uso gratis.`,
-      "6mesi": `${s.nome} avrà 6 mesi di uso gratis.`,
-      "lifetime": `${s.nome} userà Prenoty GRATIS A VITA. Nessun addebito mai più.`,
-    };
-    alert(`✓ ${messaggi[durata]}\n\nIn produzione: aggiorna Supabase → campo "piano_speciale" → email automatica al titolare con la buona notizia.`);
+
+    const { error } = await supabase
+      .from("saloni")
+      .update({ piano_speciale: durata })
+      .eq("id", s.id);
+
+    if (error) {
+      alert(`Errore: ${error.message}`);
+      return;
+    }
+
     setModalUsoGratis(null);
     setMenuSaloneAperto(null);
   };
@@ -265,7 +269,7 @@ export default function DashboardAdmin() {
       minHeight: "100vh",
       background: T.bg,
       color: T.text,
-      fontFamily: "Georgia, 'Times New Roman', serif",
+      fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
     }}>
       {/* HEADER */}
       <header style={{
@@ -943,7 +947,7 @@ export default function DashboardAdmin() {
       {/* MODAL CONCEDI USO GRATIS */}
       {modalUsoGratis && (
         <div onClick={() => setModalUsoGratis(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 500, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 500, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>🎁 Concedi uso gratis</h3>
             <p style={{ fontSize: 13, color: T.textSoft, margin: "0 0 20px" }}>
               <strong style={{ color: T.text }}>{modalUsoGratis.salone.nome}</strong> userà Prenoty senza addebiti per il periodo scelto. Il titolare riceverà un'email con la buona notizia.
@@ -991,7 +995,7 @@ export default function DashboardAdmin() {
       {/* MODAL CONFERMA AZIONE MODERAZIONE */}
       {confermaAzione && (
         <div onClick={() => setConfermaAzione(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.6)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 460, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 460, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 12px" }}>
               {confermaAzione.tipo === "mantieni" ? "Mantenere la recensione pubblicata?" : "Nascondere la recensione?"}
             </h3>
