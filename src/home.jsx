@@ -10,6 +10,38 @@ function FadeIn({children,delay=0,direction="up",style={}}){
   return <div ref={r} style={{opacity:v?1:0,transform:v?"translate(0)":tr,transition:`opacity 0.7s ease ${delay}s,transform 0.7s ease ${delay}s`,...style}}>{children}</div>;
 }
 
+function GlowCard({children}){
+  const ref=useRef(null);
+  useEffect(()=>{
+    const el=ref.current;
+    if(!el) return;
+    const move=(e)=>{
+      const r=el.getBoundingClientRect();
+      el.style.setProperty('--mx',(e.clientX-r.left).toFixed(1)+'px');
+      el.style.setProperty('--my',(e.clientY-r.top).toFixed(1)+'px');
+    };
+    const show=()=>el.style.setProperty('--glow-opacity','1');
+    const hide=()=>el.style.setProperty('--glow-opacity','0');
+    el.addEventListener('pointermove',move);
+    el.addEventListener('pointerenter',show);
+    el.addEventListener('pointerleave',hide);
+    return()=>{
+      el.removeEventListener('pointermove',move);
+      el.removeEventListener('pointerenter',show);
+      el.removeEventListener('pointerleave',hide);
+    };
+  },[]);
+  return(
+    <div ref={ref} data-glow className="lg-card" style={{
+      '--glow-opacity':'0',
+      backgroundColor:'rgba(108,92,231,0.06)',
+      border:'2px solid rgba(108,92,231,0.18)',
+    }}>
+      {children}
+    </div>
+  );
+}
+
 function Ico({d,size=20,color="#6c5ce7"}){
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 }
@@ -61,7 +93,7 @@ function Desktop(){
   const[sc,setSc]=useState(0);
   useEffect(()=>{const t=setInterval(()=>setSc(s=>(s+1)%3),4500);return()=>clearInterval(t);},[]);
   const accent="#6c5ce7",green="#00b894",textMain="#1e1b3a",textSoft="#4a4580",textMuted="#9b96c8",border="#e0dcff",card="#fff",bg="#f4f3ff",dark="#1e1b3a";
-  const urls=["prenoty.com/dashboard","prenoty.com/dashboard","prenoty.com/atelier-bellezza"];
+  const urls=["prenoty.com/dashboard","prenoty.com/dashboard","prenoty.com/sao-salone"];
   return(
     <div style={{maxWidth:860,margin:"0 auto",position:"relative"}}>
       <div className="desktop-outer">
@@ -431,6 +463,21 @@ function GradDivider(){
   return <div style={{height:"1.5px",background:"linear-gradient(90deg,rgba(108,92,231,0.15) 0%,rgba(108,92,231,0.7) 25%,rgba(93,226,121,0.5) 50%,rgba(108,92,231,0.7) 75%,rgba(108,92,231,0.15) 100%)"}}/>
 }
 
+function FaqItem({q,a}){
+  const[open,setOpen]=useState(false);
+  return(
+    <div onClick={()=>setOpen(o=>!o)} style={{borderBottom:"1px solid rgba(108,92,231,0.12)",padding:"20px 0",cursor:"pointer",userSelect:"none"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"space-between",gap:16}}>
+        <span style={{fontSize:17,fontWeight:700,color:"#13112a",lineHeight:1.35}}>{q}</span>
+        <div style={{width:28,height:28,borderRadius:"50%",background:open?"#6c5ce7":"rgba(108,92,231,0.1)",border:"1.5px solid rgba(108,92,231,0.25)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,transition:"background 0.2s"}}>
+          <span style={{fontSize:18,lineHeight:1,color:open?"#fff":"#6c5ce7",fontWeight:400,marginTop:open?-1:-1}}>{open?"×":"+"}</span>
+        </div>
+      </div>
+      {open&&<p style={{fontSize:15,color:"#7a748a",lineHeight:1.7,marginTop:12,marginBottom:0}}>{a}</p>}
+    </div>
+  );
+}
+
 export default function Home(){
   const [chiSiamoOpen, setChiSiamoOpen] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
@@ -448,6 +495,14 @@ export default function Home(){
       setHeroSlide(i => (i + 1) % HERO_SLIDES.length);
     }, 4500);
     return () => clearInterval(timer);
+  }, []);
+
+  useEffect(() => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.iubenda.com/iubenda.js";
+    s.async = true;
+    document.body.appendChild(s);
+    return () => { document.body.removeChild(s); };
   }, []);
   return(
     <div style={{background:"transparent",minHeight:"100vh",fontFamily:"'DM Sans','Helvetica Neue',sans-serif",overflowX:"hidden"}}>
@@ -524,6 +579,61 @@ export default function Home(){
         .btn-glass-green .btn-glass-lens{ background:rgba(56,200,90,0.22); }
         .btn-glass-green:hover .btn-glass-lens{ background:rgba(56,200,90,0.32); }
 
+        /* Social tooltip icons */
+        .soc-wrap{position:relative;list-style:none;}
+        .soc-btn{position:relative;display:flex;align-items:center;justify-content:center;width:46px;height:46px;border-radius:50%;background:#f4f3ff;overflow:hidden;border:1.5px solid rgba(108,92,231,0.2);transition:box-shadow 0.3s ease;cursor:pointer;text-decoration:none;}
+        .soc-wrap:hover .soc-btn{box-shadow:0 6px 22px rgba(108,92,231,0.28);}
+        .soc-fill{position:absolute;bottom:0;left:0;width:100%;height:0;transition:height 0.32s cubic-bezier(.4,0,.2,1);}
+        .soc-wrap:hover .soc-fill{height:100%;}
+        .soc-icon{position:relative;z-index:1;transition:stroke 0.28s ease,color 0.28s ease;stroke:#6c5ce7;color:#6c5ce7;}
+        .soc-wrap:hover .soc-icon{stroke:#fff;color:#fff;}
+        .soc-tip{position:absolute;bottom:-38px;left:50%;transform:translateX(-50%);padding:4px 11px;font-size:12px;font-weight:600;color:#fff;white-space:nowrap;border-radius:7px;opacity:0;visibility:hidden;transition:opacity 0.25s ease,bottom 0.25s ease,visibility 0.25s;}
+        .soc-wrap:hover .soc-tip{opacity:1;visibility:visible;bottom:-46px;}
+
+        /* Liquid glass + spotlight cards — Come funziona */
+        .lg-card{
+          position:relative;
+          border-radius:20px;
+          padding:32px 24px 36px;
+          text-align:center;
+          cursor:default;
+          transition:transform 0.35s cubic-bezier(.4,0,.2,1);
+          backdrop-filter:blur(10px) url(#lg-filter) saturate(140%);
+          -webkit-backdrop-filter:blur(10px) saturate(140%);
+          box-shadow:
+            inset 0 0 0 1px rgba(255,255,255,0.07),
+            inset 1.8px 3px 0px -2px rgba(255,255,255,0.5),
+            inset -2px -2px 0px -2px rgba(255,255,255,0.4),
+            inset -0.3px -1px 4px 0px rgba(0,0,0,0.18),
+            inset 0px 3px 4px -2px rgba(0,0,0,0.22),
+            0px 2px 8px 0px rgba(0,0,0,0.2),
+            0px 8px 24px 0px rgba(0,0,0,0.15);
+        }
+        @media(hover:hover){ .lg-card:hover{ transform:translateY(-6px); } }
+
+        /* Spotlight border glow */
+        [data-glow]::before{
+          content:"";
+          pointer-events:none;
+          position:absolute;
+          inset:-2px;
+          border-radius:22px;
+          padding:2px;
+          background:radial-gradient(
+            220px 220px at var(--mx,50%) var(--my,50%),
+            hsl(260 90% 75% / 0.95) 0%,
+            hsl(260 70% 60% / 0.4) 40%,
+            transparent 70%
+          );
+          -webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+          -webkit-mask-composite:destination-out;
+          mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);
+          mask-composite:exclude;
+          opacity:var(--glow-opacity,0);
+          transition:opacity 0.35s ease;
+          z-index:1;
+        }
+
         /* Ghost neutro */
         .btn-glass-ghost{ color:rgba(255,255,255,0.88) !important; }
         .btn-glass-ghost .btn-glass-lens{ background:rgba(255,255,255,0.07); }
@@ -554,7 +664,7 @@ export default function Home(){
         .hero-card{ display:flex; align-items:stretch; overflow:hidden; }
         .hero-left-panel{ flex:0 0 56%; padding:56px 52px; display:flex; flex-direction:column; justify-content:space-between; background:#fff; }
         .hero-photo-panel{ flex:0 0 44%; position:relative; overflow:hidden; min-height:540px; }
-        .hero-h1{ font-size:58px; font-weight:800; color:#1e1b3a; line-height:1.08; letter-spacing:-1.5px; margin-bottom:16px; }
+        .hero-h1{ font-size:58px; font-weight:800; color:#13112a; line-height:1.08; letter-spacing:-1.5px; margin-bottom:16px; }
         .hero-btns{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:0; }
         @media(max-width:960px){
           .hero-card{flex-direction:column!important;}
@@ -563,7 +673,8 @@ export default function Home(){
           .hero-h1{font-size:46px!important;letter-spacing:-1px!important;}
           .hero-btns{justify-content:flex-start!important;}
           .feat-grid{grid-template-columns:1fr 1fr!important;grid-template-areas:"preno dash" "link prom" "pers primo"!important;}
-          .steps-grid{grid-template-columns:1fr!important;gap:24px!important;}
+          .feat-grid>*{min-width:0;}
+          .steps-flow{grid-template-columns:1fr!important;gap:20px!important;}
           .nav-wrap{padding:12px 24px!important;}
         }
         .hamburger-btn{display:none;}
@@ -577,13 +688,27 @@ export default function Home(){
           .sec-pad{padding:56px 24px!important;}
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
+        .feat-molto-altro{font-size:16px;color:rgba(155,150,200,0.85);margin:10px 0 0;text-align:right;font-style:italic;}
         @media(max-width:600px){
-          .feat-grid{grid-template-columns:1fr!important;grid-template-areas:"preno" "dash" "link" "prom" "pers" "primo"!important;}
+          .feat-molto-altro{font-size:14px!important;}
+          .feat-grid{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"preno" "dash" "link" "prom" "pers" "primo"!important;}
+          .feat-booking-row{flex-wrap:wrap!important;gap:6px!important;}
+          .feat-booking-row .booking-time{display:none!important;}
+          .feat-booking-row .booking-badge{margin-left:auto;}
           .hero-h1{font-size:40px!important;}
           .hero-left-panel{padding:32px 24px!important;}
           .hero-photo-panel{min-height:200px!important;}
-          .footer-inner{flex-direction:column!important;align-items:center!important;gap:14px!important;padding:20px 24px!important;}
-          .footer-icons{position:static!important;transform:none!important;}
+          .footer-main{flex-direction:column!important;gap:16px!important;padding:24px 20px 16px!important;}
+          .footer-main>div:first-child{text-align:center!important;align-items:center!important;gap:8px!important;flex:none!important;width:100%!important;}
+          .footer-main>div:first-child img{margin:0 auto!important;}
+          .footer-main>div:first-child p{text-align:center!important;margin:4px auto 0!important;font-size:13px!important;}
+          .footer-main>div:first-child ul{justify-content:center!important;margin-top:0!important;}
+          .footer-cols{grid-template-columns:1fr 1fr!important;gap:8px 16px!important;}
+          .footer-cols>div:nth-child(3){grid-column:2!important;grid-row:2!important;margin-top:-16px!important;}
+          .footer-cols h3{font-size:11px!important;text-transform:uppercase!important;letter-spacing:0.6px!important;margin-bottom:10px!important;}
+          .footer-cols ul{gap:8px!important;}
+          .footer-bottom{flex-direction:column!important;align-items:center!important;gap:3px!important;text-align:center!important;padding:12px 20px!important;}
+          .footer-bottom-links{flex-direction:column!important;gap:3px!important;align-items:center!important;}
         }
         /* Desktop mockup — scala su schermi piccoli senza taglio */
         .desktop-screen{ height:580px; }
@@ -627,11 +752,143 @@ export default function Home(){
         .desktop-row{flex-direction:column!important;gap:32px!important;}
           .desktop-text{flex:unset!important;max-width:100%!important;text-align:left;}
           .desktop-h2{white-space:normal!important;}
-          .desktop-text h2{font-size:36px!important;letter-spacing:-1px!important;}
-          .desktop-text p{font-size:15px!important;}
+          .desktop-text h2{font-size:40px!important;letter-spacing:-1px!important;}
+          .desktop-text p{font-size:19px!important;}
           .desktop-img-wrap{justify-content:center!important;}
           .desktop-img-combined{display:none!important;}
           .mobile-img-stack{display:block;width:100%;}
+        }
+        /* Glass button verde pricing */
+        .prenoty-glass-btn-wrap {
+          position: relative;
+          display: inline-block;
+          border-radius: 100px;
+        }
+        .prenoty-glass-btn {
+          position: relative;
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          padding: 13px 40px;
+          border-radius: 100px;
+          font-size: 15px;
+          font-weight: 700;
+          color: #fff;
+          text-decoration: none;
+          cursor: pointer;
+          background: rgba(93,226,121,0.18);
+          backdrop-filter: blur(12px) saturate(160%);
+          -webkit-backdrop-filter: blur(12px) saturate(160%);
+          border: 1px solid rgba(93,226,121,0.45);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.35),
+            inset 0 -1px 0 rgba(93,226,121,0.2),
+            inset 1px 0 0 rgba(255,255,255,0.1),
+            inset -1px 0 0 rgba(255,255,255,0.1),
+            0 0 0 1px rgba(93,226,121,0.15),
+            0 8px 32px rgba(93,226,121,0.25);
+          text-shadow: 0 1px 8px rgba(93,226,121,0.4);
+          transition: transform 0.18s ease, box-shadow 0.18s ease, background 0.18s ease;
+          overflow: hidden;
+        }
+        .prenoty-glass-btn::before {
+          content: '';
+          position: absolute;
+          top: 0;
+          left: 8%;
+          width: 84%;
+          height: 45%;
+          background: linear-gradient(180deg, rgba(255,255,255,0.28) 0%, rgba(255,255,255,0) 100%);
+          border-radius: 100px 100px 60% 60%;
+          pointer-events: none;
+        }
+        .prenoty-glass-btn:hover {
+          background: rgba(93,226,121,0.26);
+          transform: translateY(-2px);
+          box-shadow:
+            inset 0 1.5px 0 rgba(255,255,255,0.35),
+            inset 0 -1px 0 rgba(93,226,121,0.2),
+            0 0 0 1px rgba(93,226,121,0.25),
+            0 12px 40px rgba(93,226,121,0.35);
+        }
+        .prenoty-glass-btn:active { transform: translateY(0) scale(0.97); }
+        .prenoty-glass-btn-shadow {
+          position: absolute;
+          bottom: -10px;
+          left: 12%;
+          width: 76%;
+          height: 16px;
+          background: rgba(93,226,121,0.4);
+          filter: blur(12px);
+          border-radius: 50%;
+          pointer-events: none;
+        }
+        @keyframes prenoty-rotate { to { transform: rotate(360deg); } }
+        @property --prenoty-border-angle {
+          syntax: '<angle>';
+          initial-value: 0deg;
+          inherits: false;
+        }
+        @keyframes prenoty-border-spin {
+          from { --prenoty-border-angle: 0deg; }
+          to   { --prenoty-border-angle: 360deg; }
+        }
+        .prenoty-pricing-anim-border {
+          border: 2px solid transparent;
+          background-image:
+            linear-gradient(160deg, #6c5ce7 0%, #4a3cb5 100%),
+            conic-gradient(
+              from var(--prenoty-border-angle),
+              rgba(93,226,121,0.12) 0%,
+              #5de279 35%,
+              #c8ffda 38%,
+              #5de279 41%,
+              rgba(93,226,121,0.12) 50%,
+              rgba(93,226,121,0.12) 75%,
+              #5de279 78%,
+              #c8ffda 81%,
+              #5de279 84%,
+              rgba(93,226,121,0.12) 92%
+            );
+          background-clip: padding-box, border-box;
+          background-origin: padding-box, border-box;
+          animation: prenoty-border-spin 5s linear infinite;
+        }
+        .prenoty-pricing-border {
+          overflow: hidden;
+          pointer-events: none;
+          position: absolute;
+          z-index: 0;
+          top: 50%;
+          left: 50%;
+          transform: translate(-50%, -50%);
+          width: calc(100% + 2px);
+          height: calc(100% + 2px);
+          border-radius: 21px;
+        }
+        .prenoty-pricing-border::before {
+          content: '';
+          display: block;
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          margin-top: -150%;
+          margin-left: -150%;
+          width: 300%;
+          height: 300%;
+          background: conic-gradient(
+            rgba(108,92,231,0) 0deg,
+            rgba(108,92,231,1) 40deg,
+            rgba(162,155,254,0.9) 80deg,
+            rgba(93,226,121,0.7) 120deg,
+            rgba(108,92,231,0) 160deg,
+            rgba(108,92,231,0) 200deg,
+            rgba(108,92,231,1) 240deg,
+            rgba(162,155,254,0.9) 280deg,
+            rgba(93,226,121,0.7) 320deg,
+            rgba(108,92,231,0) 360deg
+          );
+          animation: prenoty-rotate 6s linear infinite;
         }
       `}</style>
 
@@ -645,13 +902,13 @@ export default function Home(){
 
           {/* Link centrali — solo desktop */}
           <div className="nav-links" style={{display:"flex",gap:32,position:"absolute",left:"50%",transform:"translateX(-50%)"}}>
-            <a href="#prezzi" style={{fontSize:14,color:"#1e1b3a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
+            <a href="#prezzi" style={{fontSize:14,color:"#13112a",textDecoration:"none",fontWeight:500,transition:"color 0.2s"}}
               onMouseEnter={e=>e.target.style.color="#6c5ce7"}
-              onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Prezzi</a>
+              onMouseLeave={e=>e.target.style.color="#13112a"}>Prezzi</a>
             <button onClick={()=>setChiSiamoOpen(true)}
-              style={{fontSize:14,color:"#1e1b3a",fontWeight:500,background:"none",border:"none",cursor:"pointer",padding:0,transition:"color 0.2s"}}
+              style={{fontSize:14,color:"#13112a",fontWeight:500,background:"none",border:"none",cursor:"pointer",padding:0,transition:"color 0.2s"}}
               onMouseEnter={e=>e.target.style.color="#6c5ce7"}
-              onMouseLeave={e=>e.target.style.color="#1e1b3a"}>Chi siamo</button>
+              onMouseLeave={e=>e.target.style.color="#13112a"}>Chi siamo</button>
           </div>
 
           {/* Lato destro */}
@@ -682,11 +939,11 @@ export default function Home(){
         <div className="mobile-menu" style={{display: menuOpen ? "flex" : "none",flexDirection:"column",gap:4,padding:"12px 24px 20px",background:"#f4f3ff",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
           {/* Chi siamo e Prezzi — testo semplice */}
           <button onClick={()=>{setChiSiamoOpen(true);setMenuOpen(false);}}
-            style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#1e1b3a",width:"100%"}}>
+            style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#13112a",width:"100%"}}>
             Chi siamo
           </button>
           <a href="#prezzi" onClick={()=>setMenuOpen(false)}
-            style={{textDecoration:"none",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#1e1b3a",display:"block"}}>
+            style={{textDecoration:"none",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#13112a",display:"block"}}>
             Prezzi
           </a>
           <div style={{height:1,background:"rgba(108,92,231,0.12)",margin:"8px 0"}}/>
@@ -728,6 +985,9 @@ export default function Home(){
                     Gestisci le prenotazioni.<br/><span style={{color:"#6c5ce7"}}>Senza stress.</span>
                   </h1>
                 </FadeIn>
+                <FadeIn delay={0.18}>
+                  <p style={{fontSize:17,fontWeight:700,color:"#7a748a",margin:"14px 0 0"}}>Semplice, veloce, senza commissioni.</p>
+                </FadeIn>
                 <FadeIn delay={0.21}>
                   <p style={{fontSize:16,color:"#7a748a",lineHeight:1.75,maxWidth:400,marginBottom:32}}>
                     Prenoty semplifica la gestione degli appuntamenti per professionisti e saloni. Tutto in un posto, tutto automatico.
@@ -755,8 +1015,8 @@ export default function Home(){
                       <div style={{width:6,height:6,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 6px #5de279"}}/>
                       <span style={{fontSize:10,color:"#1e8a40",fontWeight:700,letterSpacing:0.8,textTransform:"uppercase"}}>Lancio Ufficiale</span>
                     </div>
-                    <div style={{fontSize:19,fontWeight:700,color:"#1e1b3a",marginBottom:5}}>Sei tra i primi.</div>
-                    <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>Accesso immediato, 30 giorni gratis.<br/>Nessuna carta richiesta.</div>
+                    <div style={{fontSize:19,fontWeight:700,color:"#13112a",marginBottom:5}}>Sei tra i primi.</div>
+                    <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>Prezzo di lancio attivo.<br/>Posti limitati a 100 professionisti.</div>
                   </div>
                   <div style={{display:"flex",flexDirection:"column",gap:8,paddingTop:4}}>
                     {["Nessun abbonamento","Setup in 2 minuti","Supporto in italiano"].map(item=>(
@@ -817,7 +1077,7 @@ export default function Home(){
                 >
                   <div style={{width:9,height:9,borderRadius:"50%",background:"#5de279",boxShadow:"0 0 0 2px rgba(93,226,121,0.3)",flexShrink:0}}/>
                   <div>
-                    <div style={{fontSize:13,fontWeight:700,color:"#1e1b3a",lineHeight:1.3}}>{slide.notifica.testo}</div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#13112a",lineHeight:1.3}}>{slide.notifica.testo}</div>
                     <div style={{fontSize:11,color:"#9b9faa",marginTop:2,fontWeight:400}}>{slide.notifica.sub}</div>
                   </div>
                 </div>
@@ -835,8 +1095,8 @@ export default function Home(){
         <FadeIn>
           <div className="desktop-row" style={{display:"flex",alignItems:"center",gap:32,maxWidth:1400,margin:"0 auto"}}>
             <div className="desktop-text" style={{flex:1,maxWidth:"none"}}>
-              <p style={{fontSize:13,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:20,fontWeight:600}}>Ovunque, sempre</p>
-              <h2 style={{fontSize:56,fontWeight:800,color:"#1a1730",letterSpacing:-2,marginBottom:24,lineHeight:1.08,whiteSpace:isMobile?"normal":"nowrap"}}>Ovunque tu sia,<br/>tutto sotto controllo.</h2>
+              <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:20,fontWeight:700}}>Ovunque, sempre</p>
+              <h2 style={{fontSize:56,fontWeight:800,color:"#13112a",letterSpacing:-2,marginBottom:24,lineHeight:1.08,whiteSpace:isMobile?"normal":"nowrap"}}>Ovunque tu sia,<br/>tutto sotto controllo.</h2>
               <p style={{fontSize:19,color:"#9b96c8",lineHeight:1.7,margin:0}}>{"Gestisci agenda, servizi e clienti da computer o da smartphone."}<br/>{"Stesso account, tutto in tempo reale."}</p>
             </div>
             <div className="desktop-img-wrap" style={{flex:1,display:"flex",justifyContent:"flex-end",alignItems:"center",minWidth:0}}>
@@ -858,12 +1118,12 @@ export default function Home(){
       </section>
 
       <GradDivider/>
-      <section className="sec-pad" style={{padding:"80px 56px",background:"#13112b"}}>
+      <section id="perche-prenoty" className="sec-pad" style={{padding:"80px 56px",background:"#13112a"}}>
         <FadeIn>
-          <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Perché scegliere Prenoty?</p>
-          <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:48,lineHeight:1.15}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
+          <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Perché scegliere Prenoty?</p>
+          <h2 style={{fontSize:40,fontWeight:800,color:"#fff",letterSpacing:-1,marginBottom:48,lineHeight:1.15}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
         </FadeIn>
-        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,gridTemplateAreas:'"preno preno link link dash dash" "prom prom prom pers pers pers" ". . primo primo . ."'}}>
+        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,gridTemplateAreas:'"preno preno link link dash dash" "prom prom primo primo pers pers"'}}>
 
           {/* Prenotazioni 24/7 — card principale con mini lista */}
           <FadeIn delay={0} style={{gridArea:"preno",height:"100%"}}>
@@ -887,11 +1147,11 @@ export default function Home(){
                     {dot:"#f59e0b",name:"Marco B.",serv:"Barba",time:"Domani 11:30",badge:"In attesa",bc:"rgba(245,158,11,0.12)",tc:"#f59e0b"},
                     {dot:"#5de279",name:"Sara E.",serv:"Colore",time:"Ven 14:00",badge:"Confermata",bc:"rgba(93,226,121,0.12)",tc:"#5de279"},
                   ].map(({dot,name,serv,time,badge,bc,tc})=>(
-                    <div key={name} style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:10}}>
+                    <div key={name} className="feat-booking-row" style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:10,overflow:"hidden"}}>
                       <span style={{width:7,height:7,borderRadius:"50%",background:dot,flexShrink:0,display:"inline-block"}}/>
-                      <span style={{flex:1,fontSize:13,fontWeight:500,color:"#e8e5ff",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{name} <span style={{color:"#9b96c8",fontWeight:400}}>— {serv}</span></span>
-                      <span style={{fontSize:11,color:"#9b96c8",marginRight:6,whiteSpace:"nowrap",flexShrink:0}}>{time}</span>
-                      <span style={{fontSize:11,fontWeight:600,color:tc,background:bc,borderRadius:6,padding:"3px 8px",whiteSpace:"nowrap",flexShrink:0}}>{badge}</span>
+                      <span style={{flex:1,fontSize:13,fontWeight:500,color:"#e8e5ff",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{name} <span style={{color:"#9b96c8",fontWeight:400}}>— {serv}</span></span>
+                      <span className="booking-time" style={{fontSize:11,color:"#9b96c8",marginRight:6,whiteSpace:"nowrap",flexShrink:0}}>{time}</span>
+                      <span className="booking-badge" style={{fontSize:11,fontWeight:600,color:tc,background:bc,borderRadius:6,padding:"3px 8px",whiteSpace:"nowrap",flexShrink:0}}>{badge}</span>
                     </div>
                   ))}
                 </div>
@@ -933,7 +1193,7 @@ export default function Home(){
                 </div>
                 <h3 style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:6}}>Il tuo link unico</h3>
                 <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:"0 0 16px"}}>Ogni attività ha la sua pagina personale. Condividila sui social o in bio.</p>
-                <div style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.22)",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#a89ff0",marginBottom:10,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>prenoty.com/atelier-bellezza</div>
+                <div style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.22)",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#a89ff0",marginBottom:10,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>prenoty.com/sao-salone</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                   {["Instagram","WhatsApp","Bio"].map(c=>(
                     <span key={c} style={{fontSize:11,fontWeight:500,color:"#9b96c8",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:6,padding:"4px 10px"}}>{c}</span>
@@ -972,7 +1232,7 @@ export default function Home(){
                       </div>
                     ))}
                     <div style={{marginTop:10,background:"rgba(93,226,121,0.08)",border:"1px solid rgba(93,226,121,0.22)",borderRadius:8,padding:"6px 12px",display:"inline-flex",alignItems:"center",gap:6}}>
-                      <span style={{fontSize:13}}>🔔</span>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
                       <span style={{fontSize:11,color:"#5de279",fontWeight:500}}>Riceverai un promemoria 24h prima</span>
                     </div>
                   </div>
@@ -1027,47 +1287,109 @@ export default function Home(){
                     <span style={{fontSize:12,fontWeight:600,color:"#e8e5ff",background:"rgba(108,92,231,0.2)",border:"1px solid rgba(108,92,231,0.35)",borderRadius:20,padding:"3px 12px"}}>Lun – Sab</span>
                   </div>
                 </div>
+                {/* Toggles notifiche */}
+                <div style={{marginTop:16}}>
+                  {[
+                    {icon:<><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,    label:"Email cancellazione"},
+                    {icon:<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,                                         label:"Promemoria 24h"},
+                    {icon:<><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></>,            label:"Nuova prenotazione"},
+                  ].map(({icon,label},i)=>(
+                    <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                      <div style={{display:"flex",alignItems:"center",gap:8}}>
+                        <Ico d={icon} size={14} color="#a89ff0"/>
+                        <span style={{fontSize:12,color:"#9b96c8"}}>{label}</span>
+                      </div>
+                      <div style={{width:32,height:17,borderRadius:9,background:"rgba(93,226,121,0.2)",border:"1px solid rgba(93,226,121,0.35)",display:"flex",alignItems:"center",justifyContent:"flex-end",padding:"0 2px",boxSizing:"border-box"}}>
+                        <div style={{width:12,height:12,borderRadius:"50%",background:"#5de279"}}/>
+                      </div>
+                    </div>
+                  ))}
+                  <p className="feat-molto-altro">e molto altro...</p>
+                </div>
               </div>
             </div>
           </FadeIn>
 
-          {/* Primo mese gratis — CTA */}
+          {/* Primo mese gratis — card viola hero */}
           <FadeIn delay={0.35} style={{gridArea:"primo",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(93,226,121,0.55) 0%,rgba(108,92,231,0.7) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"24px 28px",height:"100%",boxSizing:"border-box",display:"flex",alignItems:"center",gap:20}}>
-                <div style={{background:"rgba(93,226,121,0.12)",borderRadius:12,padding:"10px",flexShrink:0}}>
-                  <Ico d={<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>} size={22} color="#5de279"/>
+            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.5) 50%,rgba(108,92,231,0.7) 100%)",height:"100%",boxSizing:"border-box"}}>
+            <div style={{borderRadius:16,background:"#6c5ce7",height:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 32px",textAlign:"center"}}>
+              {/* logo */}
+              <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{width:280,height:"auto",marginBottom:22}}/>
+              {/* tagline */}
+              <p style={{fontSize:26,fontWeight:700,color:"rgba(255,255,255,0.95)",margin:"0 0 28px",lineHeight:1.3}}>Semplice, veloce, senza commissioni.</p>
+              {/* icona + testo */}
+              <div style={{marginBottom:16}}>
+                <div style={{background:"rgba(93,226,121,0.2)",border:"1px solid rgba(93,226,121,0.35)",borderRadius:14,padding:"12px",display:"inline-flex",marginBottom:10}}>
+                  <Ico d={<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>} size={24} color="#5de279"/>
                 </div>
-                <div style={{flex:1}}>
-                  <h3 style={{fontSize:15,fontWeight:700,color:"#5de279",marginBottom:4}}>Primo mese gratis</h3>
-                  <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:0}}>Nessuna carta richiesta. Provi, e solo se ti piace decidi di continuare.</p>
-                </div>
-                <button style={{flexShrink:0,background:"rgba(93,226,121,0.1)",border:"1px solid rgba(93,226,121,0.28)",borderRadius:10,padding:"10px 22px",color:"#5de279",fontWeight:600,fontSize:14,cursor:"pointer",whiteSpace:"nowrap"}}>→ Inizia gratis</button>
+                <p style={{fontSize:15,fontWeight:700,color:"#5de279",margin:"0 0 4px"}}>Primo mese gratis</p>
+                <p style={{fontSize:13,color:"rgba(255,255,255,0.72)",margin:"0 0 20px",lineHeight:1.5}}>Nessuna carta richiesta.<br/>Provi, e solo se ti piace decidi di continuare.</p>
               </div>
+              <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
+                <span className="btn-glass-lens"/>
+                <span className="btn-glass-text">Inizia gratis</span>
+              </a>
+            </div>
             </div>
           </FadeIn>
 
         </div>
       </section>
 
-      <section id="come-funziona" className="sec-pad" style={{padding:"80px 56px",background:"#1a1730"}}>
+      <section id="come-funziona" style={{padding:"100px 56px",background:"#13112a",overflow:"hidden",position:"relative"}}>
+        <div style={{position:"absolute",width:700,height:700,borderRadius:"50%",background:"rgba(108,92,231,0.05)",filter:"blur(120px)",top:"50%",left:"50%",transform:"translate(-50%,-50%)",pointerEvents:"none"}}/>
         <FadeIn>
-          <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Come funziona</p>
-          <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:56,lineHeight:1.15}}>Tre passi e sei operativo.</h2>
+          <div style={{textAlign:"center",marginBottom:72}}>
+            <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Come funziona</p>
+            <h2 style={{fontSize:40,fontWeight:800,color:"#fff",letterSpacing:-1.5,lineHeight:1.1,margin:0}}>Tre passi e sei operativo.</h2>
+          </div>
         </FadeIn>
-        <div className="steps-grid" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:32}}>
+        <div className="steps-flow" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:28,maxWidth:1100,margin:"0 auto"}}>
           {[
-            {n:"01",t:"Registrati",s:"Crea il tuo account in 2 minuti. Solo email e password."},
-            {n:"02",t:"Personalizza",s:"Aggiungi i tuoi servizi, orari e prezzi. La tua pagina è pronta."},
-            {n:"03",t:"Condividi e incassa",s:"Manda il link ai tuoi clienti. Le prenotazioni arrivano da sole."},
-          ].map(({n,t,s},i)=>(
-            <FadeIn key={n} delay={i*0.12}>
-              <div style={{paddingTop:24}}>
-                <GradDivider/>
-                <div style={{paddingTop:24}}>
-                  <div style={{fontSize:48,fontWeight:800,color:"rgba(108,92,231,0.15)",letterSpacing:-2,marginBottom:14,lineHeight:1}}>{n}</div>
-                  <h3 style={{fontSize:20,fontWeight:700,color:"#fff",marginBottom:10}}>{t}</h3>
-                  <p style={{fontSize:14,color:"#9b96c8",lineHeight:1.75,margin:0}}>{s}</p>
+            {t:"Registrati",          s:"Crea il tuo account in 2 minuti. Solo email e password.",
+              img:"/comefunziona1.png",
+              border:"linear-gradient(160deg,#00c9a7 0%,#6c5ce7 60%,#4a3cb5 100%)",
+              glow:"0 0 40px 8px rgba(0,201,167,0.28),0 0 80px 24px rgba(108,92,231,0.18)",
+              stepColor:"#5de279",
+              icon:<><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></>},
+            {t:"Personalizza",        s:"Aggiungi i tuoi servizi, orari e prezzi. La tua pagina è pronta.",
+              img:"/comefunziona2.png",
+              border:"linear-gradient(160deg,#6c5ce7 0%,#4a3cb5 100%)",
+              glow:"0 0 40px 10px rgba(108,92,231,0.38),0 0 80px 28px rgba(74,60,181,0.22)",
+              stepColor:"#5de279",
+              icon:<><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18M9 21V9"/></>},
+            {t:"Condividi e incassa", s:"Manda il link ai tuoi clienti. Le prenotazioni arrivano da sole.",
+              img:"/comefunziona3.png",
+              border:"linear-gradient(160deg,#6c5ce7 0%,#a855f7 50%,#f9ca24 100%)",
+              glow:"0 0 40px 8px rgba(108,92,231,0.25),0 0 80px 24px rgba(249,202,36,0.2)",
+              stepColor:"#5de279",
+              icon:<><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"/><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"/></>},
+          ].map(({t,s,img,border,glow,stepColor,icon},i)=>(
+            <FadeIn key={t} delay={i*0.13} style={{height:"100%"}}>
+              {/* Outer: bordo gradiente sottile + glow neon */}
+              <div style={{borderRadius:20,background:border,boxShadow:glow,padding:2,height:"100%",boxSizing:"border-box"}}>
+                {/* Inner scuro #16132e */}
+                <div style={{borderRadius:18,background:"#16132e",padding:8,display:"flex",flexDirection:"column",height:"100%",boxSizing:"border-box"}}>
+                  {/* Immagine: aspetto naturale, MAI ritagliata, angoli arrotondati su tutti e 4 i lati */}
+                  <img src={img} alt={t} style={{width:"100%",height:"auto",display:"block",borderRadius:12,flexShrink:0}}/>
+                  {/* Contenuto */}
+                  <div style={{padding:"16px 10px 8px",display:"flex",flexDirection:"column",flexGrow:1}}>
+                    {/* Riga icona + step */}
+                    <div style={{display:"flex",alignItems:"center",gap:12,marginBottom:14}}>
+                      <div style={{
+                        width:44,height:44,borderRadius:10,flexShrink:0,
+                        background:"rgba(108,92,231,0.15)",
+                        border:"1px solid rgba(108,92,231,0.35)",
+                        display:"flex",alignItems:"center",justifyContent:"center",
+                      }}>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#a29bfe" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{icon}</svg>
+                      </div>
+                      <span style={{fontSize:11,fontWeight:700,letterSpacing:3,color:stepColor,textTransform:"uppercase"}}>Step 0{i+1}</span>
+                    </div>
+                    <h3 style={{fontSize:20,fontWeight:700,color:"#fff",marginBottom:10,letterSpacing:-0.3}}>{t}</h3>
+                    <p style={{fontSize:14,color:"#9b96c8",lineHeight:1.75,margin:0}}>{s}</p>
+                  </div>
                 </div>
               </div>
             </FadeIn>
@@ -1075,42 +1397,65 @@ export default function Home(){
         </div>
       </section>
 
+      {/* ── Sezione App Home Screen ── */}
+      <section className="sec-pad" style={{padding:"80px 56px",background:"#13112a",overflow:"hidden"}}>
+        <div style={{maxWidth:1100,margin:"0 auto",display:"flex",alignItems:"center",gap:64,flexWrap:"wrap"}}>
+          {/* Colonna sinistra */}
+          <FadeIn delay={0.1} style={{flex:"1 1 340px",minWidth:0}}>
+            <div style={{display:"inline-flex",alignItems:"center",gap:7,marginBottom:20}}>
+              <span style={{fontSize:15,fontWeight:700,color:"#5de279",letterSpacing:1,textTransform:"uppercase"}}>Per i tuoi clienti</span>
+            </div>
+            <h2 style={{fontSize:40,fontWeight:800,color:"#fff",letterSpacing:-1,lineHeight:1.1,marginBottom:20}}>Funziona come un'app.<br/>Senza scaricare nulla.</h2>
+            <p style={{fontSize:16,color:"rgba(255,255,255,0.55)",lineHeight:1.75,marginBottom:32,maxWidth:460}}>I tuoi clienti aprono il link dal telefono e prenotano in pochi secondi. Possono anche aggiungere Prenoty alla schermata home, esattamente come un'app vera.</p>
+            <div style={{display:"flex",flexDirection:"column",gap:14}}>
+              {["Nessuna app da installare","Funziona su iPhone e Android","Si aggiunge alla schermata home"].map(item=>(
+                <div key={item} style={{display:"flex",alignItems:"center",gap:12}}>
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+                  <span style={{fontSize:15,color:"rgba(255,255,255,0.8)",fontWeight:500}}>{item}</span>
+                </div>
+              ))}
+            </div>
+          </FadeIn>
+          {/* Colonna destra — immagine */}
+          <FadeIn delay={0.2} style={{flex:"1 1 300px",display:"flex",justifyContent:"center"}}>
+            <div style={{borderRadius:26,padding:"3px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",width:"100%",maxWidth:isMobile?340:500}}>
+              <img src="/prenoty iphone app icon2.png" alt="Prenoty sulla schermata home" style={{width:"100%",borderRadius:25,objectFit:"contain",display:"block"}}/>
+            </div>
+          </FadeIn>
+        </div>
+      </section>
+
       {/* ── Sezione Prezzo ── */}
       <GradDivider/>
-      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#1a1730",textAlign:"center"}}>
+      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff",textAlign:"center"}}>
         <FadeIn>
-          <p style={{fontSize:11,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12}}>Prezzo</p>
-          <h2 style={{fontSize:36,fontWeight:700,color:"#fff",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
-          <p style={{fontSize:16,color:"#9b96c8",marginBottom:48}}>30 giorni gratis, poi un unico pagamento.<br/>Nessun abbonamento mensile.</p>
+          <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
+          <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
+          <p style={{fontSize:19,color:"#6b6488",marginBottom:48}}>30 giorni gratis,{isMobile&&<br/>} poi un unico pagamento.<br/>Nessun abbonamento mensile.</p>
         </FadeIn>
 
         <FadeIn delay={0.12}>
-          <div style={{
-            position:"relative",
-            maxWidth:400,
-            margin:"0 auto",
-            borderRadius:20,
-            padding:"2px",
-            background:"linear-gradient(135deg, rgba(108,92,231,0.8) 0%, rgba(93,226,121,0.4) 50%, rgba(108,92,231,0.6) 100%)",
-            boxShadow:"0 0 80px rgba(108,92,231,0.25)",
-          }}>
-            {/* Card interna */}
+          <div style={{position:"relative",maxWidth:400,margin:"0 auto"}}>
+            {/* Gradient border wrapper */}
             <div style={{
-              borderRadius:18,
-              padding:"36px 32px",
-              background:"linear-gradient(160deg, rgba(30,27,60,0.98) 0%, rgba(20,18,45,0.99) 100%)",
-              position:"relative",
-              overflow:"hidden",
+              borderRadius:23,
+              padding:3,
+              background:"#5de279",
             }}>
-              {/* Glow bg */}
-              <div style={{position:"absolute",width:300,height:300,borderRadius:"50%",background:"rgba(108,92,231,0.07)",filter:"blur(60px)",top:-80,right:-80,pointerEvents:"none"}}/>
-              <div style={{position:"absolute",width:200,height:200,borderRadius:"50%",background:"rgba(93,226,121,0.05)",filter:"blur(50px)",bottom:-60,left:-60,pointerEvents:"none"}}/>
-
+            {/* Card */}
+            <div style={{
+              position:"relative",
+              zIndex:1,
+              borderRadius:20,
+              padding:"36px 32px",
+              background:"linear-gradient(160deg, #6c5ce7 0%, #4a3cb5 100%)",
+              boxShadow:"0px -16px 24px 0px rgba(255,255,255,0.12) inset",
+            }}>
               {/* Badge 30 giorni gratis */}
               <div style={{
                 display:"inline-flex",alignItems:"center",gap:6,
-                background:"linear-gradient(135deg,rgba(93,226,121,0.15),rgba(93,226,121,0.08))",
-                border:"1px solid rgba(93,226,121,0.35)",
+                background:"rgba(93,226,121,0.18)",
+                border:"1px solid rgba(93,226,121,0.5)",
                 borderRadius:20,padding:"5px 16px",marginBottom:24,
               }}>
                 <div style={{width:6,height:6,borderRadius:"50%",background:"#5de279"}}/>
@@ -1120,66 +1465,95 @@ export default function Home(){
               {/* Header */}
               <div style={{marginBottom:6}}>
                 <div style={{display:"flex",alignItems:"center",gap:10,marginBottom:4}}>
-                  <div style={{width:36,height:36,borderRadius:10,background:"rgba(108,92,231,0.2)",border:"1px solid rgba(108,92,231,0.3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
-                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="1.8"><path d="M6 2v4M18 2v4M2 9h20M4 4h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
+                  <div style={{width:36,height:36,borderRadius:10,background:"rgba(255,255,255,0.12)",border:"1px solid rgba(224,220,255,0.3)",display:"flex",alignItems:"center",justifyContent:"center"}}>
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#e0dcff" strokeWidth="1.8"><path d="M6 2v4M18 2v4M2 9h20M4 4h16a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2z"/></svg>
                   </div>
                   <div style={{textAlign:"left"}}>
-                    <div style={{fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.5)",textTransform:"uppercase",letterSpacing:2}}>Piano Prenoty</div>
-                    <div style={{fontSize:12,color:"rgba(155,150,200,0.6)"}}>Accesso completo alla piattaforma</div>
+                    <div style={{fontSize:13,fontWeight:700,color:"#fff",textTransform:"uppercase",letterSpacing:2}}>Piano Prenoty</div>
+                    <div style={{fontSize:12,color:"rgba(224,220,255,0.65)"}}>Accesso completo alla piattaforma</div>
                   </div>
                 </div>
               </div>
 
               {/* Divisore */}
-              <div style={{height:"1px",background:"rgba(108,92,231,0.2)",margin:"20px 0"}}/>
+              <div style={{height:"1px",background:"rgba(224,220,255,0.2)",margin:"20px 0"}}/>
 
               {/* Prezzo */}
               <div style={{marginBottom:28,textAlign:"left"}}>
                 <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:4}}>
                   <span style={{fontSize:64,fontWeight:800,color:"#fff",letterSpacing:2,lineHeight:1}}>€299</span>
-                  <span style={{fontSize:15,color:"#9b96c8",fontWeight:500}}>pagamento unico</span>
+                  <span style={{fontSize:15,color:"rgba(224,220,255,0.7)",fontWeight:500}}>pagamento unico</span>
                 </div>
-                <p style={{fontSize:13,color:"rgba(155,150,200,0.55)"}}>Senza canoni mensili — paghi una volta sola</p>
+                <p style={{fontSize:13,color:"rgba(224,220,255,0.5)",margin:0,lineHeight:1.6}}>Prezzo di lancio, riservato ai primi 100 professionisti.<br/>Poi passeremo all'abbonamento.</p>
               </div>
 
               {/* Features */}
               <ul style={{listStyle:"none",padding:0,margin:"0 0 32px",display:"flex",flexDirection:"column",gap:11}}>
                 {[
-                  "Prenotazioni illimitate",
-                  "Link personalizzato",
-                  "Notifiche in tempo reale",
-                  "Report mensili",
-                  "Supporto prioritario",
-                ].map(f=>(
-                  <li key={f} style={{display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
-                    <div style={{width:18,height:18,borderRadius:"50%",background:"rgba(93,226,121,0.12)",border:"1px solid rgba(93,226,121,0.3)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
+                  {label:"Prenotazioni illimitate"},
+                  {label:"Link personalizzato"},
+                  {label:"Notifiche in tempo reale"},
+                  {label:"Report mensili"},
+                  {label:"Supporto prioritario", star:true},
+                ].map(({label,star})=>(
+                  <li key={label} style={{display:"flex",alignItems:"center",gap:10,textAlign:"left"}}>
+                    <div style={{width:18,height:18,borderRadius:"50%",background:"rgba(93,226,121,0.18)",border:"1px solid rgba(93,226,121,0.5)",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
                       <svg width="9" height="9" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="3" strokeLinecap="round"><path d="M20 6 9 17l-5-5"/></svg>
                     </div>
-                    <span style={{fontSize:14,color:"rgba(255,255,255,0.82)"}}>{f}</span>
+                    <span style={{fontSize:14,color:"rgba(255,255,255,0.9)"}}>{label}</span>
+                    {star && <svg width="13" height="13" viewBox="0 0 24 24" fill="#f9ca24" stroke="none"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>}
                   </li>
                 ))}
               </ul>
 
               {/* CTA */}
-              <a href="/registrazione" className="btn-glass btn-glass-green" style={{display:"flex",padding:"15px",borderRadius:12,fontSize:15,fontWeight:700,textDecoration:"none"}}>
-                <span className="btn-glass-lens"/>
-                <span className="btn-glass-text" style={{width:"100%",justifyContent:"center"}}>Inizia gratis — 30 giorni</span>
-              </a>
-              <p style={{textAlign:"center",fontSize:11,color:"rgba(155,150,200,0.4)",marginTop:10}}>
+              <div style={{display:"flex",justifyContent:"center"}}>
+                <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 36px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
+                  <span className="btn-glass-lens"/>
+                  <span className="btn-glass-text">Inizia gratis — 30 giorni</span>
+                </a>
+              </div>
+              <p style={{textAlign:"center",fontSize:11,color:"rgba(224,220,255,0.4)",marginTop:10}}>
                 Nessuna carta di credito richiesta
               </p>
+            </div>
+            </div>
+          </div>
+        </FadeIn>
+      </section>
+
+      {/* ── Sezione FAQ ── */}
+      <section className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff"}}>
+        <FadeIn>
+          <div style={{textAlign:"center",marginBottom:48}}>
+            <span style={{fontSize:15,fontWeight:700,color:"#6c5ce7",letterSpacing:1,textTransform:"uppercase"}}>Domande frequenti</span>
+            <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:0,marginTop:10,lineHeight:1.1}}>Hai qualche dubbio?</h2>
+          </div>
+          <div style={{maxWidth:760,margin:"0 auto"}}>
+            {[
+              {q:"Perché pagamento unico e non abbonamento?", a:"Siamo in fase di lancio e vogliamo premiare chi ci crede da subito. Chi acquista ora paga €299 una volta sola e mantiene l'accesso completo per sempre, anche quando introdurremo i piani in abbonamento."},
+              {q:"Cosa succede dopo i 30 giorni gratis?", a:"Puoi scegliere se acquistare Prenoty a €299 oppure smettere di usarlo, senza penali, senza carte di credito richieste per iniziare."},
+              {q:"I miei clienti devono scaricare un'app?", a:"No. I tuoi clienti prenotano direttamente dal link della tua pagina, dal browser del telefono. Nessuna app da installare."},
+              {q:"È difficile configurare?", a:"No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."},
+              {q:"Posso gestire più servizi e dipendenti?", a:"Sì. Puoi aggiungere tutti i servizi che offri e assegnare orari diversi per ogni collaboratore."},
+              {q:"Gli aggiornamenti futuri sono inclusi?", a:"Sì, per il piano attuale. Chi acquista oggi a €299 mantiene per sempre tutte le funzionalità incluse oggi, senza pagare nulla in più. In futuro lanceremo una versione Pro con funzionalità aggiuntive, disponibile in abbonamento. Chi ha già acquistato potrà scegliere se restare sul piano attuale o passare alla Pro."},
+              {q:"E se ho bisogno di aiuto?", a:<>Siamo raggiungibili via email a <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>prenoty.official@gmail.com</a>. Rispondiamo entro 24 ore.</>},
+            ].map(({q,a},i)=><FaqItem key={i} q={q} a={a}/>)}
+            <div style={{textAlign:"center",marginTop:40,fontSize:15,color:"#7a748a"}}>
+              Non hai trovato risposta?{" "}
+              <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>Scrivici direttamente</a>
             </div>
           </div>
         </FadeIn>
       </section>
 
       <GradDivider/>
-      <section className="sec-pad" style={{padding:"80px 56px",textAlign:"center",background:"#13112b"}}>
+      <section className="sec-pad" style={{padding:"80px 56px",textAlign:"center",background:"#13112a"}}>
         <FadeIn>
           <img src="/P_prenoty_Viola.png" alt="P" style={{width:52,height:52,objectFit:"contain",display:"block",margin:"0 auto 20px"}}/>
           <h2 style={{fontSize:46,fontWeight:800,color:"#fff",letterSpacing:-2,marginBottom:12,lineHeight:1.05}}>Inizia oggi.<br/>È gratis.</h2>
-          <p style={{fontSize:16,color:"#9b96c8",marginBottom:36}}>30 giorni senza limitazioni. Poi decidi tu.</p>
-          <a href="/registrazione" className="btn-glass btn-glass-green" style={{padding:"16px 48px",borderRadius:14,fontSize:16,fontWeight:700,textDecoration:"none"}}>
+          <p style={{fontSize:16,color:"#9b96c8",marginBottom:36,lineHeight:1.7}}>Prezzo di lancio attivo.<br/>Posti limitati a 100 professionisti.</p>
+          <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 36px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
             <span className="btn-glass-lens"/>
             <span className="btn-glass-text">Registrati gratis</span>
           </a>
@@ -1187,30 +1561,72 @@ export default function Home(){
       </section>
 
       <GradDivider/>
-      <footer style={{background:"#0f0d24"}}>
-        <div className="nav-wrap footer-inner" style={{padding:"24px 56px",position:"relative",display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-          <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:18,objectFit:"contain",opacity:0.4}}/>
-          {/* Icone centrate in modo assoluto (desktop) / statiche (mobile via CSS) */}
-          <div className="footer-icons" style={{position:"absolute",left:"50%",transform:"translateX(-50%)",display:"flex",alignItems:"center",gap:20}}>
-            <a href="https://www.instagram.com/prenotyofficial" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.55,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.55}>
-              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,0.85)" strokeWidth="1.5" strokeLinecap="round" strokeLinejoin="round">
-                <rect x="2" y="2" width="20" height="20" rx="5" ry="5"/>
-                <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/>
-                <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/>
-              </svg>
-            </a>
-            <a href="https://www.facebook.com/prenotyapp" target="_blank" rel="noopener noreferrer" style={{display:"flex",alignItems:"center",justifyContent:"center",opacity:0.55,transition:"opacity 0.2s"}} onMouseEnter={e=>e.currentTarget.style.opacity=1} onMouseLeave={e=>e.currentTarget.style.opacity=0.55}>
-              <svg width="28" height="28" viewBox="0 0 24 24">
-                <circle cx="12" cy="12" r="10" fill="rgba(255,255,255,0.85)"/>
-                <path d="M13.5 7H15V5h-1.5C12.1 5 11 6.1 11 7.5V9.5H9.5V12H11v7h2v-7h2l.5-2.5H13V7.5c0-.28.22-.5.5-.5z" fill="#0f0d24"/>
-              </svg>
-            </a>
+      <footer style={{background:"#13112a"}}>
+        {/* Fascia principale */}
+        <div className="footer-main" style={{maxWidth:1200,margin:"0 auto",padding:"64px 56px 40px",display:"flex",justifyContent:"space-between",gap:48,alignItems:"flex-start"}}>
+          {/* Colonna sinistra: logo + tagline + social */}
+          <div style={{display:"flex",flexDirection:"column",gap:20,flex:"0 0 260px"}}>
+            <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:22,objectFit:"contain",objectPosition:"left"}}/>
+            <p style={{fontSize:14,color:"rgba(255,255,255,0.45)",lineHeight:1.75,maxWidth:230,margin:0}}>Il sistema di prenotazioni online per professionisti. Semplice, veloce, senza commissioni.</p>
+            <ul style={{display:"flex",gap:14,alignItems:"center",padding:0,margin:0}}>
+              {[
+                {href:"https://www.instagram.com/prenotyofficial", label:"Instagram", color:"#962FBF",
+                  svg:<svg className="soc-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>},
+                {href:"https://www.facebook.com/prenotyapp",         label:"Facebook",  color:"#4a3cb5",
+                  svg:<svg className="soc-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"/></svg>},
+              ].map(({href,label,color,svg})=>(
+                <li key={label} className="soc-wrap">
+                  <a href={href} target="_blank" rel="noopener noreferrer" aria-label={label} className="soc-btn">
+                    <div className="soc-fill" style={{background:color}}/>
+                    {svg}
+                  </a>
+                  <div className="soc-tip" style={{background:color}}>{label}</div>
+                </li>
+              ))}
+            </ul>
           </div>
-          <span style={{color:"rgba(155,150,200,0.3)",fontSize:12}}>© 2026 Prenoty — Genova, Italia</span>
+          {/* Colonne link */}
+          <div className="footer-cols" style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:48,flex:1}}>
+            {[
+              {title:"Prodotto", links:[
+                {name:"Perché scegliere Prenoty?", href:"#perche-prenoty"},
+                {name:"Come funziona",             href:"#come-funziona"},
+                {name:"Prezzi",                    href:"#prezzi"},
+              ]},
+              {title:"Supporto", links:[
+                {name:"prenoty.official@gmail.com", href:"mailto:prenoty.official@gmail.com"},
+              ]},
+              {title:"Legale", links:[
+                {name:"Privacy Policy",        href:"https://www.iubenda.com/privacy-policy/22917278"},
+                {name:"Termini di servizio",   href:"https://www.iubenda.com/termini-e-condizioni/22917278"},
+                {name:"Cookie Policy",         href:"https://www.iubenda.com/privacy-policy/22917278/cookie-policy"},
+              ]},
+            ].map(({title,links})=>(
+              <div key={title}>
+                <h3 style={{fontSize:13,fontWeight:700,color:"rgba(255,255,255,0.9)",marginBottom:16,letterSpacing:0.2}}>{title}</h3>
+                <ul style={{listStyle:"none",padding:0,margin:0,display:"flex",flexDirection:"column",gap:12}}>
+                  {links.map(({name,href})=>(
+                    <li key={name}>
+                      <a href={href} target={href.startsWith("http")?"_blank":undefined} rel={href.startsWith("http")?"noopener noreferrer":undefined} style={{fontSize:13,color:"rgba(255,255,255,0.45)",textDecoration:"none",transition:"color 0.2s",fontWeight:500}} onMouseEnter={e=>e.currentTarget.style.color="#a29bfe"} onMouseLeave={e=>e.currentTarget.style.color="rgba(255,255,255,0.45)"}>{name}</a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+        {/* Fascia bottom: dati legali */}
+        <div className="footer-bottom" style={{borderTop:"1px solid rgba(255,255,255,0.08)",display:"flex",alignItems:"center",justifyContent:"space-between",padding:"20px 56px",maxWidth:1200,margin:"0 auto",boxSizing:"border-box",width:"100%"}}>
+          <span style={{fontSize:12,color:"rgba(255,255,255,0.3)",fontWeight:500}}>© 2026 Prenoty</span>
+          <div className="footer-bottom-links" style={{display:"flex",gap:20,alignItems:"center"}}>
+            <span style={{fontSize:12,color:"rgba(255,255,255,0.3)"}}>P.IVA 02957190990</span>
+            <span style={{fontSize:12,color:"rgba(255,255,255,0.15)"}}>·</span>
+            <span style={{fontSize:12,color:"rgba(255,255,255,0.3)"}}>Via Teresio Mario Canepari, 14 — Genova</span>
+          </div>
         </div>
       </footer>
       </div>{/* fine wrapper zIndex:1 */}
-      <CookieBanner/>
+      {/* CookieBanner sostituito da iubenda Cookie Solution */}
 
       {/* ── Modal Chi Siamo ── */}
       {chiSiamoOpen && (
@@ -1229,7 +1645,7 @@ export default function Home(){
                 <div style={{marginBottom:20}}>
                   <span style={{fontSize:11,fontWeight:700,color:"#6c5ce7",letterSpacing:2,textTransform:"uppercase"}}>Chi siamo</span>
                 </div>
-                <h2 style={{fontSize:36,fontWeight:800,color:"#1e1b3a",lineHeight:1.1,letterSpacing:-1,marginBottom:20}}>
+                <h2 style={{fontSize:36,fontWeight:800,color:"#13112a",lineHeight:1.1,letterSpacing:-1,marginBottom:20}}>
                   Da Genova,<br/>per i <span style={{color:"#6c5ce7"}}>professionisti.</span>
                 </h2>
                 <p style={{fontSize:15,color:"#7a748a",lineHeight:1.75,marginBottom:14}}>
@@ -1260,7 +1676,7 @@ export default function Home(){
                   <div key={t} style={{display:"flex",gap:14,marginBottom:22}}>
                     <div style={{width:44,height:44,borderRadius:13,background:bg,display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0,boxShadow:"0 2px 8px rgba(0,0,0,0.05)"}}>{icon}</div>
                     <div>
-                      <div style={{fontSize:14,fontWeight:700,color:"#1e1b3a",marginBottom:3}}>{t}</div>
+                      <div style={{fontSize:14,fontWeight:700,color:"#13112a",marginBottom:3}}>{t}</div>
                       <div style={{fontSize:13,color:"#9b96c8",lineHeight:1.6}}>{s}</div>
                     </div>
                   </div>
@@ -1272,7 +1688,7 @@ export default function Home(){
                 {/* Team card */}
                 <div style={{background:"#fff",borderRadius:18,padding:"28px 24px",textAlign:"center",boxShadow:"0 4px 24px rgba(108,92,231,0.08)",border:"1px solid rgba(108,92,231,0.08)"}}>
                   <img src="/team-photo2.png" alt="Il Team Prenoty" style={{width:96,height:96,borderRadius:"50%",objectFit:"cover",margin:"0 auto 14px",display:"block"}}/>
-                  <div style={{fontSize:15,fontWeight:700,color:"#1e1b3a",marginBottom:4}}>Il Team Prenoty</div>
+                  <div style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:4}}>Il Team Prenoty</div>
                   <div style={{fontSize:13,color:"#9b96c8",marginBottom:16}}>Genova, Italia</div>
                   <div style={{fontSize:13,color:"#6c5ce7",fontStyle:"italic",lineHeight:1.65}}>"Vogliamo che ogni professionista possa dedicarsi al suo lavoro, non alla burocrazia degli appuntamenti."</div>
                 </div>

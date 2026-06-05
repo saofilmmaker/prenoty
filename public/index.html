@@ -29,11 +29,156 @@
     <meta name="mobile-web-app-capable" content="yes" />
     <meta name="application-name" content="Prenoty" />
 
-    <!-- SEO / Social -->
-    <meta name="description" content="Gestisci le prenotazioni del tuo salone in tempo reale. Un link, i tuoi clienti prenotano da soli." />
+    <!-- Google Search Console -->
+    <meta name="google-site-verification" content="hqWdC9YNM3A3Z0BJsJqCnKi4pfo8iS9Spcz8Wxpp21Q" />
 
-    <title>Prenoty | Prenotazioni online, senza stress</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- SEO primario -->
+    <title>Prenoty | Prenotazioni online per saloni, estetiste e professionisti | Agenda digitale</title>
+    <meta name="description" content="Prenoty è il software di prenotazioni online per saloni di bellezza, estetiste, barbieri e professionisti. 30 giorni gratis, senza commissioni. I tuoi clienti prenotano da soli, 24h su 24." />
+    <meta name="keywords" content="prenotazioni online salone, agenda digitale estetista, software prenotazioni barbiere, gestione appuntamenti salone bellezza, prenotazioni online professionisti, app prenotazioni estetista, sistema prenotazioni online gratis, calendario prenotazioni online" />
+    <meta name="robots" content="index, follow" />
+    <link rel="canonical" href="https://prenoty.com/" />
+
+    <!-- Open Graph (Facebook, WhatsApp, LinkedIn) -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content="https://prenoty.com/" />
+    <meta property="og:title" content="Prenoty — Prenotazioni online per saloni e professionisti" />
+    <meta property="og:description" content="Agenda digitale per saloni di bellezza, estetiste, barbieri e professionisti. Gratuita 30 giorni, senza commissioni. I tuoi clienti prenotano da soli." />
+    <meta property="og:image" content="https://prenoty.com/og-image.png" />
+    <meta property="og:locale" content="it_IT" />
+    <meta property="og:site_name" content="Prenoty" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Prenoty — Prenotazioni online per saloni e professionisti" />
+    <meta name="twitter:description" content="Agenda digitale per saloni di bellezza, estetiste e professionisti. Gratuita 30 giorni, senza commissioni." />
+    <meta name="twitter:image" content="https://prenoty.com/og-image.png" />
+
+    <!-- Structured Data — SoftwareApplication -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "SoftwareApplication",
+      "name": "Prenoty",
+      "url": "https://prenoty.com",
+      "description": "Software di prenotazioni online per saloni di bellezza, estetiste, barbieri e professionisti. Agenda digitale senza commissioni.",
+      "applicationCategory": "BusinessApplication",
+      "operatingSystem": "Web, iOS, Android",
+      "offers": {
+        "@type": "Offer",
+        "price": "0",
+        "priceCurrency": "EUR",
+        "description": "30 giorni gratuiti, poi €299 pagamento unico"
+      },
+      "aggregateRating": {
+        "@type": "AggregateRating",
+        "ratingValue": "5",
+        "ratingCount": "1"
+      },
+      "publisher": {
+        "@type": "Organization",
+        "name": "Prenoty",
+        "url": "https://prenoty.com",
+        "logo": "https://prenoty.com/Prenoty_Viola.png",
+        "contactPoint": {
+          "@type": "ContactPoint",
+          "email": "prenoty.official@gmail.com",
+          "contactType": "customer support"
+        }
+      }
+    }
+    </script>
+
+    <!-- Structured Data — FAQPage -->
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [
+        {
+          "@type": "Question",
+          "name": "Perché pagamento unico e non abbonamento?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Siamo in fase di lancio e vogliamo premiare chi ci crede da subito. Chi acquista ora paga €299 una volta sola e mantiene l'accesso completo per sempre, anche quando introdurremo i piani in abbonamento."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Cosa succede dopo i 30 giorni gratis?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Puoi scegliere se acquistare Prenoty a €299 oppure smettere di usarlo, senza penali, senza carte di credito richieste per iniziare."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "I miei clienti devono scaricare un'app?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. I tuoi clienti prenotano direttamente dal link della tua pagina, dal browser del telefono. Nessuna app da installare."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "È difficile configurare?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Posso gestire più servizi e dipendenti?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sì. Puoi aggiungere tutti i servizi che offri e assegnare orari diversi per ogni collaboratore."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "Gli aggiornamenti futuri sono inclusi?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Sì, per il piano attuale. Chi acquista oggi a €299 mantiene per sempre tutte le funzionalità incluse oggi, senza pagare nulla in più."
+          }
+        },
+        {
+          "@type": "Question",
+          "name": "E se ho bisogno di aiuto?",
+          "acceptedAnswer": {
+            "@type": "Answer",
+            "text": "Siamo raggiungibili via email a prenoty.official@gmail.com. Rispondiamo entro 24 ore."
+          }
+        }
+      ]
+    }
+    </script>
+    <style>
+      /* Disabilita il pull-to-refresh nativo SOLO in PWA (standalone).
+         Nel browser (Chrome/Safari/Windows) resta attivo. */
+      @media (display-mode: standalone) {
+        html, body { overscroll-behavior-y: contain; }
+      }
+      @font-face {
+        font-family: 'DM Sans';
+        src: url('%PUBLIC_URL%/fonts/DMSans-Variable.ttf') format('truetype');
+        font-weight: 100 900;
+        font-style: normal;
+        font-display: swap;
+      }
+      @font-face {
+        font-family: 'DM Sans';
+        src: url('%PUBLIC_URL%/fonts/DMSans-Italic-Variable.ttf') format('truetype');
+        font-weight: 100 900;
+        font-style: italic;
+        font-display: swap;
+      }
+    </style>
+<script src="https://cdn.tailwindcss.com"></script>
+    <!-- iubenda Cookie Solution -->
+    <script type="text/javascript" src="https://embeds.iubenda.com/widgets/9e6140d5-10f8-4868-8a89-075b694ec3c2.js"></script>
+
 </head>
   <body>
     <noscript>You need to enable JavaScript to run this app.</noscript>

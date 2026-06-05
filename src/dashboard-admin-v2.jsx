@@ -81,7 +81,7 @@ export default function DashboardAdmin() {
     const carica = async () => {
       const { data } = await supabase
         .from("saloni")
-        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza, recensioni")
+        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza, recensioni, piano_speciale")
         .order("created_at", { ascending: false });
       if (data) {
         // Estrai tutte le recensioni segnalate da tutti i saloni
@@ -128,6 +128,7 @@ export default function DashboardAdmin() {
           iscritto: s.created_at?.slice(0, 10) || "—",
           piano: prezziPiano[s.piano] ?? 0,
           pianoNome: s.piano || "trial",
+          pianoSpeciale: s.piano_speciale || null,
           stato: statoMap[s.stato_abbonamento] ?? "trial",
           ultimoPagamento: null,
           prossimoRinnovo: s.abbonamento_scadenza ? s.abbonamento_scadenza.slice(0, 10) : null,
@@ -138,12 +139,28 @@ export default function DashboardAdmin() {
     carica();
   }, []);
 
+  // Drawer dettaglio salone
+  const [saloneScelto, setSaloneScelto] = useState(null);
+  const [prenDettaglio, setPrenDettaglio] = useState([]);
+
+  useEffect(() => {
+    if (!saloneScelto) { setPrenDettaglio([]); return; }
+    supabase
+      .from("prenotazioni")
+      .select("nome_cliente, data, ora, nomi_servizi, prezzo, stato")
+      .eq("salone_id", saloneScelto.id)
+      .order("data", { ascending: false })
+      .limit(10)
+      .then(({ data }) => setPrenDettaglio(data || []));
+  }, [saloneScelto]);
+
   // Dropdown menu azioni salone (i 3 puntini)
   const [menuSaloneAperto, setMenuSaloneAperto] = useState(null); // id del salone con menu aperto
+  const [menuPos, setMenuPos] = useState({ top: 0, right: 0 });
   const [modalUsoGratis, setModalUsoGratis] = useState(null); // { salone, durata }
 
   const azioniSalone = [
-    { lbl: "Vedi dettagli", azione: (s) => alert(`Dettagli di ${s.nome}\n\nIn produzione: apre pagina con tutti i dati del salone, prenotazioni, incassi storici, ecc.`) },
+    { lbl: "Vedi dettagli", azione: (s) => setSaloneScelto(s) },
     { lbl: "Invia email al titolare", azione: (s) => window.open(`mailto:${s.email}?subject=Prenoty - Comunicazione importante`, "_blank") },
     { lbl: "Chiama titolare", azione: (s) => window.open(`tel:${s.tel}`, "_blank") },
     { lbl: "🎁 Concedi uso gratis", azione: (s) => setModalUsoGratis({ salone: s, durata: "lifetime" }), gratis: true },
@@ -686,15 +703,24 @@ export default function DashboardAdmin() {
                                 <span style={{ fontSize: 11, color: T.textMuted, marginLeft: 4, textTransform: "capitalize" }}>({s.pianoNome})</span>
                               </span>
                             )}
+                            {s.pianoSpeciale && (
+                              <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4, background: "#1a3a1a", color: "#4caf50", borderRadius: 6, padding: "2px 7px", fontSize: 11, fontWeight: 600 }}>
+                                🎁 {s.pianoSpeciale === "lifetime" ? "Gratis a vita" : `Gratis ${s.pianoSpeciale}`}
+                              </div>
+                            )}
                           </td>
                           <td style={{ ...td, fontSize: 13, color: T.textSoft }}>{s.iscritto}</td>
                           <td style={td}>
                             <span style={{ fontWeight: 500 }}>{s.prenotazioni}</span>
                             <span style={{ fontSize: 11, color: T.textMuted, marginLeft: 4 }}>tot.</span>
                           </td>
-                          <td style={{ ...td, position: "relative" }}>
+                          <td style={{ ...td }}>
                             <button
-                              onClick={() => setMenuSaloneAperto(menuSaloneAperto === s.id ? null : s.id)}
+                              onClick={(e) => {
+                                const rect = e.currentTarget.getBoundingClientRect();
+                                setMenuPos({ top: rect.bottom + 4, right: window.innerWidth - rect.right });
+                                setMenuSaloneAperto(menuSaloneAperto === s.id ? null : s.id);
+                              }}
                               style={{
                                 background: "transparent",
                                 border: "none",
@@ -716,14 +742,15 @@ export default function DashboardAdmin() {
                                 />
                                 <div
                                   style={{
-                                    position: "absolute",
-                                    right: 12,
-                                    top: "100%",
+                                    position: "fixed",
+                                    right: menuPos.right,
+                                    top: menuPos.top,
                                     background: T.card,
                                     border: `1px solid ${T.border}`,
                                     boxShadow: "0 6px 20px rgba(0,0,0,0.15)",
                                     minWidth: 200,
                                     zIndex: 51,
+                                    borderRadius: 10,
                                   }}
                                 >
                                   {azioniSalone.map((az, i) => (
@@ -990,6 +1017,86 @@ export default function DashboardAdmin() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* DRAWER DETTAGLIO SALONE */}
+      {saloneScelto && (
+        <>
+          <div onClick={() => setSaloneScelto(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.4)", zIndex: 9998 }} />
+          <div style={{
+            position: "fixed", top: 0, right: 0, bottom: 0, width: 420, maxWidth: "100vw",
+            background: T.card, borderLeft: `1px solid ${T.border}`,
+            zIndex: 9999, overflowY: "auto", padding: "28px 24px",
+            fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
+          }}>
+            {/* Header */}
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: 24 }}>
+              <div>
+                <div style={{ fontSize: 20, fontWeight: 600, color: T.text }}>{saloneScelto.nome}</div>
+                <div style={{ fontSize: 13, color: T.textSoft, marginTop: 2, textTransform: "capitalize" }}>{saloneScelto.tipo} · {saloneScelto.citta}</div>
+              </div>
+              <button onClick={() => setSaloneScelto(null)} style={{ background: "none", border: "none", cursor: "pointer", color: T.textSoft, padding: 4 }}>
+                <X size={20} />
+              </button>
+            </div>
+
+            {/* Piano speciale badge */}
+            {saloneScelto.pianoSpeciale && (
+              <div style={{ background: "#1a3a1a", color: "#4caf50", borderRadius: 8, padding: "8px 12px", fontSize: 13, fontWeight: 600, marginBottom: 16 }}>
+                🎁 Piano speciale: {saloneScelto.pianoSpeciale === "lifetime" ? "Gratis a vita" : `Gratis ${saloneScelto.pianoSpeciale}`}
+              </div>
+            )}
+
+            {/* Contatti */}
+            <div style={{ background: T.bg, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.1em", marginBottom: 10 }}>CONTATTI</div>
+              {[
+                { icon: Mail, label: saloneScelto.email },
+                { icon: Phone, label: saloneScelto.tel },
+              ].map(({ icon: Icon, label }) => (
+                <div key={label} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 13, color: T.text, marginBottom: 6 }}>
+                  <Icon size={13} color={T.textMuted} /> {label}
+                </div>
+              ))}
+            </div>
+
+            {/* Abbonamento */}
+            <div style={{ background: T.bg, borderRadius: 10, padding: "14px 16px", marginBottom: 16 }}>
+              <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.1em", marginBottom: 10 }}>ABBONAMENTO</div>
+              {[
+                { lbl: "Stato", val: saloneScelto.stato },
+                { lbl: "Piano", val: saloneScelto.piano === 0 ? saloneScelto.pianoNome : `${saloneScelto.piano}€/mese` },
+                { lbl: "Iscritto il", val: saloneScelto.iscritto },
+                { lbl: "Prossimo rinnovo", val: saloneScelto.prossimoRinnovo || "—" },
+                { lbl: "Prenotazioni totali", val: saloneScelto.prenotazioni },
+              ].map(({ lbl, val }) => (
+                <div key={lbl} style={{ display: "flex", justifyContent: "space-between", fontSize: 13, marginBottom: 6 }}>
+                  <span style={{ color: T.textSoft }}>{lbl}</span>
+                  <span style={{ color: T.text, fontWeight: 500, textTransform: "capitalize" }}>{val}</span>
+                </div>
+              ))}
+            </div>
+
+            {/* Ultime prenotazioni */}
+            <div>
+              <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.1em", marginBottom: 10 }}>ULTIME PRENOTAZIONI</div>
+              {prenDettaglio.length === 0 ? (
+                <div style={{ fontSize: 13, color: T.textMuted, fontStyle: "italic" }}>Nessuna prenotazione.</div>
+              ) : prenDettaglio.map((p, i) => (
+                <div key={i} style={{ borderBottom: `1px solid ${T.border}`, paddingBottom: 10, marginBottom: 10 }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 13 }}>
+                    <span style={{ fontWeight: 500, color: T.text }}>{p.nome_cliente || "—"}</span>
+                    <span style={{ color: T.textSoft }}>{p.data} {p.ora?.slice(0,5) || ""}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between", fontSize: 12, color: T.textSoft, marginTop: 2 }}>
+                    <span>{p.nomi_servizi || "—"}</span>
+                    <span>{p.prezzo ? `${p.prezzo}€` : ""}</span>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </div>
+        </>
       )}
 
       {/* MODAL CONFERMA AZIONE MODERAZIONE */}

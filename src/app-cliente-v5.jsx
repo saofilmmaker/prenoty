@@ -56,8 +56,36 @@ export default function AppCliente() {
   // Modal "Aggiungi alla home" — banner istruzioni PWA su mobile
   const [pwaModalAperto, setPwaModalAperto] = useState(false);
 
-  // LIGHTBOX galleria
-  const [lightboxFoto, setLightboxFoto] = useState(null);
+  // LIGHTBOX galleria — naviga tra le foto
+  const [lightboxIndex, setLightboxIndex] = useState(null);
+  const [tutteLeGalleria, setTutteLeGalleria] = useState(false);
+  const touchStartX = useRef(0);
+
+  // Visualizzatore foto team (singola foto + nome/ruolo)
+  const [teamFoto, setTeamFoto] = useState(null);
+
+  const fotoUrlDa = (foto) => (typeof foto === "string" ? foto : foto?.url);
+  const chiudiLightbox = () => setLightboxIndex(null);
+  const lightboxPrev = () => setLightboxIndex(i => {
+    const n = salone.galleria.length;
+    return i === null ? null : (i - 1 + n) % n;
+  });
+  const lightboxNext = () => setLightboxIndex(i => {
+    const n = salone.galleria.length;
+    return i === null ? null : (i + 1) % n;
+  });
+
+  // Frecce tastiera per il lightbox (desktop)
+  useEffect(() => {
+    if (lightboxIndex === null) return;
+    const onKey = (e) => {
+      if (e.key === "Escape") chiudiLightbox();
+      else if (e.key === "ArrowLeft") lightboxPrev();
+      else if (e.key === "ArrowRight") lightboxNext();
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [lightboxIndex]); // eslint-disable-line
 
   // Modal e toast condivisione (con fallback)
   const [shareModalAperto, setShareModalAperto] = useState(false);
@@ -231,24 +259,29 @@ export default function AppCliente() {
   ];
 
   // Genera slot da 30 min dagli orari reali del salone per il giorno scelto
+  // Supporta fasce multiple con pausa (es. "08:00-12:00 15:00-20:00")
   const generaSlot = (dataScelta) => {
     if (!dataScelta || !salone.orari) return [];
     const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
     const chiave = chiavi[dataScelta.getDay()];
     const orarioGiorno = salone.orari[chiave];
     if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
-    const [inizio, fine] = orarioGiorno.split("-");
-    if (!inizio || !fine) return [];
-    const [hI, mI] = inizio.split(":").map(Number);
-    const [hF, mF] = fine.split(":").map(Number);
+    const fasce = orarioGiorno.trim().split(" ");
     const slots = [];
-    let minuti = hI * 60 + mI;
-    const fineMin = hF * 60 + mF;
-    while (minuti < fineMin) {
-      const h = String(Math.floor(minuti / 60)).padStart(2, "0");
-      const m = String(minuti % 60).padStart(2, "0");
-      slots.push(`${h}:${m}`);
-      minuti += 30;
+    for (const fascia of fasce) {
+      const [inizio, fine] = fascia.split("-");
+      if (!inizio || !fine) continue;
+      const [hI, mI] = inizio.split(":").map(Number);
+      const [hF, mF] = fine.split(":").map(Number);
+      if (isNaN(hI) || isNaN(mI) || isNaN(hF) || isNaN(mF)) continue;
+      let minuti = hI * 60 + mI;
+      const fineMin = hF * 60 + mF;
+      while (minuti < fineMin) {
+        const h = String(Math.floor(minuti / 60)).padStart(2, "0");
+        const m = String(minuti % 60).padStart(2, "0");
+        slots.push(`${h}:${m}`);
+        minuti += 30;
+      }
     }
     return slots;
   };
@@ -432,7 +465,9 @@ export default function AppCliente() {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             emailCliente: email,
+            emailTitolare: salone.email || null,
             nomeCliente: nome,
+            telefonoCliente: telefono,
             nomeSalone: salone.nome,
             servizi: serviziScelti.map(x => x.nome).join(", "),
             data: dataStr2,
@@ -503,7 +538,7 @@ export default function AppCliente() {
   );
 
   return (
-    <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+    <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
       {/* HEADER */}
       <header className="sticky top-0 z-10 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -518,7 +553,8 @@ export default function AppCliente() {
             <span style={{ letterSpacing: "0.05em" }}>Aggiungi home</span>
           </button>
 
-          <div className="flex items-center gap-1">
+          {/* Icone destra: Condividi · Tema · Assistenza */}
+          <div className="flex items-center gap-1 ml-auto">
             <button
               onClick={condividiSalone}
               title="Condividi"
@@ -537,6 +573,7 @@ export default function AppCliente() {
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
               )}
             </button>
+            <WhatsAppAssistenza tema={tema} numero={(salone.telefono || "").replace(/[^0-9]/g, "")} pubblico modalita="nav" />
           </div>
         </div>
       </header>
@@ -622,24 +659,99 @@ export default function AppCliente() {
               <div>
                 <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.2em" }}>GALLERIA</div>
                 <div className="grid grid-cols-3 gap-2">
-                  {salone.galleria.map((foto, i) => {
+                  {(tutteLeGalleria ? salone.galleria : salone.galleria.slice(0, 6)).map((foto, i) => {
                     const fotoUrl = typeof foto === "string" ? foto : foto.url;
                     const fotoY = typeof foto === "object" ? (foto.y ?? 50) : 50;
                     return (
-                      <div key={i} className="aspect-square overflow-hidden border cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => setLightboxFoto(fotoUrl)}>
+                      <div key={i} className="aspect-square overflow-hidden border cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => setLightboxIndex(i)}>
                         <img src={fotoUrl} alt={`Foto ${i + 1}`} className="w-full h-full object-cover" style={{ objectPosition: `center ${fotoY}%` }} />
                       </div>
                     );
                   })}
                 </div>
+                {salone.galleria.length > 6 && (
+                  <button
+                    onClick={() => setTutteLeGalleria(!tutteLeGalleria)}
+                    className="w-full mt-3 py-3 text-xs tracking-widest border"
+                    style={{ color: T.accent, borderColor: T.border, background: "transparent", cursor: "pointer", letterSpacing: "0.15em", fontFamily: "inherit" }}
+                  >
+                    {tutteLeGalleria ? "▲ NASCONDI FOTO" : `▼ VEDI TUTTE LE ${salone.galleria.length} FOTO`}
+                  </button>
+                )}
               </div>
             )}
 
-            {/* LIGHTBOX */}
-            {lightboxFoto && (
-              <div onClick={() => setLightboxFoto(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.92)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}>
-                <img src={lightboxFoto} alt="Foto" style={{ maxWidth: "100%", maxHeight: "90vh", objectFit: "contain", borderRadius: 8 }} />
-                <button onClick={() => setLightboxFoto(null)} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 40, height: 40, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+            {/* LIGHTBOX — galleria navigabile (frecce, swipe, contatore) */}
+            {lightboxIndex !== null && salone.galleria[lightboxIndex] && (
+              <div
+                onClick={chiudiLightbox}
+                style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.94)", zIndex: 10000, display: "flex", alignItems: "center", justifyContent: "center", padding: 16 }}
+              >
+                {/* Chiudi */}
+                <button onClick={chiudiLightbox} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 42, height: 42, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}>✕</button>
+
+                {/* Contatore */}
+                {salone.galleria.length > 1 && (
+                  <div style={{ position: "absolute", top: 28, left: 0, right: 0, textAlign: "center", color: "rgba(255,255,255,0.85)", fontSize: 14, fontWeight: 600, pointerEvents: "none" }}>
+                    {lightboxIndex + 1} / {salone.galleria.length}
+                  </div>
+                )}
+
+                {/* Freccia sinistra */}
+                {salone.galleria.length > 1 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); lightboxPrev(); }}
+                    style={{ position: "absolute", left: 12, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 44, height: 44, borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}
+                    aria-label="Foto precedente"
+                  >
+                    <ArrowLeft size={22} />
+                  </button>
+                )}
+
+                {/* Immagine + swipe */}
+                <img
+                  src={fotoUrlDa(salone.galleria[lightboxIndex])}
+                  alt={`Foto ${lightboxIndex + 1}`}
+                  onClick={(e) => e.stopPropagation()}
+                  onTouchStart={(e) => { touchStartX.current = e.touches[0].clientX; }}
+                  onTouchEnd={(e) => {
+                    const dx = e.changedTouches[0].clientX - touchStartX.current;
+                    if (dx > 50) lightboxPrev();
+                    else if (dx < -50) lightboxNext();
+                  }}
+                  style={{ maxWidth: "100%", maxHeight: "85vh", objectFit: "contain", borderRadius: 8 }}
+                />
+
+                {/* Freccia destra */}
+                {salone.galleria.length > 1 && (
+                  <button
+                    onClick={(e) => { e.stopPropagation(); lightboxNext(); }}
+                    style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 44, height: 44, borderRadius: "50%", cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 2 }}
+                    aria-label="Foto successiva"
+                  >
+                    <ArrowRight size={22} />
+                  </button>
+                )}
+              </div>
+            )}
+
+            {/* VISUALIZZATORE FOTO TEAM */}
+            {teamFoto && (
+              <div
+                onClick={() => setTeamFoto(null)}
+                style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.94)", zIndex: 10000, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "center", padding: 24 }}
+              >
+                <button onClick={() => setTeamFoto(null)} style={{ position: "absolute", top: 20, right: 20, background: "rgba(255,255,255,0.15)", border: "none", color: "#fff", width: 42, height: 42, borderRadius: "50%", fontSize: 20, cursor: "pointer", display: "flex", alignItems: "center", justifyContent: "center" }}>✕</button>
+                <div
+                  onClick={(e) => e.stopPropagation()}
+                  style={{ width: "min(78vw, 340px)", height: "min(78vw, 340px)", borderRadius: "50%", overflow: "hidden", border: `4px solid ${teamFoto.colore || "#6c5ce7"}`, boxShadow: "0 12px 48px rgba(0,0,0,0.5)" }}
+                >
+                  <img src={teamFoto.url} alt={teamFoto.nome} style={{ width: "100%", height: "100%", objectFit: "cover", display: "block" }} />
+                </div>
+                <div style={{ textAlign: "center", marginTop: 20 }}>
+                  <div style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>{teamFoto.nome}</div>
+                  {teamFoto.ruolo && <div style={{ color: "rgba(255,255,255,0.6)", fontSize: 14, marginTop: 2 }}>{teamFoto.ruolo}</div>}
+                </div>
               </div>
             )}
 
@@ -685,7 +797,11 @@ export default function AppCliente() {
                       style={{ backgroundColor: T.card, borderColor: T.border }}
                     >
                       {s.foto ? (
-                        <div className="w-14 h-14 rounded-full mx-auto mb-2 overflow-hidden border-2" style={{ borderColor: s.colore }}>
+                        <div
+                          className="w-14 h-14 rounded-full mx-auto mb-2 overflow-hidden border-2 cursor-pointer transition hover:opacity-80"
+                          style={{ borderColor: s.colore }}
+                          onClick={() => setTeamFoto({ url: s.foto, nome: s.nome, ruolo: s.ruolo, colore: s.colore })}
+                        >
                           <img src={s.foto} alt={s.nome} className="w-full h-full object-cover" />
                         </div>
                       ) : (
@@ -1357,7 +1473,7 @@ export default function AppCliente() {
 
       {/* TOAST "Link copiato" */}
       {linkCopiato && (
-        <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: T.dark, color: T.bg, padding: "12px 20px", fontFamily: "Georgia, 'Times New Roman', serif", fontSize: 14, zIndex: 10001, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "flex", alignItems: "center", gap: 8 }}>
+        <div style={{ position: "fixed", top: 24, left: "50%", transform: "translateX(-50%)", background: T.dark, color: T.bg, padding: "12px 20px", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", fontSize: 14, zIndex: 10001, boxShadow: "0 4px 16px rgba(0,0,0,0.2)", display: "flex", alignItems: "center", gap: 8 }}>
           <Check size={16} /> Link copiato negli appunti
         </div>
       )}
@@ -1365,7 +1481,7 @@ export default function AppCliente() {
       {/* MODAL CONDIVISIONE fallback */}
       {shareModalAperto && (
         <div onClick={() => setShareModalAperto(false)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "28px 24px", maxWidth: 460, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "28px 24px", maxWidth: 460, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: 16 }}>
               <h3 style={{ fontSize: 20, fontWeight: 400, margin: 0 }}>Condividi {salone.nome}</h3>
               <button onClick={() => setShareModalAperto(false)} style={{ background: "transparent", border: "none", color: T.textSoft, cursor: "pointer", padding: 4, display: "flex" }}>
@@ -1482,7 +1598,7 @@ export default function AppCliente() {
               padding: "32px 28px",
               maxWidth: 480,
               width: "100%",
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
               color: T.text,
             }}
           >
@@ -1560,7 +1676,7 @@ export default function AppCliente() {
         </div>
       )}
 
-      <WhatsAppAssistenza tema={tema} numero={(salone.telefono || "").replace(/[^0-9]/g, "")} pubblico />
+      {/* WhatsAppAssistenza spostata nella navbar */}
     </div>
   );
 }

@@ -1,5 +1,5 @@
 // Prenoty Service Worker — cache shell per PWA offline-ready
-const CACHE = "prenoty-v1";
+const CACHE = "prenoty-v3";
 
 // File da mettere in cache al primo avvio
 const SHELL = ["/", "/dashboard", "/login"];

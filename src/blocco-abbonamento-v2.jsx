@@ -84,7 +84,7 @@ export default function BloccoAbbonamento() {
       minHeight: "100vh",
       background: T.bg,
       color: T.text,
-      fontFamily: "Georgia, 'Times New Roman', serif",
+      fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
       display: "flex",
       flexDirection: "column",
     }}>

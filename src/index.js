@@ -11,6 +11,7 @@ import Registrazione from './registrazione';
 import RecuperaPassword from './recupera-password';
 import NuovaPassword from './nuova-password';
 import AppCliente from './app-cliente-v5';
+import { PrivacyPolicy, TerminiServizio, CookiePolicy } from './legal';
 import { supabase } from './supabase';
 import { useState, useEffect } from 'react';
 
@@ -45,6 +46,9 @@ root.render(
       <Route path="/dashboard" element={<ProtectedRoute><DashboardPrenoty /></ProtectedRoute>} />
       <Route path="/admin" element={<AdminGuard><DashboardAdmin /></AdminGuard>} />
       <Route path="/blocco" element={<BloccoAbbonamento />} />
+      <Route path="/privacy-policy" element={<PrivacyPolicy />} />
+      <Route path="/termini-di-servizio" element={<TerminiServizio />} />
+      <Route path="/cookie-policy" element={<CookiePolicy />} />
       <Route path="/:slug" element={<AppCliente />} />
     </Routes>
   </BrowserRouter>

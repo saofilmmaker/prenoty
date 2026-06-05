@@ -157,7 +157,208 @@ export default function DashboardPrenoty() {
   const [sezione, setSezione] = useState("agenda"); // agenda, clienti, servizi, staff, report, impostazioni
   const [vista, setVista] = useState("oggi");
   const [filtro, setFiltro] = useState("");
+
+  const [refreshing, setRefreshing] = useState(false);
   const [filtroCard, setFiltroCard] = useState(null); // null | "pagati"
+
+  // APPUNTAMENTO MANUALE
+  const oggiISO = () => new Date().toISOString().split("T")[0];
+  const [modalAppManuale, setModalAppManuale] = useState(false);
+  const [salvandoApp, setSalvandoApp] = useState(false);
+  const [erroreApp, setErroreApp] = useState("");
+  const [nuovoApp, setNuovoApp] = useState({ nome: "", tel: "", email: "", serviziIds: [], data: oggiISO(), ora: "", staffId: "", note: "" });
+
+  const apriModalApp = (cliente = null) => {
+    setNuovoApp({
+      nome: cliente?.nome || "",
+      tel: cliente?.tel || "",
+      email: cliente?.email || "",
+      serviziIds: [],
+      data: oggiISO(),
+      ora: "",
+      staffId: "",
+      note: "",
+    });
+    setErroreApp("");
+    if (cliente) setClienteDettaglio(null); // chiude la scheda cliente
+    setModalAppManuale(true);
+  };
+
+  const toggleServizioApp = (id) => {
+    setNuovoApp(prev => ({
+      ...prev,
+      serviziIds: prev.serviziIds.includes(id) ? prev.serviziIds.filter(x => x !== id) : [...prev.serviziIds, id],
+      ora: "", // reset orario: cambia la durata totale
+    }));
+  };
+
+  // Genera gli slot da 30 min dagli orari di lavoro del salone (supporta pausa, es. "08:00-12:00 15:00-20:00")
+  const generaSlotApp = (dataStr) => {
+    if (!dataStr || !salone.orari) return [];
+    const chiavi = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
+    const giorno = new Date(dataStr + "T00:00:00").getDay();
+    const orarioGiorno = salone.orari[chiavi[giorno]];
+    if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
+    const fasce = orarioGiorno.trim().split(" ");
+    const slots = [];
+    for (const fascia of fasce) {
+      const [inizio, fine] = fascia.split("-");
+      if (!inizio || !fine) continue;
+      const [hI, mI] = inizio.split(":").map(Number);
+      const [hF, mF] = fine.split(":").map(Number);
+      if ([hI, mI, hF, mF].some(isNaN)) continue;
+      let min = hI * 60 + mI;
+      const fineMin = hF * 60 + mF;
+      while (min < fineMin) {
+        slots.push(`${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`);
+        min += 30;
+      }
+    }
+    return slots;
+  };
+
+  // Slot già occupati da prenotazioni esistenti in quella data (considera la durata)
+  const slotOccupatiApp = (dataStr) => {
+    const occ = new Set();
+    const lista = generaSlotApp(dataStr);
+    prenotazioni.filter(p => p.data === dataStr && p.stato !== "annullato").forEach(p => {
+      const idx = lista.indexOf((p.ora || "").slice(0, 5));
+      if (idx === -1) return;
+      const nSlot = Math.ceil((p.durata || 30) / 30);
+      for (let i = 0; i < nSlot; i++) if (idx + i < lista.length) occ.add(lista[idx + i]);
+    });
+    return occ;
+  };
+
+  // Slot mostrati nel menu: { ora, disponibile } — disponibile=false se occupato o se il servizio non ci sta
+  const getSlotsApp = () => {
+    const lista = generaSlotApp(nuovoApp.data);
+    if (lista.length === 0) return [];
+    const occ = slotOccupatiApp(nuovoApp.data);
+    const durataTot = servizi.filter(s => nuovoApp.serviziIds.includes(s.id)).reduce((a, s) => a + (s.durata || 0), 0) || 30;
+    const nNuovo = Math.ceil(durataTot / 30);
+    return lista.map((ora, idx) => {
+      let disp = true;
+      for (let i = 0; i < nNuovo; i++) {
+        const s = lista[idx + i];
+        if (!s || occ.has(s)) { disp = false; break; }
+      }
+      return { ora, disponibile: disp };
+    });
+  };
+
+  const salvaAppManuale = async () => {
+    if (!nuovoApp.nome.trim() || !nuovoApp.tel.trim() || nuovoApp.serviziIds.length === 0 || !nuovoApp.data || !nuovoApp.ora) {
+      setErroreApp("Compila nome, telefono, almeno un servizio, data e ora.");
+      return;
+    }
+    setSalvandoApp(true);
+    setErroreApp("");
+    try {
+      const serviziSel = servizi.filter(s => nuovoApp.serviziIds.includes(s.id));
+      const durataTot = serviziSel.reduce((a, s) => a + (s.durata || 0), 0) || 30;
+      const prezzoTot = serviziSel.reduce((a, s) => a + (s.prezzo || 0), 0);
+      const nomiServizi = serviziSel.map(s => s.nome).join(", ");
+      const { data: ins, error } = await supabase.from("prenotazioni").insert({
+        salone_id: salone.dbId,
+        servizio_id: serviziSel[0]?.id || null,
+        staff_id: nuovoApp.staffId ? Number(nuovoApp.staffId) : null,
+        nome_cliente: nuovoApp.nome.trim(),
+        telefono_cliente: nuovoApp.tel.trim() || null,
+        email_cliente: nuovoApp.email.trim() || null,
+        data: nuovoApp.data,
+        ora: nuovoApp.ora,
+        stato: "confermato",
+        durata_totale: durataTot,
+        nomi_servizi: nomiServizi,
+        prezzo: prezzoTot,
+        note: nuovoApp.note.trim() || null,
+        metodo_pagamento: "salone",
+      }).select().single();
+
+      if (error) { setErroreApp(`Errore: ${error.message}`); return; }
+
+      // Aggiunge in cima alla lista locale
+      if (ins) {
+        const staffSel = staff.find(s => s.id === Number(nuovoApp.staffId));
+        setPrenotazioni(prev => [{
+          id: ins.id,
+          cliente: ins.nome_cliente,
+          tel: ins.telefono_cliente || "",
+          email: "",
+          servizio: ins.nomi_servizi,
+          durata: ins.durata_totale || 30,
+          prezzo: ins.prezzo || 0,
+          data: ins.data,
+          ora: (ins.ora || "").slice(0, 5),
+          stato: ins.stato || "confermato",
+          pagamento: "salone",
+          metodoPagamento: "salone",
+          codiceBonifico: null,
+          staffId: ins.staff_id || 1,
+          nuovo: false,
+          note: ins.note || "",
+          creatoIl: ins.created_at || new Date().toISOString(),
+        }, ...prev]);
+      }
+
+      // Se ha il telefono, crea/aggiorna il cliente in anagrafica
+      if (nuovoApp.tel.trim() && salone.dbId) {
+        const { data: esistente } = await supabase.from("clienti")
+          .select("id").eq("salone_id", salone.dbId).eq("telefono", nuovoApp.tel.trim()).maybeSingle();
+        if (!esistente) {
+          await supabase.from("clienti").insert({
+            salone_id: salone.dbId,
+            nome: nuovoApp.nome.trim(),
+            telefono: nuovoApp.tel.trim(),
+            email: nuovoApp.email.trim() || null,
+          });
+          caricaClienti(salone.dbId);
+        }
+      }
+
+      // Se è stata inserita l'email, invia conferma al cliente E notifica al titolare
+      if (nuovoApp.email.trim()) {
+        const staffNome = staff.find(s => s.id === Number(nuovoApp.staffId))?.nome || null;
+        try {
+          const res = await fetch("/api/send-booking-email", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              emailCliente: nuovoApp.email.trim(),
+              emailTitolare: salone.email || null,
+              nomeCliente: nuovoApp.nome.trim(),
+              telefonoCliente: nuovoApp.tel.trim(),
+              nomeSalone: salone.nome,
+              servizi: nomiServizi,
+              data: nuovoApp.data,
+              ora: nuovoApp.ora,
+              staff: staffNome,
+              prezzo: prezzoTot,
+              slugSalone: salone.slug || null,
+              metodoPagamento: "salone",
+            }),
+          });
+          if (!res.ok) {
+            const txt = await res.text();
+            setErroreApp(`Appuntamento salvato ✓ ma email non inviata: ${txt}`);
+            setSalvandoApp(false);
+            return; // tieni aperto per mostrare il motivo
+          }
+        } catch (e) {
+          setErroreApp(`Appuntamento salvato ✓ ma email non inviata: ${e.message}`);
+          setSalvandoApp(false);
+          return;
+        }
+      }
+
+      setModalAppManuale(false);
+    } catch (err) {
+      setErroreApp(`Errore: ${err.message}`);
+    } finally {
+      setSalvandoApp(false);
+    }
+  };
   const [dettaglio, setDettaglio] = useState(null);
   const [menuAperto, setMenuAperto] = useState(false);
 
@@ -170,6 +371,12 @@ export default function DashboardPrenoty() {
 
   // Persisti tema in localStorage
   useEffect(() => { localStorage.setItem("prenoty-tema", tema); }, [tema]);
+
+  // Aggiornamento manuale dei dati (icona ↻ nell'header)
+  const aggiornaDati = () => {
+    setRefreshing(true);
+    window.location.reload();
+  };
 
 useEffect(() => {
     const caricaDati = async () => {
@@ -206,6 +413,7 @@ useEffect(() => {
           mostraOrari: saloneDb.mostra_orari ?? true,
           mostraGalleria: saloneDb.mostra_galleria ?? true,
           mostraSocial: saloneDb.mostra_social ?? true,
+          mostraStatistiche: saloneDb.mostra_statistiche ?? true,
           suonoNotifica: saloneDb.suono_notifica || "ding",
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
@@ -339,6 +547,7 @@ useEffect(() => {
     mostraOrari: true,
     mostraGalleria: true,
     mostraSocial: true,
+    mostraStatistiche: true,
     suonoNotifica: "ding",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
@@ -618,6 +827,31 @@ useEffect(() => {
 
   // CLIENTI
   const [clienti, setClienti] = useState([]);
+  const [clienteDettaglio, setClienteDettaglio] = useState(null); // cliente aperto nel pannello
+  const [editNote, setEditNote] = useState("");
+  const [editNascita, setEditNascita] = useState("");
+  const [editTel, setEditTel] = useState("");
+  const [editEmail, setEditEmail] = useState("");
+  const [cercaCliente, setCercaCliente] = useState("");
+  const [salvandoCliente, setSalvandoCliente] = useState(false);
+  const [salvatoOk, setSalvatoOk] = useState(false);
+  const [erroreCliente, setErroreCliente] = useState("");
+
+  // Compleanno: oggi o entro 7 giorni
+  const infoCompleanno = (dataNascita) => {
+    if (!dataNascita) return null;
+    const oggi = new Date();
+    const nascita = new Date(dataNascita + "T00:00:00");
+    const comp = new Date(oggi.getFullYear(), nascita.getMonth(), nascita.getDate());
+    const diff = Math.ceil((comp - oggi) / (1000 * 60 * 60 * 24));
+    if (diff === 0) return "oggi";
+    if (diff > 0 && diff <= 7) return `tra ${diff} giorn${diff === 1 ? "o" : "i"}`;
+    // Controlla anche anno prossimo se è già passato
+    const compProssimo = new Date(oggi.getFullYear() + 1, nascita.getMonth(), nascita.getDate());
+    const diffP = Math.ceil((compProssimo - oggi) / (1000 * 60 * 60 * 24));
+    if (diffP <= 7) return `tra ${diffP} giorn${diffP === 1 ? "o" : "i"}`;
+    return null;
+  };
 
   const caricaClienti = async (saloneId) => {
     const oggi = new Date().toISOString().split("T")[0]; // YYYY-MM-DD
@@ -625,16 +859,18 @@ useEffect(() => {
     const [{ data: clientiDb }, { data: prenDb }] = await Promise.all([
       supabase.from("clienti").select("*").eq("salone_id", saloneId).order("ultima_visita", { ascending: false }),
       // Solo appuntamenti PASSATI (data < oggi) e NON annullati → visite effettive
-      supabase.from("prenotazioni").select("telefono_cliente, data, prezzo").eq("salone_id", saloneId).neq("stato", "annullato").lt("data", oggi),
+      supabase.from("prenotazioni").select("telefono_cliente, data, ora, prezzo, nomi_servizi").eq("salone_id", saloneId).neq("stato", "annullato").lt("data", oggi).order("data", { ascending: false }),
     ]);
 
-    // Conta visite e spesa per numero di telefono
-    const visitMap = {}, spesaMap = {};
+    // Conta visite, spesa e storico per numero di telefono
+    const visitMap = {}, spesaMap = {}, storicoMap = {};
     (prenDb || []).forEach(p => {
       const tel = p.telefono_cliente;
       if (!tel) return;
       visitMap[tel] = (visitMap[tel] || 0) + 1;
       spesaMap[tel] = (spesaMap[tel] || 0) + (p.prezzo || 0);
+      if (!storicoMap[tel]) storicoMap[tel] = [];
+      storicoMap[tel].push({ data: p.data, ora: p.ora, prezzo: p.prezzo, servizio: p.nomi_servizi || "Servizio" });
     });
 
     if (clientiDb) {
@@ -648,10 +884,65 @@ useEffect(() => {
           visite,
           totaleSpeso: spesaMap[c.telefono] || 0,
           ultimaVisita: c.ultima_visita || null,
+          storico: storicoMap[c.telefono] || [],
           note: c.note || "",
+          dataNascita: c.data_nascita || "",
           fedelta: Math.floor(visite / 2),
         };
       }));
+    }
+  };
+
+  const apriDettaglioCliente = (c) => {
+    setClienteDettaglio({ ...c });
+    setEditNote(c.note || "");
+    setEditNascita(c.dataNascita || "");
+    setEditTel(c.tel || "");
+    setEditEmail(c.email || "");
+  };
+
+  const salvaDettaglioCliente = async () => {
+    if (!clienteDettaglio) return;
+    setSalvandoCliente(true);
+    setErroreCliente("");
+    try {
+      const { error } = await supabase.from("clienti").update({
+        note: editNote,
+        telefono: editTel,
+        email: editEmail || null,
+      }).eq("id", clienteDettaglio.id);
+
+      if (error) {
+        setErroreCliente(`Errore: ${error.message}`);
+        return;
+      }
+
+      // Se il telefono è cambiato, riallinea le prenotazioni passate al nuovo numero
+      // così lo storico visite rimane collegato al cliente.
+      const telVecchio = clienteDettaglio.tel;
+      if (telVecchio && editTel && editTel !== telVecchio && salone.dbId) {
+        await supabase.from("prenotazioni")
+          .update({ telefono_cliente: editTel })
+          .eq("salone_id", salone.dbId)
+          .eq("telefono_cliente", telVecchio);
+      }
+
+      // data_nascita opzionale (ignora errore se la colonna non esiste ancora)
+      try {
+        await supabase.from("clienti").update({ data_nascita: editNascita || null }).eq("id", clienteDettaglio.id);
+      } catch (e) { /* colonna data_nascita non ancora creata su Supabase */ }
+
+      setClienti(clienti.map(c => c.id === clienteDettaglio.id
+        ? { ...c, note: editNote, dataNascita: editNascita, tel: editTel, email: editEmail }
+        : c
+      ));
+      setClienteDettaglio(prev => ({ ...prev, note: editNote, dataNascita: editNascita, tel: editTel, email: editEmail }));
+      setSalvatoOk(true);
+      setTimeout(() => setSalvatoOk(false), 2500);
+    } catch (err) {
+      setErroreCliente(`Errore: ${err.message}`);
+    } finally {
+      setSalvandoCliente(false);
     }
   };
 
@@ -970,57 +1261,6 @@ useEffect(() => {
     return () => document.removeEventListener("visibilitychange", handleVisibilityChange);
   }, []);
 
-  // Pull-to-refresh per PWA mobile (iOS non ha pull-to-refresh nativo in standalone)
-  useEffect(() => {
-    const isPwa = window.matchMedia("(display-mode: standalone)").matches || window.navigator.standalone;
-    if (!isPwa) return;
-
-    let startY = 0;
-    let pulling = false;
-    let indicator = null;
-
-    const onTouchStart = (e) => {
-      if (window.scrollY === 0) {
-        startY = e.touches[0].clientY;
-        pulling = true;
-      }
-    };
-
-    const onTouchMove = (e) => {
-      if (!pulling) return;
-      const dy = e.touches[0].clientY - startY;
-      if (dy > 10 && window.scrollY === 0) {
-        if (!indicator) {
-          indicator = document.createElement("div");
-          indicator.innerHTML = "↓ Rilascia per aggiornare";
-          indicator.style.cssText = "position:fixed;top:60px;left:50%;transform:translateX(-50%);background:#6c5ce7;color:#fff;padding:8px 18px;border-radius:20px;font-size:13px;font-weight:600;z-index:99999;transition:opacity 0.2s;pointer-events:none";
-          document.body.appendChild(indicator);
-        }
-        if (dy > 70) indicator.innerHTML = "↑ Rilascia per aggiornare";
-      }
-    };
-
-    const onTouchEnd = (e) => {
-      if (!pulling) return;
-      const dy = e.changedTouches[0].clientY - startY;
-      pulling = false;
-      if (indicator) { indicator.remove(); indicator = null; }
-      if (dy > 70) {
-        window.location.reload();
-      }
-    };
-
-    document.addEventListener("touchstart", onTouchStart, { passive: true });
-    document.addEventListener("touchmove", onTouchMove, { passive: true });
-    document.addEventListener("touchend", onTouchEnd, { passive: true });
-    return () => {
-      document.removeEventListener("touchstart", onTouchStart);
-      document.removeEventListener("touchmove", onTouchMove);
-      document.removeEventListener("touchend", onTouchEnd);
-      if (indicator) indicator.remove();
-    };
-  }, []);
-
   // Segna notifica come letta — salva in saloni.notifiche_lette (cross-device) + localStorage
   const segnaLetta = async (id) => {
     setPrenotazioni(prenotazioni.map(p => p.id === id ? { ...p, nuovo: false } : p));
@@ -1079,14 +1319,16 @@ useEffect(() => {
     // Rimuove subito dalla UI
     setPrenotazioni(prenotazioni.filter(p => p.id !== id));
     setDettaglio(null);
-    // Invia email di cancellazione al cliente (fire-and-forget)
-    if (pren?.email) {
+    // Invia email di cancellazione al cliente E notifica al titolare (fire-and-forget)
+    if (pren?.email || salone.email) {
       fetch("/api/send-cancellation-email", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          emailCliente: pren.email,
+          emailCliente: pren?.email || null,
+          emailTitolare: salone.email || null,
           nomeCliente: pren.cliente,
+          telefonoCliente: pren.tel || null,
           nomeSalone: salone.nome,
           servizi: pren.servizio,
           data: pren.data,
@@ -1127,7 +1369,7 @@ useEffect(() => {
   ];
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: T.bg, fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+    <div className="min-h-screen flex" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
       {/* SIDEBAR */}
       <aside className="hidden md:flex flex-col w-56 border-r" style={{ backgroundColor: T.card, borderColor: T.border }}>
         <div className="p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
@@ -1240,6 +1482,19 @@ useEffect(() => {
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
           <div className="flex items-center gap-2">
+            {/* AGGIORNA — ricarica i dati (solo mobile/PWA, nascosto su desktop) */}
+            <button
+              onClick={aggiornaDati}
+              title="Aggiorna"
+              disabled={refreshing}
+              className="flex md:hidden"
+              style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, alignItems: "center", justifyContent: "center", color: T.textSoft }}
+            >
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: refreshing ? "prenoty-spin 0.7s linear infinite" : "none" }}>
+                <path d="M23 4v6h-6"/><path d="M1 20v-6h6"/><path d="M3.51 9a9 9 0 0 1 14.85-3.36L23 10M1 14l4.64 4.36A9 9 0 0 0 20.49 15"/>
+              </svg>
+            </button>
+            <style>{`@keyframes prenoty-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
             {/* TOGGLE TEMA — icona luna/sole (mobile + desktop) */}
             <button
               className=""
@@ -1385,6 +1640,7 @@ useEffect(() => {
               {/* STATS */}
               {/* Animazione pulse per notifiche */}
               <style>{`@keyframes prenoty-glow{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0)}50%{box-shadow:0 0 0 8px rgba(108,92,231,0.6)}}`}</style>
+              {salone.mostraStatistiche && (
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
@@ -1420,6 +1676,7 @@ useEffect(() => {
                   );
                 })}
               </div>
+              )}
 
               {/* Banner filtro pagati attivo */}
               {/* Banner periodo di prova in scadenza */}
@@ -1484,7 +1741,7 @@ useEffect(() => {
                       className="px-4 py-2 text-xs tracking-widest transition"
                       style={{
                         backgroundColor: vista === v ? T.dark : "transparent",
-                        color: vista === v ? "#fff" : T.textSoft,
+                        color: vista === v ? T.bg : T.textSoft,
                         letterSpacing: "0.15em",
                         borderRadius: 7,
                       }}
@@ -1500,10 +1757,18 @@ useEffect(() => {
                     placeholder="Cerca cliente o servizio..."
                     value={filtro}
                     onChange={(e) => setFiltro(e.target.value)}
-                    className="w-full pl-11 pr-4 py-3 outline-none text-sm"
-                    style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text }}
+                    className="w-full pl-11 pr-4 py-3 outline-none"
+                    style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
                   />
                 </div>
+                {/* PULSANTE APPUNTAMENTO MANUALE */}
+                <button
+                  onClick={() => apriModalApp()}
+                  className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold whitespace-nowrap"
+                  style={{ backgroundColor: T.accent, color: "#fff", borderRadius: 10, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(108,92,231,0.3)" }}
+                >
+                  <Plus className="w-4 h-4" /> Appuntamento
+                </button>
               </div>
 
               {/* LISTA PRENOTAZIONI */}
@@ -1580,40 +1845,112 @@ useEffect(() => {
           {/* CLIENTI */}
           {sezione === "clienti" && (
             <div>
-              <div className="flex items-center justify-between mb-5">
+              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
                 <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   {clienti.length} CLIENTI IN ANAGRAFICA
                 </div>
-                <button
-                  onClick={() => setModalNuovoCliente(true)}
-                  className="flex items-center gap-2 px-4 py-2 text-xs tracking-widest text-white"
-                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em" }}
-                >
-                  <Plus className="w-4 h-4" /> NUOVO
-                </button>
+                <div className="flex items-center gap-2">
+                  <div className="relative flex-1 md:w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: T.textMuted }} />
+                    <input
+                      type="text"
+                      placeholder="Cerca cliente..."
+                      value={cercaCliente}
+                      onChange={(e) => setCercaCliente(e.target.value)}
+                      className="w-full pl-10 pr-3 py-2.5 outline-none"
+                      style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
+                    />
+                  </div>
+                  <button
+                    onClick={() => setModalNuovoCliente(true)}
+                    className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest text-white whitespace-nowrap"
+                    style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
+                  >
+                    <Plus className="w-4 h-4" /> NUOVO
+                  </button>
+                </div>
               </div>
 
-              <div className="border divide-y" style={{ backgroundColor: T.card, borderColor: T.border }}>
-                {clienti.length === 0 ? (
-                  <div className="p-12 text-center" style={{ color: T.textMuted }}>
-                    <Users className="w-8 h-8 mx-auto mb-2" />
-                    <div>Nessun cliente in anagrafica.</div>
-                    <button
-                      onClick={() => setModalNuovoCliente(true)}
-                      className="mt-3 px-4 py-2 text-xs tracking-widest"
-                      style={{ backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}
-                    >
-                      <Plus className="w-3 h-3 inline mr-1" /> AGGIUNGI IL PRIMO
-                    </button>
+              {/* RIQUADRO COMPLEANNI IN ARRIVO (entro 7 giorni) */}
+              {(() => {
+                const inArrivo = clienti
+                  .map(c => ({ c, comp: infoCompleanno(c.dataNascita) }))
+                  .filter(x => x.comp);
+                if (inArrivo.length === 0) return null;
+                return (
+                  <div className="rounded-2xl p-4 mb-5" style={{ background: T.card, border: `1px solid ${T.border}` }}>
+                    <div className="flex items-center justify-between mb-3">
+                      <div className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: T.text, letterSpacing: "0.12em" }}>
+                        <Gift className="w-4 h-4" style={{ color: T.accent }} /> COMPLEANNI IN ARRIVO
+                      </div>
+                      <span className="text-xs font-bold px-3 py-1 rounded-full" style={{ background: "#fff3cd", color: "#856404" }}>{inArrivo.length}</span>
+                    </div>
+                    <div className="space-y-2">
+                      {inArrivo.map(({ c, comp }) => (
+                        <div key={c.id} onClick={() => apriDettaglioCliente(c)}
+                          className="flex items-center gap-3 p-3 rounded-xl cursor-pointer transition hover:opacity-80"
+                          style={{ background: T.bg }}>
+                          <div className="w-9 h-9 rounded-full flex items-center justify-center text-sm font-bold flex-shrink-0" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
+                            {c.nome.split(" ").map(n => n[0]).join("").slice(0,2)}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="font-medium text-sm truncate" style={{ color: T.text }}>{c.nome}</div>
+                            <div className="text-xs font-semibold" style={{ color: "#856404" }}>
+                              {comp === "oggi" ? "🎉 Compie gli anni oggi!" : `Compleanno ${comp}`}
+                            </div>
+                          </div>
+                          <span className="text-[10px] font-bold px-2.5 py-1 rounded-full flex-shrink-0" style={comp === "oggi" ? { background: "#5de279", color: "#13112a" } : { background: "#fff3cd", color: "#856404" }}>
+                            {comp === "oggi" ? "OGGI" : comp.toUpperCase()}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
                   </div>
-                ) : clienti.map(c => (
-                  <div key={c.id} className="p-5 flex items-center gap-4" style={{ borderColor: T.border }}>
-                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
-                      {c.nome.split(" ").map(n => n[0]).join("")}
+                );
+              })()}
+
+              <div className="border divide-y" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                {(() => {
+                  const q = cercaCliente.trim().toLowerCase();
+                  const clientiFiltrati = q
+                    ? clienti.filter(c =>
+                        (c.nome || "").toLowerCase().includes(q) ||
+                        (c.tel || "").includes(q) ||
+                        (c.email || "").toLowerCase().includes(q)
+                      )
+                    : clienti;
+                  if (clientiFiltrati.length === 0) {
+                    return (
+                      <div className="p-12 text-center" style={{ color: T.textMuted }}>
+                        <Users className="w-8 h-8 mx-auto mb-2" />
+                        <div>{q ? "Nessun cliente trovato." : "Nessun cliente in anagrafica."}</div>
+                        {!q && (
+                          <button
+                            onClick={() => setModalNuovoCliente(true)}
+                            className="mt-3 px-4 py-2 text-xs tracking-widest"
+                            style={{ backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}
+                          >
+                            <Plus className="w-3 h-3 inline mr-1" /> AGGIUNGI IL PRIMO
+                          </button>
+                        )}
+                      </div>
+                    );
+                  }
+                  return clientiFiltrati.map(c => {
+                  const comp = infoCompleanno(c.dataNascita);
+                  return (
+                  <div key={c.id} className="p-5 flex items-center gap-4 cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => apriDettaglioCliente(c)}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
+                      {c.nome.split(" ").map(n => n[0]).join("").slice(0,2)}
                     </div>
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
-                        <span>{c.nome}</span>
+                        <span className="font-medium">{c.nome}</span>
+                        {comp && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1" style={{ background: "#fff3cd", color: "#856404" }}>
+                            <Gift className="w-3 h-3" /> Compleanno {comp}
+                          </span>
+                        )}
                         {c.fedelta >= 10 && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full tracking-widest flex items-center gap-1" style={{ backgroundColor: T.accentSoft, color: T.accent, letterSpacing: "0.1em" }}>
                             <Star className="w-2.5 h-2.5 fill-current" /> VIP
@@ -1621,14 +1958,8 @@ useEffect(() => {
                         )}
                       </div>
                       <div className="text-sm flex items-center gap-3 mt-1 flex-wrap" style={{ color: T.textSoft }}>
-                        <a href={`tel:${c.tel}`} className="flex items-center gap-1 hover:opacity-70 transition" style={{ color: T.textSoft }}>
-                          <Phone className="w-3 h-3" />{c.tel}
-                        </a>
-                        {c.email && (
-                          <a href={`mailto:${c.email}`} className="flex items-center gap-1 hover:opacity-70 transition" style={{ color: T.textSoft }}>
-                            <Mail className="w-3 h-3" />{c.email}
-                          </a>
-                        )}
+                        <span className="flex items-center gap-1"><Phone className="w-3 h-3" />{c.tel}</span>
+                        {c.email && <span className="flex items-center gap-1"><Mail className="w-3 h-3" />{c.email}</span>}
                       </div>
                       {c.note && (
                         <div className="text-xs mt-1 italic" style={{ color: T.textMuted }}>{c.note}</div>
@@ -1639,16 +1970,177 @@ useEffect(() => {
                       <div className="text-xs" style={{ color: T.accent }}>€{c.totaleSpeso} totale</div>
                       <div className="text-xs" style={{ color: T.textMuted }}>{c.ultimaVisita ? `Ultima: ${fmtData(c.ultimaVisita)}` : "Mai venuto"}</div>
                     </div>
+                    <div className="flex-shrink-0 text-lg" style={{ color: T.textMuted }}>›</div>
+                  </div>
+                  );
+                });
+                })()}
+              </div>
+            </div>
+          )}
+
+          {/* PANNELLO DETTAGLIO CLIENTE — fullscreen mobile, sidebar desktop */}
+          {clienteDettaglio && (
+            <div className="fixed inset-0 z-50" style={{ background: "rgba(0,0,0,0.45)" }}>
+              {/* Overlay cliccabile solo su desktop */}
+              <div className="absolute inset-0 hidden md:block" onClick={() => setClienteDettaglio(null)} />
+              {/* Pannello: fullscreen su mobile, sidebar a destra su desktop */}
+              <div className="absolute inset-0 md:inset-auto md:right-0 md:top-0 md:h-full md:w-96 flex flex-col" style={{ background: T.card, overflowX: "hidden", overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", touchAction: "pan-y" }}>
+
+                {/* Header fisso */}
+                <div className="flex-shrink-0 flex items-center gap-3 px-4 py-4 border-b" style={{ borderColor: T.border, paddingTop: "max(16px, env(safe-area-inset-top))" }}>
+                  <button onClick={() => setClienteDettaglio(null)} className="p-2 rounded-full flex-shrink-0" style={{ color: T.textMuted, background: T.bg }}>
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center font-bold flex-shrink-0" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
+                    {clienteDettaglio.nome.split(" ").map(n => n[0]).join("").slice(0,2)}
+                  </div>
+                  <div className="flex-1 min-w-0">
+                    <div className="font-semibold">{clienteDettaglio.nome}</div>
+                    {infoCompleanno(clienteDettaglio.dataNascita) && (
+                      <div className="text-xs font-medium inline-flex items-center gap-1" style={{ color: "#856404" }}><Gift className="w-3 h-3" /> Compleanno {infoCompleanno(clienteDettaglio.dataNascita)}</div>
+                    )}
+                  </div>
+                </div>
+
+                {/* Contenuto scrollabile */}
+                <div className="flex-1 overflow-y-auto" style={{ overflowX: "hidden", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain", touchAction: "pan-y" }}>
+
+                  {/* Statistiche */}
+                  <div className="grid grid-cols-3 gap-2 p-4 border-b" style={{ borderColor: T.border }}>
+                    {[
+                      { val: clienteDettaglio.visite, lbl: "Visite", color: T.text },
+                      { val: `€${clienteDettaglio.totaleSpeso}`, lbl: "Totale", color: T.accent },
+                      { val: clienteDettaglio.fedelta, lbl: "Fedeltà", color: T.text },
+                    ].map((s, i) => (
+                      <div key={i} className="text-center py-3 px-2 rounded-xl" style={{ background: T.bg }}>
+                        <div className="text-lg font-bold" style={{ color: s.color }}>{s.val}</div>
+                        <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{s.lbl}</div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Contatto — modificabile */}
+                  <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: T.border }}>
+                    <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>CONTATTO</div>
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: T.bg }}>
+                        <Phone className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
+                        <input
+                          type="tel"
+                          value={editTel}
+                          onChange={e => setEditTel(e.target.value)}
+                          className="flex-1 bg-transparent outline-none text-sm"
+                          style={{ color: T.text, fontFamily: "inherit", fontSize: 16 }}
+                          placeholder="Numero di telefono"
+                        />
+                      </div>
+                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: T.bg }}>
+                        <Mail className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
+                        <input
+                          type="email"
+                          value={editEmail}
+                          onChange={e => setEditEmail(e.target.value)}
+                          className="flex-1 bg-transparent outline-none text-sm"
+                          style={{ color: T.text, fontFamily: "inherit", fontSize: 16 }}
+                          placeholder="Email (opzionale)"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Storico visite */}
+                  <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: T.border }}>
+                    <div className="text-xs tracking-widest mb-3 flex items-center justify-between" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>
+                      <span>STORICO VISITE</span>
+                      {clienteDettaglio.storico?.length > 0 && (
+                        <span className="font-bold" style={{ color: T.accent }}>{clienteDettaglio.storico.length} {clienteDettaglio.storico.length === 1 ? "visita" : "visite"}</span>
+                      )}
+                    </div>
+                    {(!clienteDettaglio.storico || clienteDettaglio.storico.length === 0) ? (
+                      <div className="text-sm text-center py-6" style={{ color: T.textMuted }}>Nessuna visita registrata</div>
+                    ) : (
+                      <div className="space-y-2 pb-2">
+                        {clienteDettaglio.storico.map((v, i) => {
+                          const dv = new Date(v.data + "T00:00:00");
+                          const ds = dv.toLocaleDateString("it-IT", { weekday: "short", day: "numeric", month: "short", year: "numeric" });
+                          return (
+                            <div key={i} className="flex items-center justify-between p-3 rounded-xl" style={{ background: T.bg }}>
+                              <div className="min-w-0">
+                                <div className="text-sm font-medium" style={{ color: T.text }}>{ds}{v.ora ? ` · ${v.ora}` : ""}</div>
+                                <div className="text-xs mt-0.5 truncate" style={{ color: T.textMuted }}>{v.servizio}</div>
+                              </div>
+                              {v.prezzo > 0 && <div className="text-sm font-semibold ml-3 flex-shrink-0" style={{ color: T.accent }}>€{v.prezzo}</div>}
+                            </div>
+                          );
+                        })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Data di nascita */}
+                  <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: T.border }}>
+                    <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>DATA DI NASCITA</div>
+                    <input
+                      type="date"
+                      value={editNascita}
+                      onChange={e => setEditNascita(e.target.value)}
+                      className="w-full p-3 rounded-xl text-sm border outline-none"
+                      style={{ background: T.bg, color: T.text, borderColor: T.border, fontFamily: "inherit", fontSize: 16 }}
+                    />
+                    {editNascita && (
+                      <div className="text-xs mt-2" style={{ color: T.textMuted }}>
+                        {new Date(editNascita + "T00:00:00").toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" })}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Note */}
+                  <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: T.border }}>
+                    <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>NOTE</div>
+                    <textarea
+                      value={editNote}
+                      onChange={e => setEditNote(e.target.value)}
+                      rows={4}
+                      placeholder="Preferenze, allergie, stile preferito..."
+                      className="w-full p-3 rounded-xl text-sm border outline-none resize-none"
+                      style={{ background: T.bg, color: T.text, borderColor: T.border, fontFamily: "inherit", fontSize: 16 }}
+                    />
+                  </div>
+
+                  {/* Azioni */}
+                  <div className="p-4 flex flex-col gap-3" style={{ paddingBottom: "max(16px, env(safe-area-inset-bottom))" }}>
+                    {erroreCliente && (
+                      <div className="text-xs p-3 rounded-xl" style={{ background: "#fee2e2", color: "#b91c1c" }}>
+                        {erroreCliente}
+                      </div>
+                    )}
+                    {/* Crea appuntamento per questo cliente */}
                     <button
-                      onClick={() => setConfermaEliminaCliente(c.id)}
-                      className="p-2 transition flex-shrink-0"
-                      style={{ color: T.danger }}
-                      title="Elimina cliente"
+                      onClick={() => apriModalApp(clienteDettaglio)}
+                      className="w-full py-4 text-sm font-semibold rounded-xl tracking-widest flex items-center justify-center gap-2"
+                      style={{ background: T.accentSoft, color: T.accent, letterSpacing: "0.06em" }}
                     >
-                      <Trash2 className="w-4 h-4" />
+                      <Plus className="w-4 h-4" /> CREA APPUNTAMENTO
+                    </button>
+                    <button
+                      onClick={salvaDettaglioCliente}
+                      disabled={salvandoCliente}
+                      className="w-full py-4 text-sm font-semibold rounded-xl tracking-widest transition-all"
+                      style={{ background: salvatoOk ? "#5de279" : T.accent, color: salvatoOk ? "#13112a" : "#fff", letterSpacing: "0.1em", opacity: salvandoCliente ? 0.7 : 1 }}
+                    >
+                      {salvandoCliente ? "SALVO..." : salvatoOk ? "✓ SALVATO" : "SALVA MODIFICHE"}
+                    </button>
+                    <button
+                      onClick={() => { setClienteDettaglio(null); setConfermaEliminaCliente(clienteDettaglio.id); }}
+                      className="w-full py-3 text-sm rounded-xl"
+                      style={{ background: "transparent", color: T.danger, border: `1px solid ${T.danger}` }}
+                    >
+                      Elimina cliente
                     </button>
                   </div>
-                ))}
+
+                </div>
               </div>
             </div>
           )}
@@ -2540,6 +3032,31 @@ useEffect(() => {
                 </div>
               </div>
 
+              {/* VISUALIZZAZIONE — preferenze della dashboard del titolare */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>VISUALIZZAZIONE</h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Personalizza la tua dashboard</p>
+                <label className="flex items-center justify-between cursor-pointer py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Statistiche in Agenda</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>Mostra le card con appuntamenti e incassi nella schermata Agenda</div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const nuovo = !salone.mostraStatistiche;
+                      setSalone({ ...salone, mostraStatistiche: nuovo });
+                      if (salone.dbId) {
+                        await supabase.from("saloni").update({ mostra_statistiche: nuovo }).eq("id", salone.dbId);
+                      }
+                    }}
+                    className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                    style={{ backgroundColor: salone.mostraStatistiche ? T.accent : T.border }}
+                  >
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.mostraStatistiche ? "calc(100% - 20px)" : "4px" }} />
+                  </button>
+                </label>
+              </div>
+
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>VETRINA PUBBLICA</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Tutto quello che il cliente vede sulla pagina di prenotazione</p>
@@ -2666,8 +3183,8 @@ useEffect(() => {
                 {/* GALLERIA */}
                 <div className="mb-5">
                   <div className="flex items-center justify-between mb-2">
-                    <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>GALLERIA FOTO ({salone.galleria.length}/6)</label>
-                    {salone.galleria.length < 6 && (
+                    <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>GALLERIA FOTO ({salone.galleria.length}/12)</label>
+                    {salone.galleria.length < 12 && (
                       <label className="cursor-pointer text-xs tracking-widest flex items-center gap-1" style={{ color: T.accent, letterSpacing: "0.15em" }}>
                         <input
                           type="file"
@@ -3257,7 +3774,7 @@ useEffect(() => {
       {/* MODAL CONFERMA ELIMINA SERVIZIO */}
       {confermaEliminaServizio && (
         <div onClick={() => setConfermaEliminaServizio(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 12px" }}>Eliminare questo servizio?</h3>
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>Le prenotazioni esistenti restano in agenda. I clienti non potranno più scegliere questo servizio.</p>
             <div style={{ display: "flex", gap: 8 }}>
@@ -3269,12 +3786,202 @@ useEffect(() => {
       )}
 
       {/* MODAL NUOVO CLIENTE */}
+      {/* MODAL APPUNTAMENTO MANUALE */}
+      {modalAppManuale && (
+        <div
+          onClick={() => setModalAppManuale(false)}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", zIndex: 10000 }}
+          className="items-stretch md:items-center md:p-5"
+        >
+          <div
+            onClick={(e) => e.stopPropagation()}
+            className="w-full h-full md:h-auto md:max-w-md md:max-h-[90vh] md:rounded-2xl flex flex-col"
+            style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
+          >
+            {/* Header — sempre visibile */}
+            <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: T.border, background: T.card, paddingTop: "max(16px, env(safe-area-inset-top))" }}>
+              <div className="flex items-center gap-2">
+                <h3 style={{ fontSize: 18, fontWeight: 700 }}>Nuovo appuntamento</h3>
+                <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#fff3cd", color: "#856404" }}>MANUALE</span>
+              </div>
+              <button onClick={() => setModalAppManuale(false)} className="w-8 h-8 rounded-full flex items-center justify-center" style={{ background: T.bg, color: T.textMuted, fontSize: 18 }}>✕</button>
+            </div>
+
+            {/* Body scrollabile */}
+            <div className="flex-1 overflow-y-auto" style={{ WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+            <div className="px-5 py-4">
+              {/* Nome */}
+              <div className="mb-4">
+                <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Nome cliente *</label>
+                <input
+                  value={nuovoApp.nome}
+                  onChange={e => setNuovoApp({ ...nuovoApp, nome: e.target.value })}
+                  placeholder="Es. Maria Bianchi"
+                  className="w-full p-3 rounded-xl outline-none"
+                  style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
+                />
+              </div>
+              {/* Telefono */}
+              <div className="mb-4">
+                <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Telefono *</label>
+                <input
+                  type="tel"
+                  value={nuovoApp.tel}
+                  onChange={e => setNuovoApp({ ...nuovoApp, tel: e.target.value })}
+                  placeholder="Es. 333 123 4567"
+                  className="w-full p-3 rounded-xl outline-none"
+                  style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
+                />
+                <div className="text-[11px] mt-1.5" style={{ color: T.textMuted }}>Serve per collegare l'appuntamento alla scheda cliente</div>
+              </div>
+              {/* Email */}
+              <div className="mb-4">
+                <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Email</label>
+                <input
+                  type="email"
+                  value={nuovoApp.email}
+                  onChange={e => setNuovoApp({ ...nuovoApp, email: e.target.value })}
+                  placeholder="Facoltativo"
+                  className="w-full p-3 rounded-xl outline-none"
+                  style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
+                />
+              </div>
+              {/* Servizi — selezione multipla */}
+              <div className="mb-4">
+                <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Servizi * <span style={{ textTransform: "none", letterSpacing: 0, fontWeight: 400 }}>(puoi sceglierne più di uno)</span></label>
+                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}`, maxHeight: 200, overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+                  {servizi.map(s => {
+                    const sel = nuovoApp.serviziIds.includes(s.id);
+                    return (
+                      <div
+                        key={s.id}
+                        onClick={() => toggleServizioApp(s.id)}
+                        className="flex items-center gap-3 px-3 py-3 cursor-pointer"
+                        style={{ background: sel ? T.accentSoft : T.bg, borderBottom: `1px solid ${T.border}` }}
+                      >
+                        <div className="w-5 h-5 rounded-md flex items-center justify-center flex-shrink-0" style={{ background: sel ? T.accent : "transparent", border: `1.5px solid ${sel ? T.accent : T.border}` }}>
+                          {sel && <Check className="w-3.5 h-3.5" style={{ color: "#fff" }} />}
+                        </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="text-sm font-medium" style={{ color: T.text }}>{s.nome}</div>
+                          <div className="text-xs" style={{ color: T.textMuted }}>{s.durata} min</div>
+                        </div>
+                        <div className="text-sm font-semibold flex-shrink-0" style={{ color: T.accent }}>€{s.prezzo}</div>
+                      </div>
+                    );
+                  })}
+                </div>
+                {nuovoApp.serviziIds.length > 0 && (() => {
+                  const sel = servizi.filter(s => nuovoApp.serviziIds.includes(s.id));
+                  const tot = sel.reduce((a, s) => a + (s.prezzo || 0), 0);
+                  const dur = sel.reduce((a, s) => a + (s.durata || 0), 0);
+                  return (
+                    <div className="flex items-center justify-between mt-2 px-1 text-sm">
+                      <span style={{ color: T.textMuted }}>{sel.length} {sel.length === 1 ? "servizio" : "servizi"} · {dur} min</span>
+                      <span className="font-bold" style={{ color: T.accent }}>Totale €{tot}</span>
+                    </div>
+                  );
+                })()}
+              </div>
+              {/* Data + Ora */}
+              <div className="grid grid-cols-2 gap-3 mb-4">
+                <div>
+                  <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Data *</label>
+                  <input
+                    type="date"
+                    value={nuovoApp.data}
+                    onChange={e => setNuovoApp({ ...nuovoApp, data: e.target.value, ora: "" })}
+                    className="w-full p-3 rounded-xl outline-none"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16, textAlign: "left", WebkitAppearance: "none", appearance: "none", minHeight: 48 }}
+                  />
+                </div>
+                <div>
+                  <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Ora *</label>
+                  {(() => {
+                    const slots = getSlotsApp();
+                    if (slots.length === 0) {
+                      return (
+                        <div className="w-full p-3 rounded-xl text-sm flex items-center" style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.textMuted, minHeight: 48 }}>
+                          Chiuso questo giorno
+                        </div>
+                      );
+                    }
+                    return (
+                      <select
+                        value={nuovoApp.ora}
+                        onChange={e => setNuovoApp({ ...nuovoApp, ora: e.target.value })}
+                        className="w-full p-3 rounded-xl outline-none"
+                        style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16, minHeight: 48 }}
+                      >
+                        <option value="">Scegli orario</option>
+                        {slots.map(({ ora, disponibile }) => (
+                          <option key={ora} value={ora} disabled={!disponibile}>
+                            {ora}{disponibile ? "" : " — occupato"}
+                          </option>
+                        ))}
+                      </select>
+                    );
+                  })()}
+                </div>
+              </div>
+              {/* Operatore */}
+              {staff.filter(s => s.id !== 0).length > 0 && (
+                <div className="mb-4">
+                  <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Operatore</label>
+                  <select
+                    value={nuovoApp.staffId}
+                    onChange={e => setNuovoApp({ ...nuovoApp, staffId: e.target.value })}
+                    className="w-full p-3 rounded-xl outline-none"
+                    style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
+                  >
+                    <option value="">Chiunque</option>
+                    {staff.filter(s => s.id !== 0).map(s => (
+                      <option key={s.id} value={s.id}>{s.nome}{s.ruolo ? ` — ${s.ruolo}` : ""}</option>
+                    ))}
+                  </select>
+                </div>
+              )}
+              {/* Note */}
+              <div className="mb-2">
+                <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Note</label>
+                <textarea
+                  value={nuovoApp.note}
+                  onChange={e => setNuovoApp({ ...nuovoApp, note: e.target.value })}
+                  rows={2}
+                  placeholder="Es. cliente abituale, preferenze..."
+                  className="w-full p-3 rounded-xl outline-none resize-none"
+                  style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
+                />
+              </div>
+
+              {erroreApp && (
+                <div className="text-xs p-3 rounded-xl mb-2" style={{ background: "#fee2e2", color: "#b91c1c" }}>{erroreApp}</div>
+              )}
+            </div>
+            </div>
+
+            {/* Footer — sempre visibile */}
+            <div className="flex-shrink-0 px-5 pb-5 pt-3 border-t flex flex-col gap-2" style={{ borderColor: T.border, paddingBottom: "max(20px, env(safe-area-inset-bottom))" }}>
+              <button
+                onClick={salvaAppManuale}
+                disabled={salvandoApp}
+                className="w-full py-4 rounded-xl font-bold tracking-widest"
+                style={{ background: T.accent, color: "#fff", letterSpacing: "0.08em", opacity: salvandoApp ? 0.7 : 1 }}
+              >
+                {salvandoApp ? "SALVO..." : "SALVA APPUNTAMENTO"}
+              </button>
+              <button onClick={() => setModalAppManuale(false)} className="w-full py-2 text-sm" style={{ color: T.textSoft, background: "transparent" }}>Annulla</button>
+            </div>
+          </div>
+        </div>
+      )}
+
       {modalNuovoCliente && (
         <div
           onClick={() => { setModalNuovoCliente(false); setNuovoCliente({ nome: "", tel: "", note: "" }); }}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}
         >
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>Nuovo cliente</h3>
             <p style={{ fontSize: 13, color: T.textSoft, margin: "0 0 20px" }}>Inserisci i dati del nuovo cliente nell'anagrafica.</p>
 
@@ -3298,7 +4005,7 @@ useEffect(() => {
       {/* MODAL CONFERMA ELIMINA CLIENTE */}
       {confermaEliminaCliente && (
         <div onClick={() => setConfermaEliminaCliente(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "Georgia, 'Times New Roman', serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 12px" }}>Eliminare questo cliente?</h3>
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>Verrà rimosso dall'anagrafica. Le prenotazioni passate restano in agenda per i tuoi report.</p>
             <div style={{ display: "flex", gap: 8 }}>
@@ -3333,7 +4040,7 @@ useEffect(() => {
               padding: "32px 28px",
               maxWidth: 440,
               width: "100%",
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
               color: T.text,
             }}
           >
@@ -3406,7 +4113,7 @@ useEffect(() => {
               padding: "32px 28px",
               maxWidth: 440,
               width: "100%",
-              fontFamily: "Georgia, 'Times New Roman', serif",
+              fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif",
               color: T.text,
             }}
           >
