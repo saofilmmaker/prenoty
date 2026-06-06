@@ -1,7 +1,14 @@
 name = "prenoty"
+pages_build_output_dir = "build"
 compatibility_date = "2024-01-01"
 
-[triggers]
-crons = ["0 8 * * *"]
-# "0 8 * * *" — ogni giorno alle 08:00 UTC (10:00 ora italiana)
+# Cron trigger: ogni giorno alle 08:00 UTC (10:00 ora italiana)
 # Gestisce sia send-trial-emails che send-reminder-emails
+# NOTA: per Cloudflare Pages il cron va configurato nel dashboard:
+#   Pages → prenoty → Settings → Functions → Cron Triggers → "0 8 * * *"
+
+# ── Rate limiting KV ──────────────────────────────────────────────────────
+# Namespace creato con: wrangler kv namespace create RATE_LIMIT_KV
+[[kv_namespaces]]
+binding = "RATE_LIMIT_KV"
+id = "8a2e2188e83146529f9a1c2ed0e3dd84"

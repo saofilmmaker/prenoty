@@ -10,33 +10,11 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
-// Rate limiting in-memory: max 10 richieste per IP al minuto
-const rateLimitMap = new Map();
-function isRateLimited(ip) {
-  const now = Date.now();
-  const windowMs = 60_000; // 1 minuto
-  const maxRequests = 10;
-  const entry = rateLimitMap.get(ip) || { count: 0, start: now };
-  if (now - entry.start > windowMs) {
-    rateLimitMap.set(ip, { count: 1, start: now });
-    return false;
-  }
-  entry.count++;
-  rateLimitMap.set(ip, entry);
-  return entry.count > maxRequests;
-}
+// Il rate limiting (10 req/min per IP) è gestito da _middleware.js via KV.
 
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    // Rate limit per IP
-    const ip = request.headers.get("CF-Connecting-IP") || request.headers.get("X-Forwarded-For") || "unknown";
-    if (isRateLimited(ip)) {
-      return new Response(JSON.stringify({ error: "Troppe richieste. Riprova tra un minuto." }), {
-        status: 429, headers: { "Content-Type": "application/json", "Retry-After": "60", ...CORS },
-      });
-    }
-
     const { salone_id, amount } = await request.json();
 
     if (!salone_id || !amount || amount <= 0) {
