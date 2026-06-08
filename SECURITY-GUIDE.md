@@ -655,6 +655,109 @@ const event = await request.json();  // ← consuma il body, firma non verificab
 
 ---
 
+## 11. Redirect www → non-www con preservazione query string (tracciamento Meta)
+
+### Il problema
+
+Meta Ads segnalava l'errore **"ClickID modificato o mancante"** nelle diagnostiche
+della Conversions API. La causa: il sito riceveva traffico sia su `prenoty.com`
+che su `www.prenoty.com`, ma non esisteva alcun redirect tra i due.
+
+Questo provocava due effetti negativi:
+
+1. **Traffico su domini doppi** — Meta vede due URL distinti per la stessa
+   pagina (`prenoty.com/registrazione` e `www.prenoty.com/registrazione`),
+   il che frammentava le conversioni e confondeva l'attribuzione.
+
+2. **Parametri URL tagliati** — Qualsiasi redirect non configurato correttamente
+   (o gestito da browser/intermediari) può eliminare `fbclid`, `utm_source`,
+   `utm_campaign` e altri parametri dalla query string. Meta usa `fbclid`
+   per collegare un clic su un annuncio alla conversione successiva: se viene
+   perso, l'evento non è attribuibile alla campagna.
+
+### La causa tecnica
+
+Non esisteva nessuna regola di redirect. Sono stati tentati due approcci
+che non hanno funzionato:
+
+**Tentativo 1 — `public/_redirects` di Cloudflare Pages:**
+```
+https://www.prenoty.com/* https://prenoty.com/:splat 301
+```
+Cloudflare Pages `_redirects` supporta redirect di path (`/vecchio /nuovo 301`)
+e redirect verso URL esterni come *destinazione*, ma **non supporta un hostname
+completo come sorgente**. La riga viene ignorata silenziosamente.
+
+**Tentativo 2 — `wrangler pages deploy --branch main`:**
+I custom domain (`prenoty.com`, `www.prenoty.com`) sono agganciati a un
+deployment specifico nel dashboard Cloudflare, non all'ultimo `wrangler deploy`.
+Il deploy via CLI crea un preview URL (`*.prenoty.pages.dev`) e non aggiorna
+automaticamente la produzione se i domain alias non sono configurati per
+seguire il branch.
+
+### La soluzione: Cloudflare Redirect Rules (dashboard)
+
+Le **Redirect Rules** operano a livello di edge Cloudflare, **prima** che la
+richiesta raggiunga Cloudflare Pages. Funzionano indipendentemente dalla
+configurazione del progetto Pages e preservano la query string nativamente.
+
+**Configurazione applicata** (Cloudflare Dashboard → `prenoty.com` → Rules → Redirect Rules):
+
+| Campo | Valore |
+|---|---|
+| Rule name | `www to non-www` |
+| When | Hostname `equals` `www.prenoty.com` |
+| Then | Dynamic redirect |
+| URL expression | `concat("https://prenoty.com", http.request.uri.path)` |
+| Query string | Preserve query string ✓ |
+| Status code | `301` |
+
+Il campo `http.request.uri.path` cattura solo il percorso (es. `/registrazione`).
+La query string viene aggiunta automaticamente dal flag "Preserve query string",
+che copia tutto il contenuto di `?...` senza modifiche — inclusi `fbclid` e UTM.
+
+### Comportamento verificato
+
+```bash
+curl -I "https://www.prenoty.com/registrazione?fbclid=test123"
+```
+
+Risposta attesa:
+```
+HTTP/2 301
+location: https://prenoty.com/registrazione?fbclid=test123
+```
+
+Risposta effettiva ottenuta in produzione (2026-06-08):
+```
+HTTP/2 301
+location: https://prenoty.com/registrazione?fbclid=test123
+server: cloudflare
+```
+
+`fbclid` conservato ✓ — `301` permanente ✓ — gestito dall'edge, zero overhead su Pages ✓
+
+### Perché 301 e non 302
+
+Un redirect `302` (temporaneo) viene rivalutato ad ogni richiesta dal browser e
+non trasferisce il "peso SEO" alla URL di destinazione. Un `301` (permanente)
+viene messo in cache dai browser dopo la prima visita e consolida l'autorità SEO
+su `prenoty.com` (senza www). Per un redirect canonico www → non-www, il 301
+è sempre la scelta corretta.
+
+### Anti-pattern documentato
+
+```
+# NON funziona su Cloudflare Pages per redirect cross-domain
+https://www.prenoty.com/* https://prenoty.com/:splat 301
+```
+
+Usare questa sintassi in `_redirects` non produce errori visibili ma non ha
+alcun effetto. Il redirect cross-domain va configurato nelle **Redirect Rules**
+del dashboard Cloudflare (zona DNS), non nel file `_redirects` di Pages.
+
+---
+
 ## Checklist per nuovi progetti
 
 ### Cloudflare Pages Functions
