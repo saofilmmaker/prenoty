@@ -1,11 +1,6 @@
 import { useState, useEffect } from "react";
 import { Lock, Sun, Moon, LogOut, MessageSquare, CheckCircle, Calendar, Scissors } from "lucide-react";
-import { createClient } from "@supabase/supabase-js";
-
-const supabase = createClient(
-  process.env.REACT_APP_SUPABASE_URL || "",
-  process.env.REACT_APP_SUPABASE_ANON_KEY || ""
-);
+import { supabase } from "./supabase";
 
 export default function BloccoAbbonamento() {
   const [tema, setTema] = useState("chiaro");
