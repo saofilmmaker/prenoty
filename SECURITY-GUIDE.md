@@ -737,6 +737,27 @@ server: cloudflare
 
 `fbclid` conservato ✓ — `301` permanente ✓ — gestito dall'edge, zero overhead su Pages ✓
 
+### Nota importante: non rimuovere `www.prenoty.com` dai Domini personalizzati di Pages
+
+Il dominio `www.prenoty.com` **deve restare attivo** nei Domini personalizzati di
+Cloudflare Pages — anche se tutto il traffico www viene redirectato a `prenoty.com`
+tramite la Redirect Rule.
+
+**Perché:** La Redirect Rule opera sull'edge Cloudflare **prima** che la richiesta
+raggiunga Pages. Se `www.prenoty.com` non è registrato come Custom Domain in Pages,
+Cloudflare non sa a quale progetto appartiene quel dominio e potrebbe non applicare
+correttamente le regole a livello di edge, oppure restituire errori di routing.
+
+**Cosa fare e non fare:**
+
+| Azione | Effetto |
+|---|---|
+| Lasciare `www.prenoty.com` nei Custom Domain di Pages ✓ | Pages sa che il dominio esiste; la Redirect Rule lo intercetta prima e reindirizza |
+| Rimuovere `www.prenoty.com` dai Custom Domain di Pages ✗ | Potenziali errori di routing o redirect rotto su richieste www |
+
+In pratica: la Redirect Rule fa il lavoro di reindirizzamento, ma il dominio www
+deve comunque essere "dichiarato" in Pages per evitare problemi di configurazione.
+
 ### Perché 301 e non 302
 
 Un redirect `302` (temporaneo) viene rivalutato ad ogni richiesta dal browser e
