@@ -2758,8 +2758,8 @@ useEffect(() => {
             const clientiMese = new Set(prenMese.map(p => p.tel)).size;
 
             const conteggioServizi = prenMese.reduce((acc, p) => {
-              const nome = p.servizio || "—";
-              acc[nome] = (acc[nome] || 0) + 1;
+              const nomi = (p.servizio || "—").split(",").map(s => s.trim()).filter(Boolean);
+              nomi.forEach(nome => { acc[nome] = (acc[nome] || 0) + 1; });
               return acc;
             }, {});
             const serviziOrdinati = Object.entries(conteggioServizi).sort((a, b) => b[1] - a[1]).slice(0, 5);
