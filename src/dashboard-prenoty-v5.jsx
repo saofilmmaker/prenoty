@@ -3785,7 +3785,6 @@ useEffect(() => {
       {/* MODAL APPUNTAMENTO MANUALE */}
       {modalAppManuale && (
         <div
-          onClick={() => setModalAppManuale(false)}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", justifyContent: "center", zIndex: 10000 }}
           className="items-stretch md:items-center md:p-5"
         >
