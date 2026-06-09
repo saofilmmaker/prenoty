@@ -737,7 +737,19 @@ export default function DashboardAdmin() {
                               <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: T.success, background: T.successSoft, borderRadius: 20, padding: "4px 10px" }}>
                                 <CheckCircle size={12} /> Pagante
                               </span>
-                            ) : s.provaScadeIl ? (() => {
+                            ) : s.pianoSpeciale === "lifetime" ? (
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: T.success, background: T.successSoft, borderRadius: 20, padding: "4px 10px" }}>
+                                <CheckCircle size={12} /> A vita
+                              </span>
+                            ) : s.pianoSpeciale ? (() => {
+                              const mesiMap = { "1mese": 30, "3mesi": 90, "6mesi": 180 };
+                              const gg = mesiMap[s.pianoSpeciale];
+                              return (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: T.success, background: T.successSoft, borderRadius: 20, padding: "4px 10px" }}>
+                                  <CheckCircle size={12} /> {gg ? `${gg}gg` : s.pianoSpeciale}
+                                </span>
+                              );
+                            })() : s.provaScadeIl ? (() => {
                               const giorni = Math.ceil((new Date(s.provaScadeIl) - new Date()) / (1000 * 60 * 60 * 24));
                               const colore = giorni <= 0 ? T.danger : giorni <= 2 ? "#c0392b" : giorni <= 6 ? "#e67e22" : T.success;
                               const bg = giorni <= 0 ? T.dangerSoft : giorni <= 2 ? "#fdecea" : giorni <= 6 ? "#fef3e2" : T.successSoft;
