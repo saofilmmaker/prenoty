@@ -78,11 +78,18 @@ const CONFIG_ATTIVITA = {
 // es. +393456789000 → 3456789000, 39 3456789000 → 3456789000
 function normalizzaTel(tel) {
   if (!tel) return "";
-  let n = tel.replace(/[\s\-().]/g, ""); // rimuove spazi, trattini, parentesi
+  let n = tel.replace(/[\s\-().]/g, "");
   if (n.startsWith("+39")) n = n.slice(3);
   else if (n.startsWith("0039")) n = n.slice(4);
   else if (n.startsWith("39") && n.length > 10) n = n.slice(2);
   return n;
+}
+
+// Normalizza nome: minuscolo, spazi multipli ridotti, trim
+// es. "  FRANCO  " → "franco", "marco bianchi" → "marco bianchi"
+function normalizzaNome(nome) {
+  if (!nome) return "";
+  return nome.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
 function SalvaBottone({ onClick, label = "SALVA", T }) {
@@ -310,14 +317,30 @@ export default function DashboardPrenoty() {
       }
 
       // Se ha il telefono, crea/aggiorna il cliente in anagrafica
-      if (normalizzaTel(nuovoApp.tel) && salone.dbId) {
-        const { data: esistente } = await supabase.from("clienti")
-          .select("id").eq("salone_id", salone.dbId).eq("telefono", normalizzaTel(nuovoApp.tel)).maybeSingle();
+      if (salone.dbId) {
+        const telNorm = normalizzaTel(nuovoApp.tel);
+        const nomeNorm = normalizzaNome(nuovoApp.nome);
+
+        // 1. Cerca per telefono (match più affidabile)
+        let esistente = null;
+        if (telNorm) {
+          const { data } = await supabase.from("clienti")
+            .select("id").eq("salone_id", salone.dbId).eq("telefono", telNorm).maybeSingle();
+          esistente = data;
+        }
+
+        // 2. Se non trovato per tel, cerca per nome normalizzato
+        if (!esistente && nomeNorm) {
+          const { data: tuttiClienti } = await supabase.from("clienti")
+            .select("id, nome").eq("salone_id", salone.dbId);
+          esistente = (tuttiClienti || []).find(c => normalizzaNome(c.nome) === nomeNorm) || null;
+        }
+
         if (!esistente) {
           await supabase.from("clienti").insert({
             salone_id: salone.dbId,
             nome: nuovoApp.nome.trim(),
-            telefono: normalizzaTel(nuovoApp.tel),
+            telefono: telNorm || null,
             email: nuovoApp.email.trim() || null,
           });
           caricaClienti(salone.dbId);
@@ -874,10 +897,10 @@ useEffect(() => {
       supabase.from("prenotazioni").select("telefono_cliente, data, ora, prezzo, nomi_servizi").eq("salone_id", saloneId).neq("stato", "annullato").lte("data", oggi).order("data", { ascending: false }),
     ]);
 
-    // Conta visite, spesa e storico per numero di telefono
+    // Conta visite, spesa e storico per numero di telefono (normalizzato)
     const visitMap = {}, spesaMap = {}, storicoMap = {};
     (prenDb || []).forEach(p => {
-      const tel = p.telefono_cliente;
+      const tel = normalizzaTel(p.telefono_cliente);
       if (!tel) return;
       visitMap[tel] = (visitMap[tel] || 0) + 1;
       spesaMap[tel] = (spesaMap[tel] || 0) + (p.prezzo || 0);
@@ -887,16 +910,17 @@ useEffect(() => {
 
     if (clientiDb) {
       setClienti(clientiDb.map(c => {
-        const visite = visitMap[c.telefono] || 0;
+        const telNorm = normalizzaTel(c.telefono);
+        const visite = visitMap[telNorm] || 0;
         return {
           id: c.id,
           nome: c.nome || "",
           tel: c.telefono || "",
           email: c.email || "",
           visite,
-          totaleSpeso: spesaMap[c.telefono] || 0,
+          totaleSpeso: spesaMap[telNorm] || 0,
           ultimaVisita: c.ultima_visita || null,
-          storico: storicoMap[c.telefono] || [],
+          storico: storicoMap[telNorm] || [],
           note: c.note || "",
           dataNascita: c.data_nascita || "",
           fedelta: Math.floor(visite / 2),
