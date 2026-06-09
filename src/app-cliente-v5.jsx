@@ -1159,7 +1159,9 @@ export default function AppCliente() {
             <div className="grid grid-cols-4 gap-3">
               {orari.map((o) => {
                 const sel = ora === o;
-                const occupato = orariOccupati.includes(o);
+                // BLOCCO ANTI-SOVRAPPOSIZIONE DISATTIVATO
+                // Per riattivarlo: const occupato = orariOccupati.includes(o);
+                const occupato = false;
                 return (
                   <button
                     key={o}

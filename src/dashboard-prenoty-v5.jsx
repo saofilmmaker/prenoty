@@ -234,17 +234,13 @@ export default function DashboardPrenoty() {
   const getSlotsApp = () => {
     const lista = generaSlotApp(nuovoApp.data);
     if (lista.length === 0) return [];
-    const occ = slotOccupatiApp(nuovoApp.data);
-    const durataTot = servizi.filter(s => nuovoApp.serviziIds.includes(s.id)).reduce((a, s) => a + (s.durata || 0), 0) || 30;
-    const nNuovo = Math.ceil(durataTot / 30);
-    return lista.map((ora, idx) => {
-      let disp = true;
-      for (let i = 0; i < nNuovo; i++) {
-        const s = lista[idx + i];
-        if (!s || occ.has(s)) { disp = false; break; }
-      }
-      return { ora, disponibile: disp };
-    });
+    // BLOCCO ANTI-SOVRAPPOSIZIONE DISATTIVATO — tutti gli slot sono selezionabili.
+    // Per riattivarlo, ripristinare il controllo con slotOccupatiApp e la durata totale:
+    //   const occ = slotOccupatiApp(nuovoApp.data);
+    //   const durataTot = servizi.filter(s => nuovoApp.serviziIds.includes(s.id)).reduce((a, s) => a + (s.durata || 0), 0) || 30;
+    //   const nNuovo = Math.ceil(durataTot / 30);
+    //   ...marcando disponibile=false se uno slot è occupato.
+    return lista.map((ora) => ({ ora, disponibile: true }));
   };
 
   const salvaAppManuale = async () => {
