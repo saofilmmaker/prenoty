@@ -513,7 +513,7 @@ export default function DashboardAdmin() {
                 </button>
               </div>
               <div>
-                {saloni.slice().reverse().slice(0, 4).map(s => {
+                {saloni.slice(0, 4).map(s => {
                   const b = badgeStato(s.stato);
                   const Icon = b.icon;
                   return (
