@@ -414,6 +414,7 @@ useEffect(() => {
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
           provaScadeIl: saloneDb.prova_scade_il || null,
+          pianoSpeciale: saloneDb.piano_speciale || null,
         }));
         if (saloneDb.metodi_pagamento) {
           setMetodiPagamento(prev => ({
@@ -1119,10 +1120,11 @@ useEffect(() => {
   useEffect(() => {
     if (!salone.dbId) return; // aspetta che i dati siano caricati
     if (salone.abbonamentoAttivo) return; // ha pagato, ok
+    if (salone.pianoSpeciale) return; // uso gratis concesso dall'admin, ok
     if (giorniProvaRimasti !== null && giorniProvaRimasti <= 0) {
       navigate("/blocco");
     }
-  }, [salone.dbId, salone.abbonamentoAttivo, giorniProvaRimasti, navigate]);
+  }, [salone.dbId, salone.abbonamentoAttivo, salone.pianoSpeciale, giorniProvaRimasti, navigate]);
 
   // Ref per salone.dbId — usato in handler asincroni senza stale closure
   const saloneIdRef = useRef(null);

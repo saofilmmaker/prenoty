@@ -173,9 +173,23 @@ export default function DashboardAdmin() {
     if (!modalUsoGratis) return;
     const { salone: s, durata } = modalUsoGratis;
 
+    // Calcola nuova data scadenza in base alla durata scelta
+    let nuovaScadenza = null;
+    if (durata !== "lifetime") {
+      const mesiMap = { "1mese": 1, "3mesi": 3, "6mesi": 6 };
+      const mesi = mesiMap[durata] || 1;
+      const data = new Date();
+      data.setMonth(data.getMonth() + mesi);
+      nuovaScadenza = data.toISOString().split("T")[0];
+    }
+
+    const aggiornamento = { piano_speciale: durata };
+    if (nuovaScadenza) aggiornamento.prova_scade_il = nuovaScadenza;
+    // Se lifetime, lascia prova_scade_il com'è — la dashboard controlla piano_speciale
+
     const { error } = await supabase
       .from("saloni")
-      .update({ piano_speciale: durata })
+      .update(aggiornamento)
       .eq("id", s.id);
 
     if (error) {
