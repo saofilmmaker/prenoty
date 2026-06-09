@@ -707,8 +707,9 @@ export default function DashboardAdmin() {
                               </span>
                             )}
                             {s.pianoSpeciale && (
-                              <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 4, background: "#1a3a1a", color: "#4caf50", borderRadius: 6, padding: "2px 7px", fontSize: 11, fontWeight: 600 }}>
-                                🎁 {s.pianoSpeciale === "lifetime" ? "Gratis a vita" : `Gratis ${s.pianoSpeciale}`}
+                              <div style={{ marginTop: 4, display: "inline-flex", alignItems: "center", gap: 5, background: T.successSoft, color: T.success, borderRadius: 20, padding: "4px 10px", fontSize: 12, fontWeight: 600 }}>
+                                <CheckCircle size={12} />
+                                {s.pianoSpeciale === "lifetime" ? "Gratis a vita" : `Gratis ${s.pianoSpeciale}`}
                               </div>
                             )}
                           </td>
@@ -719,14 +720,18 @@ export default function DashboardAdmin() {
                           </td>
                           <td style={td}>
                             {s.abbonamentoAttivo ? (
-                              <span style={{ fontSize: 11, color: "#4caf50", fontWeight: 600 }}>✓ Pagante</span>
+                              <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: T.success, background: T.successSoft, borderRadius: 20, padding: "4px 10px" }}>
+                                <CheckCircle size={12} /> Pagante
+                              </span>
                             ) : s.provaScadeIl ? (() => {
                               const giorni = Math.ceil((new Date(s.provaScadeIl) - new Date()) / (1000 * 60 * 60 * 24));
-                              const colore = giorni <= 0 ? "#e74c3c" : giorni <= 3 ? "#e67e22" : giorni <= 7 ? "#f1c40f" : "#4caf50";
-                              const bg = giorni <= 0 ? "#3a1a1a" : giorni <= 3 ? "#3a2a1a" : giorni <= 7 ? "#3a3a1a" : "#1a3a1a";
+                              const colore = giorni <= 0 ? T.danger : giorni <= 3 ? "#e67e22" : giorni <= 7 ? "#b8860b" : T.accent;
+                              const bg = giorni <= 0 ? T.dangerSoft : giorni <= 3 ? "#3a2a1a" : giorni <= 7 ? "#3a3510" : T.accentSoft;
+                              const IconScad = giorni <= 0 ? AlertCircle : Clock;
                               return (
-                                <span style={{ fontSize: 11, fontWeight: 600, color: colore, background: bg, borderRadius: 6, padding: "2px 7px" }}>
-                                  {giorni <= 0 ? "⛔ Scaduto" : `⏳ ${giorni}gg`}
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: colore, background: bg, borderRadius: 20, padding: "4px 10px" }}>
+                                  <IconScad size={12} />
+                                  {giorni <= 0 ? "Scaduto" : `${giorni}gg`}
                                 </span>
                               );
                             })() : (
