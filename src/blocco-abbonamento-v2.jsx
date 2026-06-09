@@ -7,6 +7,8 @@ export default function BloccoAbbonamento() {
   const [inCaricamento, setInCaricamento] = useState(false);
   const [saloneId, setSaloneId] = useState(null);
   const [nomeS, setNomeS] = useState("il tuo salone");
+  const [logoS, setLogoS] = useState(null);
+  const [emailS, setEmailS] = useState("");
 
   const T = tema === "chiaro" ? {
     bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff",
@@ -24,8 +26,8 @@ export default function BloccoAbbonamento() {
     supabase.auth.getSession().then(async ({ data }) => {
       const uid = data?.session?.user?.id;
       if (!uid) return;
-      const { data: s } = await supabase.from("saloni").select("id,nome").eq("user_id", uid).maybeSingle();
-      if (s) { setSaloneId(s.id); setNomeS(s.nome); }
+      const { data: s } = await supabase.from("saloni").select("id,nome,logo,email").eq("user_id", uid).maybeSingle();
+      if (s) { setSaloneId(s.id); setNomeS(s.nome); setLogoS(s.logo); setEmailS(s.email || ""); }
     });
   }, []);
 
@@ -36,7 +38,7 @@ export default function BloccoAbbonamento() {
       const res = await fetch("/api/create-checkout-session", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ saloneId }),
+        body: JSON.stringify({ saloneId, email: emailS, nomeNegozio: nomeS }),
       });
       const data = await res.json();
       if (data.url) window.location.href = data.url;
@@ -76,7 +78,13 @@ export default function BloccoAbbonamento() {
         background: T.card,
       }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <Scissors size={20} color={T.accent} />
+          {logoS ? (
+            <img src={logoS} alt="Logo" style={{ width: 44, height: 44, objectFit: "cover", borderRadius: 12, flexShrink: 0 }} />
+          ) : (
+            <div style={{ width: 44, height: 44, borderRadius: 12, background: `linear-gradient(135deg, ${T.accent}, ${T.accent}99)`, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+              <Scissors size={20} color="#fff" />
+            </div>
+          )}
           <div>
             <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: 0.5 }}>{nomeS}</div>
             <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: 1 }}>POWERED BY PRENOTY</div>
