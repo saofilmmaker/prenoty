@@ -701,6 +701,9 @@ useEffect(() => {
     setUserId(uid);
     setSalvataggioStato("salvataggio");
 
+    const provaScadeIl = new Date();
+    provaScadeIl.setDate(provaScadeIl.getDate() + 30);
+
     const payload = {
       user_id: uid,
       nome: salone.nome,
@@ -710,6 +713,7 @@ useEffect(() => {
       email: salone.email,
       tipo: tipoAttivita,
       logo: salone.logo,
+      prova_scade_il: salone.dbId ? undefined : provaScadeIl.toISOString().split("T")[0],
     };
 
     let error;

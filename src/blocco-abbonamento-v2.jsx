@@ -1,82 +1,65 @@
-import { useState } from "react";
-import { Lock, CreditCard, Sun, Moon, LogOut, MessageSquare, CheckCircle, AlertCircle, Calendar, Scissors } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Lock, Sun, Moon, LogOut, MessageSquare, CheckCircle, Calendar, Scissors } from "lucide-react";
+import { createClient } from "@supabase/supabase-js";
+
+const supabase = createClient(
+  process.env.REACT_APP_SUPABASE_URL || "",
+  process.env.REACT_APP_SUPABASE_ANON_KEY || ""
+);
 
 export default function BloccoAbbonamento() {
-  // TEMA — stessa palette degli altri file
   const [tema, setTema] = useState("chiaro");
+  const [inCaricamento, setInCaricamento] = useState(false);
+  const [saloneId, setSaloneId] = useState(null);
+  const [nomeS, setNomeS] = useState("il tuo salone");
+
   const T = tema === "chiaro" ? {
-    bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff", borderStrong: "#c4bdf8",
+    bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff",
     text: "#1e1b3a", textSoft: "#4a4580", textMuted: "#9b96c8",
     accent: "#6c5ce7", accentSoft: "#ede9ff",
-    dark: "#1e1b3a", hover: "#f0edff", danger: "#c0392b", dangerSoft: "#fdecea",
+    green: "#00b894", greenSoft: "#e6faf6",
   } : {
-    bg: "#12102a", card: "#1c1a35", border: "#2e2a52", borderStrong: "#3f3a6e",
+    bg: "#12102a", card: "#1c1a35", border: "#2e2a52",
     text: "#f0eeff", textSoft: "#a29bfe", textMuted: "#6c6a9e",
     accent: "#a29bfe", accentSoft: "#2a2550",
-    dark: "#f0eeff", hover: "#252248", danger: "#e74c3c", dangerSoft: "#3a1a1a",
+    green: "#00cec9", greenSoft: "#0d2e2c",
   };
 
-  // STATO ABBONAMENTO (in produzione verrà letto da Supabase/Stripe)
-  // "trial_scaduto"   → 30 giorni gratis finiti e pagamento non andato a buon fine
-  // "pagamento_fallito" → abbonamento attivo ma ultimo rinnovo fallito (carta scaduta ecc.)
-  // "annullato"       → il parrucchiere ha disdetto volontariamente
-  const [motivo, setMotivo] = useState("trial_scaduto");
+  useEffect(() => {
+    supabase.auth.getSession().then(async ({ data }) => {
+      const uid = data?.session?.user?.id;
+      if (!uid) return;
+      const { data: s } = await supabase.from("saloni").select("id,nome").eq("user_id", uid).maybeSingle();
+      if (s) { setSaloneId(s.id); setNomeS(s.nome); }
+    });
+  }, []);
 
-  // Dati del salone bloccato (da Supabase in produzione)
-  const salone = {
-    nome: "Atelier Bellezza",
-    email: "marco@atelierbellezza.it",
-    prezzoMensile: 29,
-    giorniTrialUsati: 30,
-    dataScadenza: "24 aprile 2026",
-  };
-
-  // Stato del bottone "Rinnova adesso" → simula il redirect a Stripe Checkout
-  const [inCaricamento, setInCaricamento] = useState(false);
-
-  const messaggi = {
-    trial_scaduto: {
-      titolo: "Il tuo periodo di prova è finito",
-      sottotitolo: "Per continuare a usare l'app, attiva l'abbonamento.",
-      icona: Lock,
-    },
-    pagamento_fallito: {
-      titolo: "Pagamento non riuscito",
-      sottotitolo: "Non siamo riusciti ad addebitare il rinnovo. Aggiorna il metodo di pagamento.",
-      icona: AlertCircle,
-    },
-    annullato: {
-      titolo: "Abbonamento annullato",
-      sottotitolo: "Riattivalo quando vuoi: i tuoi dati sono al sicuro.",
-      icona: Lock,
-    },
-  };
-
-  const msg = messaggi[motivo];
-  const Icona = msg.icona;
-
-  // Cosa succede quando clicca "Rinnova adesso":
-  // 1. Chiamata al tuo backend → crea sessione Stripe Checkout
-  // 2. Redirect dell'utente su checkout.stripe.com
-  // 3. Dopo il pagamento Stripe rimanda sulla dashboard, stato abbonamento aggiornato via webhook
-  const rinnova = () => {
+  const acquista = async () => {
+    if (!saloneId) return;
     setInCaricamento(true);
-    // Simulazione: in produzione qui c'è fetch('/api/stripe/checkout') + window.location = url
-    setTimeout(() => {
-      alert("In produzione qui parte Stripe Checkout per il pagamento.");
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ saloneId }),
+      });
+      const data = await res.json();
+      if (data.url) window.location.href = data.url;
+    } catch {
+      alert("Errore nel pagamento. Riprova o contattaci.");
+    } finally {
       setInCaricamento(false);
-    }, 800);
-  };
-
-  const logout = () => {
-    alert("Logout effettuato. In produzione qui torni alla pagina di login.");
+    }
   };
 
   const contattaAssistenza = () => {
-    // Apre WhatsApp con messaggio precompilato
-    const numero = "393331234567"; // tuo numero WhatsApp business
-    const testo = encodeURIComponent(`Ciao, sono ${salone.nome} e ho un problema con l'abbonamento.`);
-    window.open(`https://wa.me/${numero}?text=${testo}`, "_blank");
+    const testo = encodeURIComponent(`Ciao, sono ${nomeS} e ho bisogno di assistenza su Prenoty.`);
+    window.open(`https://wa.me/393489259863?text=${testo}`, "_blank");
+  };
+
+  const logout = async () => {
+    await supabase.auth.signOut();
+    window.location.href = "/login";
   };
 
   return (
@@ -88,7 +71,7 @@ export default function BloccoAbbonamento() {
       display: "flex",
       flexDirection: "column",
     }}>
-      {/* HEADER minimale — solo logo e switch tema */}
+      {/* HEADER */}
       <header style={{
         padding: "20px 24px",
         borderBottom: `1px solid ${T.border}`,
@@ -100,21 +83,12 @@ export default function BloccoAbbonamento() {
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <Scissors size={20} color={T.accent} />
           <div>
-            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: 0.5 }}>
-              {salone.nome}
-            </div>
-            <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: 1 }}>
-              POWERED BY PRENOTY
-            </div>
+            <div style={{ fontSize: 18, fontWeight: 600, letterSpacing: 0.5 }}>{nomeS}</div>
+            <div style={{ fontSize: 11, color: T.textMuted, letterSpacing: 1 }}>POWERED BY PRENOTY</div>
           </div>
         </div>
-
         <div style={{ display: "flex", gap: 8 }}>
-          <button
-            onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}
-            style={iconBtn(T)}
-            title={tema === "chiaro" ? "Passa a scuro" : "Passa a chiaro"}
-          >
+          <button onClick={() => setTema(t => t === "chiaro" ? "scuro" : "chiaro")} style={iconBtn(T)}>
             {tema === "chiaro" ? <Moon size={18} /> : <Sun size={18} />}
           </button>
           <button onClick={logout} style={iconBtn(T)} title="Esci">
@@ -123,160 +97,91 @@ export default function BloccoAbbonamento() {
         </div>
       </header>
 
-      {/* DEMO SELECTOR — solo per vedere le 3 varianti, da rimuovere in produzione */}
-      <div style={{
-        padding: "12px 24px",
-        background: T.accentSoft,
-        borderBottom: `1px solid ${T.border}`,
-        fontSize: 13,
-        display: "flex",
-        gap: 8,
-        alignItems: "center",
-        flexWrap: "wrap",
-      }}>
-        <span style={{ color: T.textSoft, fontStyle: "italic" }}>Demo — prova i 3 stati:</span>
-        {["trial_scaduto", "pagamento_fallito", "annullato"].map(m => (
-          <button
-            key={m}
-            onClick={() => setMotivo(m)}
-            style={{
-              padding: "4px 10px",
-              fontSize: 12,
-              fontFamily: "inherit",
-              border: `1px solid ${motivo === m ? T.accent : T.border}`,
-              background: motivo === m ? T.accent : "transparent",
-              color: motivo === m ? "#fff" : T.text,
-              borderRadius: 8,
-              cursor: "pointer",
-            }}
-          >
-            {m.replace("_", " ")}
-          </button>
-        ))}
-      </div>
-
-      {/* CONTENUTO PRINCIPALE */}
-      <main style={{
-        flex: 1,
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        padding: "40px 24px",
-      }}>
+      {/* CORPO */}
+      <main style={{ flex: 1, display: "flex", justifyContent: "center", alignItems: "center", padding: "40px 24px" }}>
         <div style={{
-          maxWidth: 560,
+          maxWidth: 480,
           width: "100%",
           background: T.card,
           border: `1px solid ${T.border}`,
-          borderRadius: 16,
-          padding: "48px 40px",
+          borderRadius: 20,
+          padding: "48px 36px",
           textAlign: "center",
-          boxShadow: tema === "chiaro" ? "0 4px 24px rgba(0,0,0,0.04)" : "0 4px 24px rgba(0,0,0,0.3)",
+          boxShadow: tema === "chiaro" ? "0 4px 32px rgba(108,92,231,0.08)" : "0 4px 32px rgba(0,0,0,0.3)",
         }}>
-          {/* Icona tondo */}
+          {/* Icona */}
           <div style={{
-            width: 72, height: 72,
-            borderRadius: "50%",
-            background: motivo === "pagamento_fallito" ? T.dangerSoft : T.accentSoft,
-            display: "flex",
-            justifyContent: "center",
-            alignItems: "center",
+            width: 72, height: 72, borderRadius: "50%",
+            background: T.accentSoft,
+            display: "flex", justifyContent: "center", alignItems: "center",
             margin: "0 auto 24px",
           }}>
-            <Icona size={32} color={motivo === "pagamento_fallito" ? T.danger : T.accent} />
+            <Lock size={32} color={T.accent} />
           </div>
 
-          {/* Titolo + sottotitolo */}
-          <h1 style={{
-            fontSize: 28,
-            fontWeight: 400,
-            margin: "0 0 12px",
-            letterSpacing: 0.3,
-          }}>
-            {msg.titolo}
+          {/* Titolo */}
+          <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 12px", letterSpacing: 0.2 }}>
+            Il tuo periodo di prova è finito
           </h1>
-          <p style={{
-            fontSize: 16,
-            color: T.textSoft,
-            margin: "0 0 32px",
-            lineHeight: 1.6,
-          }}>
-            {msg.sottotitolo}
+          <p style={{ fontSize: 15, color: T.textSoft, margin: "0 0 32px", lineHeight: 1.6 }}>
+            Acquista Prenoty per continuare a gestire il tuo salone senza interruzioni.
           </p>
 
-          {/* BOX riepilogo piano */}
+          {/* Box prezzo */}
           <div style={{
-            background: T.accentSoft,
-            border: `1px solid ${T.border}`,
-            borderRadius: 14,
-            padding: "20px",
-            marginBottom: 28,
+            background: "linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)",
+            borderRadius: 16,
+            padding: "24px 20px",
+            marginBottom: 24,
             textAlign: "left",
+            color: "#fff",
           }}>
-            <div style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-              marginBottom: 12,
-            }}>
-              <span style={{ fontSize: 13, color: T.textSoft, textTransform: "uppercase", letterSpacing: 1 }}>
-                Piano Salone
-              </span>
-              <span style={{
-                fontSize: 22,
-                fontWeight: 600,
-                color: T.accent,
-              }}>
-                {salone.prezzoMensile}€<span style={{ fontSize: 13, color: T.textSoft, fontWeight: 400 }}>/mese</span>
-              </span>
+            <div style={{ fontSize: 11, fontWeight: 700, letterSpacing: 2, opacity: 0.8, marginBottom: 12 }}>
+              ✦ PIANO PRENOTY — ACCESSO COMPLETO
             </div>
-
-            <div style={{ fontSize: 14, color: T.text, lineHeight: 1.8 }}>
+            <div style={{ display: "flex", alignItems: "baseline", gap: 6, marginBottom: 4 }}>
+              <span style={{ fontSize: 48, fontWeight: 800, lineHeight: 1 }}>€299</span>
+              <span style={{ fontSize: 14, opacity: 0.85 }}>pagamento unico</span>
+            </div>
+            <div style={{ fontSize: 12, opacity: 0.75, marginBottom: 16 }}>
+              Prezzo di lancio · riservato ai primi 100 professionisti
+            </div>
+            <div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
               {[
-                "Prenotazioni online 24/7",
-                "Clienti e agenda illimitati",
-                "Pagamenti con carta, PayPal, in salone",
-                "Email automatiche di conferma e promemoria",
-                "Disdici quando vuoi, senza vincoli",
+                "Prenotazioni illimitate",
+                "Link personalizzato",
+                "Notifiche in tempo reale",
+                "Report mensili",
+                "Supporto prioritario ✦",
               ].map((v, i) => (
-                <div key={i} style={{ display: "flex", alignItems: "center", gap: 10 }}>
-                  <CheckCircle size={15} color={T.accent} style={{ flexShrink: 0 }} />
+                <div key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14 }}>
+                  <CheckCircle size={15} color="#a8f5c8" style={{ flexShrink: 0 }} />
                   <span>{v}</span>
                 </div>
               ))}
             </div>
           </div>
 
-          {/* BOTTONI */}
+          {/* Bottone acquista */}
           <button
-            onClick={rinnova}
+            onClick={acquista}
             disabled={inCaricamento}
             style={{
               width: "100%",
-              padding: "16px",
+              padding: "17px",
               fontSize: 16,
               fontFamily: "inherit",
-              background: T.accent,
+              fontWeight: 700,
+              background: inCaricamento ? "#ccc" : "linear-gradient(135deg, #00b894, #00cec9)",
               color: "#fff",
               border: "none",
               borderRadius: 14,
               cursor: inCaricamento ? "wait" : "pointer",
-              display: "flex",
-              justifyContent: "center",
-              alignItems: "center",
-              gap: 10,
-              fontWeight: 500,
               letterSpacing: 0.3,
-              opacity: inCaricamento ? 0.7 : 1,
               transition: "opacity 0.2s",
             }}
           >
-            <CreditCard size={18} />
-            {inCaricamento
-              ? "Attendere..."
-              : motivo === "pagamento_fallito"
-                ? "Aggiorna metodo di pagamento"
-                : `Rinnova ora — ${salone.prezzoMensile}€/mese`}
+            {inCaricamento ? "Attendere..." : "Acquista ora — €299"}
           </button>
 
           <button
@@ -302,20 +207,14 @@ export default function BloccoAbbonamento() {
             Ho bisogno di aiuto
           </button>
 
-          {/* Info dati sicuri */}
-          <p style={{
-            marginTop: 28,
-            fontSize: 12,
-            color: T.textMuted,
-            lineHeight: 1.6,
-          }}>
+          <p style={{ marginTop: 24, fontSize: 12, color: T.textMuted, lineHeight: 1.6 }}>
             I tuoi dati (clienti, agenda, servizi) sono conservati in sicurezza.<br />
-            Li ritrovi intatti appena riattivi l'abbonamento.
+            Li ritrovi intatti appena attivi l'accesso.
           </p>
         </div>
       </main>
 
-      {/* FOOTER con info link pubblico disattivato */}
+      {/* FOOTER */}
       <footer style={{
         padding: "16px 24px",
         borderTop: `1px solid ${T.border}`,
@@ -335,12 +234,9 @@ export default function BloccoAbbonamento() {
   );
 }
 
-// Stile riutilizzabile per i bottoni icona in alto
 const iconBtn = (T) => ({
   width: 36, height: 36,
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
+  display: "flex", justifyContent: "center", alignItems: "center",
   background: "transparent",
   color: T.text,
   border: `1px solid ${T.border}`,
