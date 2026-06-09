@@ -32,7 +32,10 @@ export default function BloccoAbbonamento() {
   }, []);
 
   const acquista = async () => {
-    if (!saloneId) return;
+    if (!saloneId) {
+      alert("Sessione non trovata. Ricarica la pagina e riprova.");
+      return;
+    }
     setInCaricamento(true);
     try {
       const res = await fetch("/api/create-checkout-session", {
@@ -41,9 +44,13 @@ export default function BloccoAbbonamento() {
         body: JSON.stringify({ saloneId, email: emailS, nomeNegozio: nomeS }),
       });
       const data = await res.json();
-      if (data.url) window.location.href = data.url;
-    } catch {
-      alert("Errore nel pagamento. Riprova o contattaci.");
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert("Errore: " + (data.error || "risposta non valida da Stripe"));
+      }
+    } catch (err) {
+      alert("Errore di rete: " + err.message);
     } finally {
       setInCaricamento(false);
     }
