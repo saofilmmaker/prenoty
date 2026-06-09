@@ -725,8 +725,8 @@ export default function DashboardAdmin() {
                               </span>
                             ) : s.provaScadeIl ? (() => {
                               const giorni = Math.ceil((new Date(s.provaScadeIl) - new Date()) / (1000 * 60 * 60 * 24));
-                              const colore = giorni <= 0 ? T.danger : giorni <= 3 ? "#c0392b" : giorni <= 7 ? "#e67e22" : T.accent;
-                              const bg = giorni <= 0 ? T.dangerSoft : giorni <= 3 ? "#fdecea" : giorni <= 7 ? "#fef3e2" : T.accentSoft;
+                              const colore = giorni <= 0 ? T.danger : giorni <= 2 ? "#c0392b" : giorni <= 6 ? "#e67e22" : T.success;
+                              const bg = giorni <= 0 ? T.dangerSoft : giorni <= 2 ? "#fdecea" : giorni <= 6 ? "#fef3e2" : T.successSoft;
                               const IconScad = giorni <= 0 ? AlertCircle : Clock;
                               return (
                                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: colore, background: bg, borderRadius: 20, padding: "4px 10px" }}>
