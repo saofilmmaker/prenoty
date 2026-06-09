@@ -81,7 +81,7 @@ export default function DashboardAdmin() {
     const carica = async () => {
       const { data } = await supabase
         .from("saloni")
-        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza, recensioni, piano_speciale")
+        .select("id, nome, email, telefono, indirizzo, tipo, created_at, piano, stato_abbonamento, abbonamento_scadenza, recensioni, piano_speciale, prova_scade_il, abbonamento_attivo")
         .order("created_at", { ascending: false });
       if (data) {
         // Estrai tutte le recensioni segnalate da tutti i saloni
@@ -132,6 +132,8 @@ export default function DashboardAdmin() {
           stato: statoMap[s.stato_abbonamento] ?? "trial",
           ultimoPagamento: null,
           prossimoRinnovo: s.abbonamento_scadenza ? s.abbonamento_scadenza.slice(0, 10) : null,
+          provaScadeIl: s.prova_scade_il ? s.prova_scade_il.slice(0, 10) : null,
+          abbonamentoAttivo: s.abbonamento_attivo ?? false,
           prenotazioni: countPren[s.id] || 0,
         })));
       }
@@ -652,6 +654,7 @@ export default function DashboardAdmin() {
                       <th style={th}>Piano</th>
                       <th style={th}>Iscritto</th>
                       <th style={th}>Prenotazioni</th>
+                      <th style={th}>Scadenza trial</th>
                       <th style={th}></th>
                     </tr>
                   </thead>
@@ -713,6 +716,22 @@ export default function DashboardAdmin() {
                           <td style={td}>
                             <span style={{ fontWeight: 500 }}>{s.prenotazioni}</span>
                             <span style={{ fontSize: 11, color: T.textMuted, marginLeft: 4 }}>tot.</span>
+                          </td>
+                          <td style={td}>
+                            {s.abbonamentoAttivo ? (
+                              <span style={{ fontSize: 11, color: "#4caf50", fontWeight: 600 }}>✓ Pagante</span>
+                            ) : s.provaScadeIl ? (() => {
+                              const giorni = Math.ceil((new Date(s.provaScadeIl) - new Date()) / (1000 * 60 * 60 * 24));
+                              const colore = giorni <= 0 ? "#e74c3c" : giorni <= 3 ? "#e67e22" : giorni <= 7 ? "#f1c40f" : "#4caf50";
+                              const bg = giorni <= 0 ? "#3a1a1a" : giorni <= 3 ? "#3a2a1a" : giorni <= 7 ? "#3a3a1a" : "#1a3a1a";
+                              return (
+                                <span style={{ fontSize: 11, fontWeight: 600, color: colore, background: bg, borderRadius: 6, padding: "2px 7px" }}>
+                                  {giorni <= 0 ? "⛔ Scaduto" : `⏳ ${giorni}gg`}
+                                </span>
+                              );
+                            })() : (
+                              <span style={{ fontSize: 11, color: T.textMuted }}>—</span>
+                            )}
                           </td>
                           <td style={{ ...td }}>
                             <button
