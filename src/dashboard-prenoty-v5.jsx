@@ -859,8 +859,8 @@ useEffect(() => {
 
     const [{ data: clientiDb }, { data: prenDb }] = await Promise.all([
       supabase.from("clienti").select("*").eq("salone_id", saloneId).order("ultima_visita", { ascending: false }),
-      // Solo appuntamenti PASSATI (data < oggi) e NON annullati → visite effettive
-      supabase.from("prenotazioni").select("telefono_cliente, data, ora, prezzo, nomi_servizi").eq("salone_id", saloneId).neq("stato", "annullato").lt("data", oggi).order("data", { ascending: false }),
+      // Solo appuntamenti PASSATI (data <= oggi) e NON annullati → visite effettive
+      supabase.from("prenotazioni").select("telefono_cliente, data, ora, prezzo, nomi_servizi").eq("salone_id", saloneId).neq("stato", "annullato").lte("data", oggi).order("data", { ascending: false }),
     ]);
 
     // Conta visite, spesa e storico per numero di telefono
