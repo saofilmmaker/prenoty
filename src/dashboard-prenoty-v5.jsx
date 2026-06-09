@@ -74,6 +74,17 @@ const CONFIG_ATTIVITA = {
 };
 
 
+// Normalizza numero di telefono: rimuove +39, 0039, spazi, trattini
+// es. +393456789000 → 3456789000, 39 3456789000 → 3456789000
+function normalizzaTel(tel) {
+  if (!tel) return "";
+  let n = tel.replace(/[\s\-().]/g, ""); // rimuove spazi, trattini, parentesi
+  if (n.startsWith("+39")) n = n.slice(3);
+  else if (n.startsWith("0039")) n = n.slice(4);
+  else if (n.startsWith("39") && n.length > 10) n = n.slice(2);
+  return n;
+}
+
 function SalvaBottone({ onClick, label = "SALVA", T }) {
   const [stato, setStato] = React.useState("idle");
   const handle = async () => {
@@ -260,7 +271,7 @@ export default function DashboardPrenoty() {
         servizio_id: serviziSel[0]?.id || null,
         staff_id: nuovoApp.staffId ? Number(nuovoApp.staffId) : null,
         nome_cliente: nuovoApp.nome.trim(),
-        telefono_cliente: nuovoApp.tel.trim() || null,
+        telefono_cliente: normalizzaTel(nuovoApp.tel) || null,
         email_cliente: nuovoApp.email.trim() || null,
         data: nuovoApp.data,
         ora: nuovoApp.ora,
@@ -299,14 +310,14 @@ export default function DashboardPrenoty() {
       }
 
       // Se ha il telefono, crea/aggiorna il cliente in anagrafica
-      if (nuovoApp.tel.trim() && salone.dbId) {
+      if (normalizzaTel(nuovoApp.tel) && salone.dbId) {
         const { data: esistente } = await supabase.from("clienti")
-          .select("id").eq("salone_id", salone.dbId).eq("telefono", nuovoApp.tel.trim()).maybeSingle();
+          .select("id").eq("salone_id", salone.dbId).eq("telefono", normalizzaTel(nuovoApp.tel)).maybeSingle();
         if (!esistente) {
           await supabase.from("clienti").insert({
             salone_id: salone.dbId,
             nome: nuovoApp.nome.trim(),
-            telefono: nuovoApp.tel.trim(),
+            telefono: normalizzaTel(nuovoApp.tel),
             email: nuovoApp.email.trim() || null,
           });
           caricaClienti(salone.dbId);
@@ -959,7 +970,7 @@ useEffect(() => {
       const { data: ins } = await supabase.from("clienti").insert({
         salone_id: saloneId,
         nome: nuovoCliente.nome.trim(),
-        telefono: nuovoCliente.tel.trim(),
+        telefono: normalizzaTel(nuovoCliente.tel),
         note: nuovoCliente.note.trim(),
         visite: 0,
       }).select().single();

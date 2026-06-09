@@ -1,4 +1,13 @@
 // v5 — build 2026-05-11
+// Normalizza numero di telefono: rimuove +39, 0039, spazi, trattini
+function normalizzaTel(tel) {
+  if (!tel) return "";
+  let n = tel.replace(/[\s\-().]/g, "");
+  if (n.startsWith("+39")) n = n.slice(3);
+  else if (n.startsWith("0039")) n = n.slice(4);
+  else if (n.startsWith("39") && n.length > 10) n = n.slice(2);
+  return n;
+}
 import { useState, useEffect, useRef } from "react";
 import { useParams } from "react-router-dom";
 import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
@@ -444,7 +453,7 @@ export default function AppCliente() {
       servizio_id: serviziScelti[0]?.id || null,
       staff_id: staffScelto?.id || null,
       nome_cliente: nome,
-      telefono_cliente: telefono,
+      telefono_cliente: normalizzaTel(telefono),
       email_cliente: email,
       data: dataStr,
       ora: ora,
