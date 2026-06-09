@@ -1,4 +1,10 @@
 // v5 — build 2026-05-11
+import { useState, useEffect, useRef } from "react";
+import { useParams } from "react-router-dom";
+import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
+import WhatsAppAssistenza from "./whatsapp-assistenza";
+import { supabase } from "./supabase";
+
 // Normalizza numero di telefono: rimuove +39, 0039, spazi, trattini
 function normalizzaTel(tel) {
   if (!tel) return "";
@@ -8,11 +14,6 @@ function normalizzaTel(tel) {
   else if (n.startsWith("39") && n.length > 10) n = n.slice(2);
   return n;
 }
-import { useState, useEffect, useRef } from "react";
-import { useParams } from "react-router-dom";
-import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
-import WhatsAppAssistenza from "./whatsapp-assistenza";
-import { supabase } from "./supabase";
 
 // =============================================================
 // CONFIGURAZIONE PER TIPO DI ATTIVITÀ
