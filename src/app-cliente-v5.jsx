@@ -204,6 +204,7 @@ export default function AppCliente() {
         mostraOrari: saloneDb.mostra_orari ?? true,
         mostraGalleria: saloneDb.mostra_galleria ?? true,
         mostraSocial: saloneDb.mostra_social ?? true,
+        bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
         metodiPagamento: (() => {
           const mp = { ...(saloneDb.metodi_pagamento || prev.metodiPagamento) };
           delete mp.stripe_sk; // la chiave segreta non va mai al frontend
@@ -402,27 +403,18 @@ export default function AppCliente() {
 
     if (!prenotazioniDb) return;
 
-    const slotList = generaSlot(dataScelta);
     const occupati = new Set();
 
-    for (const pren of prenotazioniDb) {
-      const oraInizio = pren.ora?.slice(0, 5);
-      if (!oraInizio) continue;
-
-      // usa durata_totale se disponibile, altrimenti cerca il servizio singolo
-      let durata = pren.durata_totale || null;
-      if (!durata) {
-        const servizio = servizi.find(s => s.id === pren.servizio_id);
-        durata = servizio?.durata || 30;
+    if (salone.bloccoSovrapposizione) {
+      // Conta quante prenotazioni iniziano esattamente a quell'ora — blocca dal 4° in poi
+      const contatoreSlot = {};
+      for (const pren of prenotazioniDb) {
+        const oraInizio = pren.ora?.slice(0, 5);
+        if (!oraInizio) continue;
+        contatoreSlot[oraInizio] = (contatoreSlot[oraInizio] || 0) + 1;
       }
-
-      const slotsOccupati = Math.ceil(durata / 30);
-      const idxInizio = slotList.indexOf(oraInizio);
-
-      for (let i = 0; i < slotsOccupati; i++) {
-        if (idxInizio + i < slotList.length) {
-          occupati.add(slotList[idxInizio + i]);
-        }
+      for (const [ora, count] of Object.entries(contatoreSlot)) {
+        if (count >= 3) occupati.add(ora);
       }
     }
 
@@ -1212,7 +1204,7 @@ export default function AppCliente() {
                 const sel = ora === o;
                 // BLOCCO ANTI-SOVRAPPOSIZIONE DISATTIVATO
                 // Per riattivarlo: const occupato = orariOccupati.includes(o);
-                const occupato = false;
+                const occupato = orariOccupati.includes(o);
                 return (
                   <button
                     key={o}
