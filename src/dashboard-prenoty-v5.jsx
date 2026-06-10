@@ -1838,10 +1838,17 @@ useEffect(() => {
                         { bg: "#F4C0D1", text: "#72243E", bar: "#D4537E" },
                         { bg: "#C0DD97", text: "#27500A", bar: "#639922" },
                       ];
-                      const coloreCliente = (nome, data) => {
-                        const key = (nome + "|" + data).split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
-                        return PALETTE[key % PALETTE.length];
-                      };
+                      // Assegna colori in ordine di prima apparizione per giorno — garantisce unicità
+                      const mappaColori = {};
+                      let contatoreColori = 0;
+                      for (const p of visibiliEspansi) {
+                        const chiave = p.cliente + "|" + p.data;
+                        if (!(chiave in mappaColori)) {
+                          mappaColori[chiave] = PALETTE[contatoreColori % PALETTE.length];
+                          contatoreColori++;
+                        }
+                      }
+                      const coloreCliente = (nome, data) => mappaColori[nome + "|" + data] || PALETTE[0];
                       return visibiliEspansi.map((p, idx) => {
                         const mostraData = idx === 0 || visibiliEspansi[idx - 1].data !== p.data;
                         const s = staffDi(p.staffId);
