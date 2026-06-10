@@ -269,7 +269,7 @@ export default function AppCliente() {
     ...(salone.staff || []),
   ];
 
-  // Genera slot da 30 min dagli orari reali del salone per il giorno scelto
+  // Genera slot da 5 min dagli orari reali del salone per il giorno scelto
   // Supporta fasce multiple con pausa (es. "08:00-12:00 15:00-20:00")
   const generaSlot = (dataScelta) => {
     if (!dataScelta || !salone.orari) return [];
@@ -291,7 +291,7 @@ export default function AppCliente() {
         const h = String(Math.floor(minuti / 60)).padStart(2, "0");
         const m = String(minuti % 60).padStart(2, "0");
         slots.push(`${h}:${m}`);
-        minuti += 30;
+        minuti += 5;
       }
     }
     return slots;

@@ -210,7 +210,7 @@ export default function DashboardPrenoty() {
     }));
   };
 
-  // Genera gli slot da 30 min dagli orari di lavoro del salone (supporta pausa, es. "08:00-12:00 15:00-20:00")
+  // Genera gli slot da 5 min dagli orari di lavoro del salone (supporta pausa, es. "08:00-12:00 15:00-20:00")
   const generaSlotApp = (dataStr) => {
     if (!dataStr || !salone.orari) return [];
     const chiavi = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
@@ -229,7 +229,7 @@ export default function DashboardPrenoty() {
       const fineMin = hF * 60 + mF;
       while (min < fineMin) {
         slots.push(`${String(Math.floor(min / 60)).padStart(2, "0")}:${String(min % 60).padStart(2, "0")}`);
-        min += 30;
+        min += 5;
       }
     }
     return slots;
