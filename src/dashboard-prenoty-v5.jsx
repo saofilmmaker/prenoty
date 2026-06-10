@@ -253,14 +253,20 @@ export default function DashboardPrenoty() {
     const lista = generaSlotApp(nuovoApp.data);
     if (lista.length === 0) return [];
     if (!salone.bloccoSovrapposizione) return lista.map((ora) => ({ ora, disponibile: true }));
-    // Blocco attivo: conta prenotazioni per slot, blocca dal 4° in poi
+    // Blocco attivo: conta quanti clienti sono PRESENTI in ogni slot (start <= slot < end)
     const prenGiorno = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
-    const contatore = {};
-    for (const p of prenGiorno) {
-      const o = (p.ora || "").slice(0, 5);
-      if (o) contatore[o] = (contatore[o] || 0) + 1;
-    }
-    return lista.map((ora) => ({ ora, disponibile: (contatore[ora] || 0) < 3 }));
+    return lista.map((ora) => {
+      const [h, m] = ora.split(":").map(Number);
+      const slotMin = h * 60 + m;
+      let presenti = 0;
+      for (const p of prenGiorno) {
+        const [ph, pm] = (p.ora || "00:00").slice(0, 5).split(":").map(Number);
+        const startMin = ph * 60 + pm;
+        const endMin = startMin + (p.durata || 30);
+        if (startMin <= slotMin && slotMin < endMin) presenti++;
+      }
+      return { ora, disponibile: presenti < 3 };
+    });
   };
 
   const salvaAppManuale = async () => {

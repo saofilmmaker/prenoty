@@ -406,15 +406,19 @@ export default function AppCliente() {
     const occupati = new Set();
 
     if (salone.bloccoSovrapposizione) {
-      // Conta quante prenotazioni iniziano esattamente a quell'ora — blocca dal 4° in poi
-      const contatoreSlot = {};
-      for (const pren of prenotazioniDb) {
-        const oraInizio = pren.ora?.slice(0, 5);
-        if (!oraInizio) continue;
-        contatoreSlot[oraInizio] = (contatoreSlot[oraInizio] || 0) + 1;
-      }
-      for (const [ora, count] of Object.entries(contatoreSlot)) {
-        if (count >= 3) occupati.add(ora);
+      const slotList = generaSlot(dataScelta);
+      for (const slot of slotList) {
+        const [sh, sm] = slot.split(":").map(Number);
+        const slotMin = sh * 60 + sm;
+        let presenti = 0;
+        for (const pren of prenotazioniDb) {
+          const [ph, pm] = (pren.ora?.slice(0, 5) || "00:00").split(":").map(Number);
+          const startMin = ph * 60 + pm;
+          const durata = pren.durata_totale || 30;
+          const endMin = startMin + durata;
+          if (startMin <= slotMin && slotMin < endMin) presenti++;
+        }
+        if (presenti >= 3) occupati.add(slot);
       }
     }
 
