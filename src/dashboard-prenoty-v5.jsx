@@ -1828,14 +1828,16 @@ useEffect(() => {
                         { bg: "#F4C0D1", text: "#72243E", bar: "#D4537E" },
                         { bg: "#C0DD97", text: "#27500A", bar: "#639922" },
                       ];
-                      const clientiUnici = [...new Set(visibiliEspansi.map(p => p.cliente))];
-                      const coloreCliente = (nome) => PALETTE[clientiUnici.indexOf(nome) % PALETTE.length];
+                      const coloreCliente = (nome, data) => {
+                        const key = (nome + "|" + data).split("").reduce((acc, c) => acc + c.charCodeAt(0), 0);
+                        return PALETTE[key % PALETTE.length];
+                      };
                       return visibiliEspansi.map((p, idx) => {
                         const mostraData = idx === 0 || visibiliEspansi[idx - 1].data !== p.data;
                         const s = staffDi(p.staffId);
                         const orig = p._prenOrig;
                         const isLast = p._subIdx === p._subCount - 1;
-                        const col = coloreCliente(p.cliente);
+                        const col = coloreCliente(p.cliente, p.data);
                         return (
                           <div key={`${orig.id}-${p._subIdx}`}>
                             {mostraData && (
