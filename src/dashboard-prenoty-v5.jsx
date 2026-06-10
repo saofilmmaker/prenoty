@@ -3111,31 +3111,35 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.mostraStatistiche ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
-                <div className="border-t pt-3 mt-1" style={{ borderColor: T.border }}>
-                  <label className="flex items-center justify-between cursor-pointer py-2">
-                    <div className="flex-1 pr-3">
-                      <div className="text-sm">Limite prenotazioni per stesso orario</div>
-                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
-                        Controlla quanti clienti possono prenotare lo stesso orario online.<br />
-                        <span style={{ color: "#00b894" }}>Attivo</span> — ogni orario può essere prenotato da massimo 3 clienti. Dal 4° in poi quell'orario non è più disponibile.<br />
-                        <span style={{ color: T.textMuted }}>Disattivo</span> — nessun limite, tutti gli orari sono sempre disponibili.
-                      </div>
+              </div>
+
+              {/* GESTIONE PRENOTAZIONI */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>GESTIONE PRENOTAZIONI</h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Regole che si applicano a tutte le prenotazioni — online e manuali</p>
+                <label className="flex items-center justify-between cursor-pointer py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Limite prenotazioni per stesso orario</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                      Controlla quanti clienti possono prenotare lo stesso orario.<br />
+                      <span style={{ color: "#00b894" }}>Attivo</span> — ogni orario può essere prenotato da massimo 3 clienti. Dal 4° in poi quell'orario non è più disponibile.<br />
+                      <span style={{ color: T.textMuted }}>Disattivo</span> — nessun limite, tutti gli orari sono sempre disponibili.
                     </div>
-                    <button
-                      onClick={async () => {
-                        const nuovo = !salone.bloccoSovrapposizione;
-                        setSalone({ ...salone, bloccoSovrapposizione: nuovo });
-                        if (salone.dbId) {
-                          await supabase.from("saloni").update({ blocco_sovrapposizione: nuovo }).eq("id", salone.dbId);
-                        }
-                      }}
-                      className="w-10 h-6 rounded-full relative transition flex-shrink-0"
-                      style={{ backgroundColor: salone.bloccoSovrapposizione ? T.accent : T.border }}
-                    >
-                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoSovrapposizione ? "calc(100% - 20px)" : "4px" }} />
-                    </button>
-                  </label>
-                </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const nuovo = !salone.bloccoSovrapposizione;
+                      setSalone({ ...salone, bloccoSovrapposizione: nuovo });
+                      if (salone.dbId) {
+                        await supabase.from("saloni").update({ blocco_sovrapposizione: nuovo }).eq("id", salone.dbId);
+                      }
+                    }}
+                    className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                    style={{ backgroundColor: salone.bloccoSovrapposizione ? T.accent : T.border }}
+                  >
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoSovrapposizione ? "calc(100% - 20px)" : "4px" }} />
+                  </button>
+                </label>
               </div>
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
