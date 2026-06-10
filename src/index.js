@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { HelmetProvider } from 'react-helmet-async';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import Home from './home';
 import DashboardPrenoty from './dashboard-prenoty-v5';
@@ -36,6 +37,7 @@ if ("serviceWorker" in navigator) {
 
 const root = ReactDOM.createRoot(document.getElementById('root'));
 root.render(
+  <HelmetProvider>
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<Home />} />
@@ -52,4 +54,5 @@ root.render(
       <Route path="/:slug" element={<AppCliente />} />
     </Routes>
   </BrowserRouter>
+  </HelmetProvider>
 );

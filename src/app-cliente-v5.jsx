@@ -1,5 +1,6 @@
 // v5 — build 2026-05-11
 import { useState, useEffect, useRef } from "react";
+import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
 import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
@@ -532,6 +533,23 @@ export default function AppCliente() {
     (step === 5 && nome.trim() && telefono.trim() && email.trim()) ||
     (step === 6 && paga && (paga !== "carta" || stripeReady));
 
+  // ── Meta tag dinamici per SEO e social sharing ──────────────────────────
+  const metaTitle = salone.nome
+    ? `${salone.nome} — Prenota online | Prenoty`
+    : "Prenoty — Prenotazioni online";
+
+  const metaDescription = (() => {
+    if (!salone.nome) return "Prenoty — Software prenotazioni online per saloni, estetiste e professionisti.";
+    const base = salone.descrizione
+      ? salone.descrizione.slice(0, 120)
+      : `Prenota il tuo appuntamento da ${salone.nome}${salone.indirizzo ? ` — ${salone.indirizzo}` : ""}`;
+    return `${base}. Prenota online 24h su 24 con Prenoty.`.slice(0, 160);
+  })();
+
+  const metaImage = salone.copertina || salone.logo || "https://prenoty.com/laptopmockupsprenotyconombra.png";
+  const canonicalUrl = `https://prenoty.com/${slug}`;
+  // ─────────────────────────────────────────────────────────────────────────
+
   if (caricamento) return (
     <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730" }}>
       <div style={{ color: "#9b96c8", fontSize: 14 }}>Caricamento...</div>
@@ -539,15 +557,38 @@ export default function AppCliente() {
   );
 
   if (nonTrovato) return (
-    <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730", flexDirection: "column", gap: 16 }}>
-      <div style={{ fontSize: 48 }}>🔍</div>
-      <div style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>Salone non trovato</div>
-      <div style={{ color: "#9b96c8", fontSize: 14 }}>Il link potrebbe essere errato o il salone non è più attivo.</div>
-      <a href="https://prenoty.com" style={{ color: "#6c5ce7", fontSize: 14, marginTop: 8 }}>← Torna a Prenoty</a>
-    </div>
+    <>
+      <Helmet>
+        <title>Salone non trovato | Prenoty</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730", flexDirection: "column", gap: 16 }}>
+        <div style={{ fontSize: 48 }}>🔍</div>
+        <div style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>Salone non trovato</div>
+        <div style={{ color: "#9b96c8", fontSize: 14 }}>Il link potrebbe essere errato o il salone non è più attivo.</div>
+        <a href="https://prenoty.com" style={{ color: "#6c5ce7", fontSize: 14, marginTop: 8 }}>← Torna a Prenoty</a>
+      </div>
+    </>
   );
 
   return (
+    <>
+    <Helmet>
+      <title>{metaTitle}</title>
+      <meta name="description" content={metaDescription} />
+      <link rel="canonical" href={canonicalUrl} />
+      <meta property="og:type" content="website" />
+      <meta property="og:url" content={canonicalUrl} />
+      <meta property="og:title" content={metaTitle} />
+      <meta property="og:description" content={metaDescription} />
+      <meta property="og:image" content={metaImage} />
+      <meta property="og:locale" content="it_IT" />
+      <meta property="og:site_name" content="Prenoty" />
+      <meta name="twitter:card" content="summary_large_image" />
+      <meta name="twitter:title" content={metaTitle} />
+      <meta name="twitter:description" content={metaDescription} />
+      <meta name="twitter:image" content={metaImage} />
+    </Helmet>
     <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
       {/* HEADER */}
       <header className="sticky top-0 z-10 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
@@ -1690,5 +1731,6 @@ export default function AppCliente() {
 
       {/* WhatsAppAssistenza spostata nella navbar */}
     </div>
+    </>
   );
 }
