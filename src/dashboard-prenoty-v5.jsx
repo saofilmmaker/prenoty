@@ -1375,7 +1375,7 @@ useEffect(() => {
     const [oreStr, minStr] = (p.ora || "00:00").split(":");
     let minTot = parseInt(oreStr) * 60 + parseInt(minStr || 0);
     return nomi.map((nome, i) => {
-      const sDb = servizi.find(s => s.nome === nome);
+      const sDb = servizi.find(s => s.nome?.trim().toLowerCase() === nome.toLowerCase());
       const durata = sDb?.durata || Math.round((p.durata || 30) / nomi.length);
       const prezzo = sDb?.prezzo || 0;
       const ore = Math.floor(minTot / 60);
