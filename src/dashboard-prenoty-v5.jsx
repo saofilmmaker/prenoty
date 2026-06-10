@@ -1368,6 +1368,25 @@ useEffect(() => {
   const staffDi = (id) => staff.find(s => s.id === id);
   const visibili = filtraPrenotazioni();
 
+  // Espande un appuntamento multi-servizio in righe separate, ognuna con il suo orario
+  const espandiServizi = (p) => {
+    const nomi = (p.servizio || "").split(",").map(s => s.trim()).filter(Boolean);
+    if (nomi.length <= 1) return [{ ...p, _prenOrig: p, _subIdx: 0, _subCount: 1 }];
+    const [oreStr, minStr] = (p.ora || "00:00").split(":");
+    let minTot = parseInt(oreStr) * 60 + parseInt(minStr || 0);
+    return nomi.map((nome, i) => {
+      const sDb = servizi.find(s => s.nome === nome);
+      const durata = sDb?.durata || Math.round((p.durata || 30) / nomi.length);
+      const prezzo = sDb?.prezzo || 0;
+      const ore = Math.floor(minTot / 60);
+      const min = minTot % 60;
+      const ora = `${String(ore).padStart(2, "0")}:${String(min).padStart(2, "0")}`;
+      minTot += durata;
+      return { ...p, servizio: nome, durata, prezzo, ora, _prenOrig: p, _subIdx: i, _subCount: nomi.length };
+    });
+  };
+  const visibiliEspansi = visibili.flatMap(espandiServizi);
+
   const staffIconPerTipo = { parrucchiere: Scissors, estetista: Sparkles, spa: Flower2, generico: Users };
   const staffIcon = staffIconPerTipo[tipoAttivita] || Users;
 
@@ -1799,20 +1818,24 @@ useEffect(() => {
                   </div>
                 ) : (
                   <div>
-                    {visibili.map((p, idx) => {
-                      const mostraData = idx === 0 || visibili[idx - 1].data !== p.data;
+                    {visibiliEspansi.map((p, idx) => {
+                      const mostraData = idx === 0 || visibiliEspansi[idx - 1].data !== p.data;
                       const s = staffDi(p.staffId);
+                      const orig = p._prenOrig;
+                      const isFirst = p._subIdx === 0;
+                      const isLast = p._subIdx === p._subCount - 1;
+                      const isMulti = p._subCount > 1;
                       return (
-                        <div key={p.id}>
+                        <div key={`${orig.id}-${p._subIdx}`}>
                           {mostraData && (
                             <div className="px-5 py-2 border-b text-xs tracking-widest" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.textMuted, letterSpacing: "0.15em" }}>
                               {fmtData(p.data).toUpperCase()}
                             </div>
                           )}
                           <button
-                            onClick={() => { setDettaglio(p); segnaLetta(p.id); }}
+                            onClick={() => { setDettaglio(orig); segnaLetta(orig.id); }}
                             className="w-full px-5 py-4 border-b transition flex items-center gap-4 text-left hover:opacity-90"
-                            style={{ borderColor: T.border }}
+                            style={{ borderColor: T.border, paddingTop: isMulti && !isFirst ? 8 : undefined, paddingBottom: isMulti && !isLast ? 8 : undefined }}
                           >
                             <div className="text-center min-w-[55px]">
                               <div className="text-lg md:text-xl">{p.ora}</div>
@@ -1822,28 +1845,32 @@ useEffect(() => {
                             <div className="w-0.5 self-stretch" style={{ backgroundColor: p.nuovo ? T.accent : (s?.colore || T.border), borderRadius: 2 }} />
 
                             <div className="flex-1 min-w-0">
-                              <div className="flex items-center gap-2 flex-wrap">
-                                <span className="truncate">{p.cliente}</span>
-                                {p.nuovo && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full text-white tracking-widest flex-shrink-0" style={{ backgroundColor: T.accent, letterSpacing: "0.1em" }}>
-                                    NUOVO
-                                  </span>
-                                )}
-                              </div>
-                              <div className="text-sm mt-0.5 truncate" style={{ color: T.textSoft }}>
+                              {isFirst && (
+                                <div className="flex items-center gap-2 flex-wrap">
+                                  <span className="truncate">{p.cliente}</span>
+                                  {p.nuovo && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full text-white tracking-widest flex-shrink-0" style={{ backgroundColor: T.accent, letterSpacing: "0.1em" }}>
+                                      NUOVO
+                                    </span>
+                                  )}
+                                </div>
+                              )}
+                              <div className="text-sm truncate" style={{ color: T.textSoft, marginTop: isFirst ? 2 : 0 }}>
                                 {p.servizio} {s && <span style={{ color: T.textMuted }}>· {s.nome.split(" ")[0]}</span>}
                               </div>
                             </div>
 
                             <div className="text-right flex-shrink-0">
                               <div className="text-lg font-semibold" style={{ color: T.accent }}>€{p.prezzo}</div>
-                              <div className="text-xs flex items-center gap-1 justify-end mt-0.5">
-                                {p.pagamento === "pagato" ? (
-                                  <><CheckCircle className="w-3 h-3" style={{ color: "#00b894" }} /><span style={{ color: "#00b894" }}>Pagato</span></>
-                                ) : (
-                                  <span style={{ color: T.textMuted }}>In salone</span>
-                                )}
-                              </div>
+                              {isLast && (
+                                <div className="text-xs flex items-center gap-1 justify-end mt-0.5">
+                                  {orig.pagamento === "pagato" ? (
+                                    <><CheckCircle className="w-3 h-3" style={{ color: "#00b894" }} /><span style={{ color: "#00b894" }}>Pagato</span></>
+                                  ) : (
+                                    <span style={{ color: T.textMuted }}>In salone</span>
+                                  )}
+                                </div>
+                              )}
                             </div>
                           </button>
                         </div>
