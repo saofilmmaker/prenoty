@@ -248,17 +248,19 @@ export default function DashboardPrenoty() {
     return occ;
   };
 
-  // Slot mostrati nel menu: { ora, disponibile } — disponibile=false se occupato o se il servizio non ci sta
+  // Slot mostrati nel menu: { ora, disponibile }
   const getSlotsApp = () => {
     const lista = generaSlotApp(nuovoApp.data);
     if (lista.length === 0) return [];
-    // BLOCCO ANTI-SOVRAPPOSIZIONE DISATTIVATO — tutti gli slot sono selezionabili.
-    // Per riattivarlo, ripristinare il controllo con slotOccupatiApp e la durata totale:
-    //   const occ = slotOccupatiApp(nuovoApp.data);
-    //   const durataTot = servizi.filter(s => nuovoApp.serviziIds.includes(s.id)).reduce((a, s) => a + (s.durata || 0), 0) || 30;
-    //   const nNuovo = Math.ceil(durataTot / 30);
-    //   ...marcando disponibile=false se uno slot è occupato.
-    return lista.map((ora) => ({ ora, disponibile: true }));
+    if (!salone.bloccoSovrapposizione) return lista.map((ora) => ({ ora, disponibile: true }));
+    // Blocco attivo: conta prenotazioni per slot, blocca dal 4° in poi
+    const prenGiorno = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
+    const contatore = {};
+    for (const p of prenGiorno) {
+      const o = (p.ora || "").slice(0, 5);
+      if (o) contatore[o] = (contatore[o] || 0) + 1;
+    }
+    return lista.map((ora) => ({ ora, disponibile: (contatore[ora] || 0) < 3 }));
   };
 
   const salvaAppManuale = async () => {
