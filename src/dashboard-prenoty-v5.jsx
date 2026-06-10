@@ -1837,6 +1837,19 @@ useEffect(() => {
                         { bg: "#FAC775", text: "#633806", bar: "#BA7517" },
                         { bg: "#F4C0D1", text: "#72243E", bar: "#D4537E" },
                         { bg: "#C0DD97", text: "#27500A", bar: "#639922" },
+                        { bg: "#FDE8C8", text: "#7A3B0E", bar: "#E8820C" },
+                        { bg: "#C8EEF7", text: "#0A4A5E", bar: "#1A9BC0" },
+                        { bg: "#E8D5F5", text: "#4A1570", bar: "#9B40D4" },
+                        { bg: "#D5F0D5", text: "#1A4A1A", bar: "#3A9E3A" },
+                        { bg: "#F7D5D5", text: "#6E1515", bar: "#C93030" },
+                        { bg: "#D5EEE8", text: "#0E4035", bar: "#1E8C70" },
+                        { bg: "#F5EAC8", text: "#5E3D08", bar: "#C48A10" },
+                        { bg: "#D8D5F7", text: "#2A2070", bar: "#5548CC" },
+                        { bg: "#F7E8D5", text: "#6E3A10", bar: "#CC7020" },
+                        { bg: "#C8F0E8", text: "#0A4535", bar: "#15967A" },
+                        { bg: "#F0D5EA", text: "#5E1045", bar: "#B82088" },
+                        { bg: "#D5EAF0", text: "#0E3A4A", bar: "#1A7A9E" },
+                        { bg: "#EEF5D5", text: "#354A0A", bar: "#6E9E15" },
                       ];
                       // Assegna colori in ordine di prima apparizione per giorno — garantisce unicità
                       const mappaColori = {};
