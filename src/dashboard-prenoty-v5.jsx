@@ -292,30 +292,6 @@ export default function DashboardPrenoty() {
 
       if (error) { setErroreApp(`Errore: ${error.message}`); return; }
 
-      // Aggiunge in cima alla lista locale
-      if (ins) {
-        const staffSel = staff.find(s => s.id === Number(nuovoApp.staffId));
-        setPrenotazioni(prev => [{
-          id: ins.id,
-          cliente: ins.nome_cliente,
-          tel: ins.telefono_cliente || "",
-          email: "",
-          servizio: ins.nomi_servizi,
-          durata: ins.durata_totale || 30,
-          prezzo: ins.prezzo || 0,
-          data: ins.data,
-          ora: (ins.ora || "").slice(0, 5),
-          stato: ins.stato || "confermato",
-          pagamento: "salone",
-          metodoPagamento: "salone",
-          codiceBonifico: null,
-          staffId: ins.staff_id || 1,
-          nuovo: false,
-          note: ins.note || "",
-          creatoIl: ins.created_at || new Date().toISOString(),
-        }, ...prev]);
-      }
-
       // Se ha il telefono, crea/aggiorna il cliente in anagrafica
       if (salone.dbId) {
         const telNorm = normalizzaTel(nuovoApp.tel);
