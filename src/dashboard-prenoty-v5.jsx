@@ -1857,15 +1857,17 @@ useEffect(() => {
 
                               <div className="w-0.5 self-stretch" style={{ backgroundColor: col.bar, borderRadius: 0 }} />
 
-                              <div className="flex-1 min-w-0 flex items-center gap-2 flex-wrap">
-                                <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium" style={{ backgroundColor: col.bg, color: col.text, letterSpacing: "0.04em" }}>
-                                  {p.cliente}
-                                </span>
-                                {p.nuovo && (
-                                  <span className="text-[10px] px-2 py-0.5 rounded-full text-white tracking-widest flex-shrink-0" style={{ backgroundColor: T.accent, letterSpacing: "0.1em" }}>
-                                    NUOVO
+                              <div className="flex-1 min-w-0 flex flex-col md:flex-row md:items-center gap-1 md:gap-2 md:flex-wrap">
+                                <div className="flex items-center gap-1.5 flex-wrap">
+                                  <span className="text-xs px-2 py-0.5 rounded-full flex-shrink-0 font-medium" style={{ backgroundColor: col.bg, color: col.text, letterSpacing: "0.04em" }}>
+                                    {p.cliente}
                                   </span>
-                                )}
+                                  {p.nuovo && (
+                                    <span className="text-[10px] px-2 py-0.5 rounded-full text-white tracking-widest flex-shrink-0" style={{ backgroundColor: T.accent, letterSpacing: "0.1em" }}>
+                                      NUOVO
+                                    </span>
+                                  )}
+                                </div>
                                 <span className="text-sm truncate" style={{ color: T.textSoft }}>
                                   {p.servizio}{s ? <span style={{ color: T.textMuted }}> · {s.nome.split(" ")[0]}</span> : null}
                                 </span>
