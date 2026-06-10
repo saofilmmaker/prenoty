@@ -1385,7 +1385,7 @@ useEffect(() => {
       return { ...p, servizio: nome, durata, prezzo, ora, _prenOrig: p, _subIdx: i, _subCount: nomi.length };
     });
   };
-  const visibiliEspansi = visibili.flatMap(espandiServizi);
+  const visibiliEspansi = visibili.flatMap(espandiServizi).sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora));
 
   const staffIconPerTipo = { parrucchiere: Scissors, estetista: Sparkles, spa: Flower2, generico: Users };
   const staffIcon = staffIconPerTipo[tipoAttivita] || Users;
