@@ -3199,7 +3199,7 @@ useEffect(() => {
                 </label>
                 {staff.filter(s => s.id !== 0).length > 4 && (
                   <div className="mt-2 px-3 py-2 text-xs rounded" style={{ backgroundColor: "#fffbeb", color: "#92400e", border: "1px solid #fcd34d" }}>
-                    Hai più di 4 operatori. Il blocco per operatore funziona fino a 4 — con più operatori considera di gestire la disponibilità manualmente.
+                    ⚠️ Hai più di 4 operatori. Questa funzione è ottimizzata per saloni con massimo 4 operatori. Se hai più operatori, il blocco potrebbe non funzionare correttamente — ti consigliamo di disattivarlo e gestire la disponibilità manualmente.
                   </div>
                 )}
               </div>
