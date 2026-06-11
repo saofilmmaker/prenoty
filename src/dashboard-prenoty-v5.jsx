@@ -252,8 +252,7 @@ export default function DashboardPrenoty() {
   const getSlotsApp = () => {
     const lista = generaSlotApp(nuovoApp.data);
     if (lista.length === 0) return [];
-    if (!salone.bloccoSovrapposizione) return lista.map((ora) => ({ ora, disponibile: true }));
-    // Blocco attivo: conta quanti clienti sono PRESENTI in ogni slot (start <= slot < end)
+    if (!salone.bloccoSovrapposizione && !salone.bloccoOccupato) return lista.map((ora) => ({ ora, disponibile: true }));
     const prenGiorno = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
     return lista.map((ora) => {
       const [h, m] = ora.split(":").map(Number);
@@ -265,7 +264,9 @@ export default function DashboardPrenoty() {
         const endMin = startMin + (p.durata || 30);
         if (startMin <= slotMin && slotMin < endMin) presenti++;
       }
-      return { ora, disponibile: presenti < 3 };
+      if (salone.bloccoOccupato && presenti >= 1) return { ora, disponibile: false };
+      if (salone.bloccoSovrapposizione && presenti >= 3) return { ora, disponibile: false };
+      return { ora, disponibile: true };
     });
   };
 
@@ -429,6 +430,7 @@ useEffect(() => {
           mostraSocial: saloneDb.mostra_social ?? true,
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
+          bloccoOccupato: saloneDb.blocco_occupato ?? false,
           suonoNotifica: saloneDb.suono_notifica || "ding",
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
@@ -565,6 +567,7 @@ useEffect(() => {
     mostraSocial: true,
     mostraStatistiche: true,
     bloccoSovrapposizione: false,
+    bloccoOccupato: false,
     suonoNotifica: "ding",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
@@ -3150,8 +3153,8 @@ useEffect(() => {
                     <div className="text-sm">Limite prenotazioni per stesso orario</div>
                     <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
                       Controlla quanti clienti possono prenotare lo stesso orario.<br />
-                      <span style={{ color: "#00b894" }}>Attivo</span> — ogni orario può essere prenotato da massimo 3 clienti. Dal 4° in poi quell'orario non è più disponibile.<br />
-                      <span style={{ color: T.textMuted }}>Disattivo</span> — nessun limite, tutti gli orari sono sempre disponibili.
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — ogni orario può essere prenotato da massimo 3 clienti. Dal 4° in poi quell'orario non è più disponibile.<br />
+                      <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
                     </div>
                   </div>
                   <button
@@ -3166,6 +3169,32 @@ useEffect(() => {
                     style={{ backgroundColor: salone.bloccoSovrapposizione ? T.accent : T.border }}
                   >
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoSovrapposizione ? "calc(100% - 20px)" : "4px" }} />
+                  </button>
+                </label>
+
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
+
+                <label className="flex items-center justify-between cursor-pointer py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Blocco orari già occupati</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                      Utile se lavori da solo: ogni orario può essere preso da un solo cliente alla volta.<br />
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — se un orario è già prenotato da qualcuno, gli altri clienti non lo vedranno disponibile.<br />
+                      <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const nuovo = !salone.bloccoOccupato;
+                      setSalone({ ...salone, bloccoOccupato: nuovo });
+                      if (salone.dbId) {
+                        await supabase.from("saloni").update({ blocco_occupato: nuovo }).eq("id", salone.dbId);
+                      }
+                    }}
+                    className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                    style={{ backgroundColor: salone.bloccoOccupato ? T.accent : T.border }}
+                  >
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOccupato ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
               </div>

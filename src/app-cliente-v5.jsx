@@ -205,6 +205,7 @@ export default function AppCliente() {
         mostraGalleria: saloneDb.mostra_galleria ?? true,
         mostraSocial: saloneDb.mostra_social ?? true,
         bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
+        bloccoOccupato: saloneDb.blocco_occupato ?? false,
         metodiPagamento: (() => {
           const mp = { ...(saloneDb.metodi_pagamento || prev.metodiPagamento) };
           delete mp.stripe_sk; // la chiave segreta non va mai al frontend
@@ -405,7 +406,7 @@ export default function AppCliente() {
 
     const occupati = new Set();
 
-    if (salone.bloccoSovrapposizione) {
+    if (salone.bloccoSovrapposizione || salone.bloccoOccupato) {
       const slotList = generaSlot(dataScelta);
       for (const slot of slotList) {
         const [sh, sm] = slot.split(":").map(Number);
@@ -418,7 +419,8 @@ export default function AppCliente() {
           const endMin = startMin + durata;
           if (startMin <= slotMin && slotMin < endMin) presenti++;
         }
-        if (presenti >= 3) occupati.add(slot);
+        if (salone.bloccoOccupato && presenti >= 1) occupati.add(slot);
+        else if (salone.bloccoSovrapposizione && presenti >= 3) occupati.add(slot);
       }
     }
 
