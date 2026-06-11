@@ -254,21 +254,24 @@ export default function DashboardPrenoty() {
     if (lista.length === 0) return [];
     if (!salone.bloccoSovrapposizione && !salone.bloccoOccupato) return lista.map((ora) => ({ ora, disponibile: true }));
     const tuttePrenotazioni = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
-    // Filtra per operatore selezionato se disponibile
     const staffId = nuovoApp.staffId ? Number(nuovoApp.staffId) : null;
-    const prenGiorno = staffId ? tuttePrenotazioni.filter(p => p.staff_id === staffId) : tuttePrenotazioni;
+    const prenPerOccupato = staffId ? tuttePrenotazioni.filter(p => p.staff_id === staffId) : tuttePrenotazioni;
+    const prenPerSovrap = staffId ? tuttePrenotazioni.filter(p => p.staff_id === staffId || p.staff_id === null) : tuttePrenotazioni;
     return lista.map((ora) => {
       const [h, m] = ora.split(":").map(Number);
       const slotMin = h * 60 + m;
-      let presenti = 0;
-      for (const p of prenGiorno) {
-        const [ph, pm] = (p.ora || "00:00").slice(0, 5).split(":").map(Number);
-        const startMin = ph * 60 + pm;
-        const endMin = startMin + (p.durata || 30);
-        if (startMin <= slotMin && slotMin < endMin) presenti++;
-      }
-      if (salone.bloccoOccupato && presenti >= 1) return { ora, disponibile: false };
-      if (salone.bloccoSovrapposizione && presenti >= 3) return { ora, disponibile: false };
+      const contaPresenti = (lista) => {
+        let n = 0;
+        for (const p of lista) {
+          const [ph, pm] = (p.ora || "00:00").slice(0, 5).split(":").map(Number);
+          const startMin = ph * 60 + pm;
+          const endMin = startMin + (p.durata || 30);
+          if (startMin <= slotMin && slotMin < endMin) n++;
+        }
+        return n;
+      };
+      if (salone.bloccoOccupato && contaPresenti(prenPerOccupato) >= 1) return { ora, disponibile: false };
+      if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= 3) return { ora, disponibile: false };
       return { ora, disponibile: true };
     });
   };

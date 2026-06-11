@@ -411,24 +411,28 @@ export default function AppCliente() {
       // Per bloccoOccupato: se lo staff è selezionato e ha un id reale (non "nessuna preferenza"), filtra per operatore
       const staffAttivo = staffOverride !== undefined ? staffOverride : staffScelto;
       const staffId = staffAttivo?.id && staffAttivo.id !== 0 ? staffAttivo.id : null;
-      // Entrambi i toggle filtrano per operatore se lo staff è selezionato
-      const prenFiltrate = staffId
-        ? prenotazioniDb.filter(p => p.staff_id === staffId)
-        : prenotazioniDb;
+      const staffId = (staffOverride !== undefined ? staffOverride : staffScelto)?.id || null;
+      const staffIdReale = staffId && staffId !== 0 ? staffId : null;
+      // bloccoOccupato: filtra solo per quell'operatore (stretto)
+      // bloccoSovrapposizione: filtra per quell'operatore + prenotazioni senza operatore (backward compat)
+      const prenPerOccupato = staffIdReale ? prenotazioniDb.filter(p => p.staff_id === staffIdReale) : prenotazioniDb;
+      const prenPerSovrap = staffIdReale ? prenotazioniDb.filter(p => p.staff_id === staffIdReale || p.staff_id === null) : prenotazioniDb;
 
       for (const slot of slotList) {
         const [sh, sm] = slot.split(":").map(Number);
         const slotMin = sh * 60 + sm;
-        let presenti = 0;
-        for (const pren of prenFiltrate) {
-          const [ph, pm] = (pren.ora?.slice(0, 5) || "00:00").split(":").map(Number);
-          const startMin = ph * 60 + pm;
-          const durata = pren.durata_totale || 30;
-          const endMin = startMin + durata;
-          if (startMin <= slotMin && slotMin < endMin) presenti++;
-        }
-        if (salone.bloccoOccupato && presenti >= 1) occupati.add(slot);
-        else if (salone.bloccoSovrapposizione && presenti >= 3) occupati.add(slot);
+        const contaPresenti = (lista) => {
+          let n = 0;
+          for (const pren of lista) {
+            const [ph, pm] = (pren.ora?.slice(0, 5) || "00:00").split(":").map(Number);
+            const startMin = ph * 60 + pm;
+            const endMin = startMin + (pren.durata_totale || 30);
+            if (startMin <= slotMin && slotMin < endMin) n++;
+          }
+          return n;
+        };
+        if (salone.bloccoOccupato && contaPresenti(prenPerOccupato) >= 1) occupati.add(slot);
+        else if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= 3) occupati.add(slot);
       }
     }
 
