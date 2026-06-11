@@ -3197,6 +3197,11 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOccupato ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+                {staff.filter(s => s.id !== 0).length > 4 && (
+                  <div className="mt-2 px-3 py-2 text-xs rounded" style={{ backgroundColor: "#fffbeb", color: "#92400e", border: "1px solid #fcd34d" }}>
+                    Hai più di 4 operatori. Il blocco per operatore funziona fino a 4 — con più operatori considera di gestire la disponibilità manualmente.
+                  </div>
+                )}
               </div>
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>

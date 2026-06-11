@@ -392,12 +392,12 @@ export default function AppCliente() {
   const [orariOccupati, setOrariOccupati] = useState([]);
   const [invioInCorso, setInvioInCorso] = useState(false);
 
-  const caricaOrariOccupati = async (dataScelta) => {
+  const caricaOrariOccupati = async (dataScelta, staffOverride) => {
     if (!salone.id) return;
     const dataStr = `${dataScelta.getFullYear()}-${String(dataScelta.getMonth()+1).padStart(2,"0")}-${String(dataScelta.getDate()).padStart(2,"0")}`;
     const { data: prenotazioniDb } = await supabase
       .from("prenotazioni")
-      .select("ora, servizio_id, durata_totale")
+      .select("ora, servizio_id, durata_totale, staff_id")
       .eq("salone_id", salone.id)
       .eq("data", dataStr)
       .neq("stato", "annullata");
@@ -408,11 +408,18 @@ export default function AppCliente() {
 
     if (salone.bloccoSovrapposizione || salone.bloccoOccupato) {
       const slotList = generaSlot(dataScelta);
+      // Per bloccoOccupato: se lo staff è selezionato e ha un id reale (non "nessuna preferenza"), filtra per operatore
+      const staffAttivo = staffOverride !== undefined ? staffOverride : staffScelto;
+      const staffId = staffAttivo?.id && staffAttivo.id !== 0 ? staffAttivo.id : null;
+      const prenFiltrate = (salone.bloccoOccupato && staffId)
+        ? prenotazioniDb.filter(p => p.staff_id === staffId)
+        : prenotazioniDb;
+
       for (const slot of slotList) {
         const [sh, sm] = slot.split(":").map(Number);
         const slotMin = sh * 60 + sm;
         let presenti = 0;
-        for (const pren of prenotazioniDb) {
+        for (const pren of prenFiltrate) {
           const [ph, pm] = (pren.ora?.slice(0, 5) || "00:00").split(":").map(Number);
           const startMin = ph * 60 + pm;
           const durata = pren.durata_totale || 30;
@@ -1136,7 +1143,7 @@ export default function AppCliente() {
                 return (
                   <button
                     key={s.id}
-                    onClick={() => setStaffScelto(s)}
+                    onClick={() => { setStaffScelto(s); setOra(null); if (data) caricaOrariOccupati(data, s); }}
                     className="w-full flex items-center gap-4 p-4 border transition text-left"
                     style={{
                       backgroundColor: sel ? T.accentSoft : T.card,
