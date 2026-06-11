@@ -253,7 +253,10 @@ export default function DashboardPrenoty() {
     const lista = generaSlotApp(nuovoApp.data);
     if (lista.length === 0) return [];
     if (!salone.bloccoSovrapposizione && !salone.bloccoOccupato) return lista.map((ora) => ({ ora, disponibile: true }));
-    const prenGiorno = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
+    const tuttePrenotazioni = prenotazioni.filter(p => p.data === nuovoApp.data && p.stato !== "annullato");
+    // Filtra per operatore selezionato se disponibile
+    const staffId = nuovoApp.staffId ? Number(nuovoApp.staffId) : null;
+    const prenGiorno = staffId ? tuttePrenotazioni.filter(p => p.staff_id === staffId) : tuttePrenotazioni;
     return lista.map((ora) => {
       const [h, m] = ora.split(":").map(Number);
       const slotMin = h * 60 + m;

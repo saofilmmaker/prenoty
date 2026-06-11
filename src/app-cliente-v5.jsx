@@ -411,7 +411,8 @@ export default function AppCliente() {
       // Per bloccoOccupato: se lo staff è selezionato e ha un id reale (non "nessuna preferenza"), filtra per operatore
       const staffAttivo = staffOverride !== undefined ? staffOverride : staffScelto;
       const staffId = staffAttivo?.id && staffAttivo.id !== 0 ? staffAttivo.id : null;
-      const prenFiltrate = (salone.bloccoOccupato && staffId)
+      // Entrambi i toggle filtrano per operatore se lo staff è selezionato
+      const prenFiltrate = staffId
         ? prenotazioniDb.filter(p => p.staff_id === staffId)
         : prenotazioniDb;
 
