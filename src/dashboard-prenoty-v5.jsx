@@ -1731,7 +1731,7 @@ useEffect(() => {
 
               {/* Banner filtro pagati attivo */}
               {/* Banner periodo di prova in scadenza */}
-              {!salone.abbonamentoAttivo && giorniProvaRimasti !== null && giorniProvaRimasti > 0 && giorniProvaRimasti <= 7 && (
+              {!salone.abbonamentoAttivo && !salone.pianoSpeciale && giorniProvaRimasti !== null && giorniProvaRimasti > 0 && giorniProvaRimasti <= 7 && (
                 <div className="flex items-center justify-between mb-3 px-4 py-3 text-sm" style={{
                   backgroundColor: giorniProvaRimasti <= 3 ? "#fff3e0" : "#fffde7",
                   border: `1px solid ${giorniProvaRimasti <= 3 ? "#e67e22" : "#f39c12"}`,

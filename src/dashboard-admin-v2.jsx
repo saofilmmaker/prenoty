@@ -742,11 +742,17 @@ export default function DashboardAdmin() {
                                 <CheckCircle size={12} /> A vita
                               </span>
                             ) : s.pianoSpeciale ? (() => {
-                              const mesiMap = { "1mese": 30, "3mesi": 90, "6mesi": 180 };
-                              const gg = mesiMap[s.pianoSpeciale];
-                              return (
+                              if (!s.provaScadeIl) return (
                                 <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: T.success, background: T.successSoft, borderRadius: 20, padding: "4px 10px" }}>
-                                  <CheckCircle size={12} /> {gg ? `${gg}gg` : s.pianoSpeciale}
+                                  <CheckCircle size={12} /> {s.pianoSpeciale}
+                                </span>
+                              );
+                              const giorni = Math.ceil((new Date(s.provaScadeIl) - new Date()) / (1000 * 60 * 60 * 24));
+                              const colore = giorni <= 0 ? T.danger : giorni <= 7 ? "#e67e22" : T.success;
+                              const bg = giorni <= 0 ? T.dangerSoft : giorni <= 7 ? "#fef3e2" : T.successSoft;
+                              return (
+                                <span style={{ display: "inline-flex", alignItems: "center", gap: 5, fontSize: 12, fontWeight: 600, color: colore, background: bg, borderRadius: 20, padding: "4px 10px" }}>
+                                  <CheckCircle size={12} /> {giorni <= 0 ? "Scaduto" : `${giorni}gg`}
                                 </span>
                               );
                             })() : s.provaScadeIl ? (() => {
