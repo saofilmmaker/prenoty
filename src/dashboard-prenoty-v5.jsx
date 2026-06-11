@@ -3184,8 +3184,8 @@ useEffect(() => {
                   <div className="flex-1 pr-3">
                     <div className="text-sm">Blocco orari già occupati</div>
                     <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
-                      Utile se lavori da solo: ogni orario può essere preso da un solo cliente alla volta.<br />
-                      <span style={{ color: "#00b894" }}>● Attivo</span> — se un orario è già prenotato da qualcuno, gli altri clienti non lo vedranno disponibile.<br />
+                      Utile se lavori da solo o se hai più operatori: ogni orario mostra la disponibilità dell'operatore scelto dal cliente.<br />
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — se un operatore è già occupato in quell'orario, i clienti che scelgono lui non lo vedranno disponibile. Chi sceglie un altro operatore libero potrà prenotare normalmente.<br />
                       <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
                     </div>
                   </div>
