@@ -408,11 +408,8 @@ export default function AppCliente() {
 
     if (salone.bloccoSovrapposizione || salone.bloccoOccupato) {
       const slotList = generaSlot(dataScelta);
-      // Per bloccoOccupato: se lo staff è selezionato e ha un id reale (non "nessuna preferenza"), filtra per operatore
       const staffAttivo = staffOverride !== undefined ? staffOverride : staffScelto;
-      const staffId = staffAttivo?.id && staffAttivo.id !== 0 ? staffAttivo.id : null;
-      const staffId = (staffOverride !== undefined ? staffOverride : staffScelto)?.id || null;
-      const staffIdReale = staffId && staffId !== 0 ? staffId : null;
+      const staffIdReale = staffAttivo?.id && staffAttivo.id !== 0 ? staffAttivo.id : null;
       // bloccoOccupato: filtra solo per quell'operatore (stretto)
       // bloccoSovrapposizione: filtra per quell'operatore + prenotazioni senza operatore (backward compat)
       const prenPerOccupato = staffIdReale ? prenotazioniDb.filter(p => p.staff_id === staffIdReale) : prenotazioniDb;
