@@ -437,6 +437,11 @@ useEffect(() => {
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
+          ferieAttive: saloneDb.ferie_attive ?? false,
+          ferieDal: saloneDb.ferie_dal || "",
+          ferieAl: saloneDb.ferie_al || "",
+          ferieMessaggio: saloneDb.ferie_messaggio || "",
+          chiusureTemporanee: saloneDb.chiusure_temporanee || [],
           suonoNotifica: saloneDb.suono_notifica || "ding",
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
@@ -574,6 +579,11 @@ useEffect(() => {
     mostraStatistiche: true,
     bloccoSovrapposizione: false,
     bloccoOccupato: false,
+    ferieAttive: false,
+    ferieDal: "",
+    ferieAl: "",
+    ferieMessaggio: "",
+    chiusureTemporanee: [],
     suonoNotifica: "ding",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
@@ -3203,6 +3213,131 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOccupato ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+              </div>
+
+              {/* CHIUSURA PER FERIE */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CHIUSURA PER FERIE</h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>I clienti vedranno un avviso e non potranno prenotare nei giorni indicati.</p>
+                <label className="flex items-center justify-between cursor-pointer py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Ferie attive</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — il salone risulta chiuso nelle date indicate. I clienti non possono prenotare.<br />
+                      <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const nuovo = !salone.ferieAttive;
+                      setSalone({ ...salone, ferieAttive: nuovo });
+                      if (salone.dbId) await supabase.from("saloni").update({ ferie_attive: nuovo }).eq("id", salone.dbId);
+                    }}
+                    className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                    style={{ backgroundColor: salone.ferieAttive ? T.accent : T.border }}
+                  >
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.ferieAttive ? "calc(100% - 20px)" : "4px" }} />
+                  </button>
+                </label>
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "10px 0" }} />
+                <div className="flex gap-4 flex-wrap mb-3">
+                  <div>
+                    <div className="text-xs mb-1" style={{ color: T.textMuted }}>Dal</div>
+                    <input type="date" value={salone.ferieDal}
+                      onChange={async (e) => {
+                        setSalone({ ...salone, ferieDal: e.target.value });
+                        if (salone.dbId) await supabase.from("saloni").update({ ferie_dal: e.target.value || null }).eq("id", salone.dbId);
+                      }}
+                      className="p-2 border outline-none text-sm"
+                      style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                  </div>
+                  <div>
+                    <div className="text-xs mb-1" style={{ color: T.textMuted }}>Al</div>
+                    <input type="date" value={salone.ferieAl}
+                      onChange={async (e) => {
+                        setSalone({ ...salone, ferieAl: e.target.value });
+                        if (salone.dbId) await supabase.from("saloni").update({ ferie_al: e.target.value || null }).eq("id", salone.dbId);
+                      }}
+                      className="p-2 border outline-none text-sm"
+                      style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                  </div>
+                </div>
+                <div className="text-xs mb-1" style={{ color: T.textMuted }}>Messaggio ai clienti (opzionale)</div>
+                <input type="text" value={salone.ferieMessaggio} maxLength={120}
+                  placeholder="es. Siamo in ferie! Torniamo il 21 agosto, ci vediamo presto."
+                  onChange={(e) => setSalone({ ...salone, ferieMessaggio: e.target.value })}
+                  onBlur={async () => { if (salone.dbId) await supabase.from("saloni").update({ ferie_messaggio: salone.ferieMessaggio }).eq("id", salone.dbId); }}
+                  className="w-full p-2 border outline-none text-sm"
+                  style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+              </div>
+
+              {/* CHIUSURE TEMPORANEE */}
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CHIUSURE TEMPORANEE</h3>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Blocca fasce orarie specifiche in un giorno — utile per commissioni, pause o imprevisti.</p>
+                {(salone.chiusureTemporanee || []).length > 0 && (
+                  <div className="mb-4">
+                    {salone.chiusureTemporanee.map((c) => (
+                      <div key={c.id} className="flex items-center gap-3 p-3 mb-2" style={{ backgroundColor: T.bg, border: `0.5px solid ${T.border}` }}>
+                        <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: T.accent }} />
+                        <div className="flex-1">
+                          <div className="text-sm">{c.giorno} · {c.dalle} – {c.alle}</div>
+                          {c.motivo && <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{c.motivo}</div>}
+                        </div>
+                        <button onClick={async () => {
+                          const nuove = salone.chiusureTemporanee.filter(x => x.id !== c.id);
+                          setSalone({ ...salone, chiusureTemporanee: nuove });
+                          if (salone.dbId) await supabase.from("saloni").update({ chiusure_temporanee: nuove }).eq("id", salone.dbId);
+                        }} style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                      </div>
+                    ))}
+                  </div>
+                )}
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "10px 0" }} />
+                <div className="text-xs mb-2" style={{ color: T.textMuted }}>Aggiungi chiusura</div>
+                {(() => {
+                  const [nuovaC, setNuovaC] = [salone._nuovaChiusura || {}, (v) => setSalone({ ...salone, _nuovaChiusura: v })];
+                  return (
+                    <div className="flex gap-3 flex-wrap items-end">
+                      <div>
+                        <div className="text-xs mb-1" style={{ color: T.textMuted }}>Giorno</div>
+                        <input type="date" value={nuovaC.giorno || ""}
+                          onChange={(e) => setNuovaC({ ...nuovaC, giorno: e.target.value })}
+                          className="p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                      </div>
+                      <div>
+                        <div className="text-xs mb-1" style={{ color: T.textMuted }}>Dalle</div>
+                        <input type="time" value={nuovaC.dalle || ""}
+                          onChange={(e) => setNuovaC({ ...nuovaC, dalle: e.target.value })}
+                          className="p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                      </div>
+                      <div>
+                        <div className="text-xs mb-1" style={{ color: T.textMuted }}>Alle</div>
+                        <input type="time" value={nuovaC.alle || ""}
+                          onChange={(e) => setNuovaC({ ...nuovaC, alle: e.target.value })}
+                          className="p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                      </div>
+                      <div>
+                        <div className="text-xs mb-1" style={{ color: T.textMuted }}>Motivo (opz.)</div>
+                        <input type="text" value={nuovaC.motivo || ""} placeholder="es. commissioni"
+                          onChange={(e) => setNuovaC({ ...nuovaC, motivo: e.target.value })}
+                          className="p-2 border outline-none text-sm"
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text, minWidth: 150 }} />
+                      </div>
+                      <button onClick={async () => {
+                        if (!nuovaC.giorno || !nuovaC.dalle || !nuovaC.alle) return;
+                        const nuove = [...(salone.chiusureTemporanee || []), { id: Date.now(), ...nuovaC }];
+                        setSalone({ ...salone, chiusureTemporanee: nuove, _nuovaChiusura: {} });
+                        if (salone.dbId) await supabase.from("saloni").update({ chiusure_temporanee: nuove }).eq("id", salone.dbId);
+                      }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+                        + Aggiungi
+                      </button>
+                    </div>
+                  );
+                })()}
               </div>
 
               <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>

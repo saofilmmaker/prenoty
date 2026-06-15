@@ -206,6 +206,11 @@ export default function AppCliente() {
         mostraSocial: saloneDb.mostra_social ?? true,
         bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
         bloccoOccupato: saloneDb.blocco_occupato ?? false,
+        ferieAttive: saloneDb.ferie_attive ?? false,
+        ferieDal: saloneDb.ferie_dal || null,
+        ferieAl: saloneDb.ferie_al || null,
+        ferieMessaggio: saloneDb.ferie_messaggio || "",
+        chiusureTemporanee: saloneDb.chiusure_temporanee || [],
         metodiPagamento: (() => {
           const mp = { ...(saloneDb.metodi_pagamento || prev.metodiPagamento) };
           delete mp.stripe_sk; // la chiave segreta non va mai al frontend
@@ -302,6 +307,31 @@ export default function AppCliente() {
   const orari = data ? generaSlot(data) : [];
 
   const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
+
+  const isGiornoInFerie = (g) => {
+    if (!salone.ferieAttive || !salone.ferieDal || !salone.ferieAl) return false;
+    const d = new Date(g); d.setHours(0,0,0,0);
+    const dal = new Date(salone.ferieDal); dal.setHours(0,0,0,0);
+    const al = new Date(salone.ferieAl); al.setHours(23,59,59,999);
+    return d >= dal && d <= al;
+  };
+
+  const chiusureDelGiorno = (g) => {
+    if (!salone.chiusureTemporanee?.length) return [];
+    const ds = `${g.getFullYear()}-${String(g.getMonth()+1).padStart(2,"0")}-${String(g.getDate()).padStart(2,"0")}`;
+    return salone.chiusureTemporanee.filter(c => c.giorno === ds);
+  };
+
+  const isSlotInChiusura = (slot, chiusure) => {
+    const [sh, sm] = slot.split(":").map(Number);
+    const slotMin = sh * 60 + sm;
+    return chiusure.some(c => {
+      const [dh, dm] = c.dalle.split(":").map(Number);
+      const [ah, am] = c.alle.split(":").map(Number);
+      return slotMin >= dh * 60 + dm && slotMin < ah * 60 + am;
+    });
+  };
+
   const giorni = [];
   const oggi = new Date();
   let i = 0;
@@ -310,9 +340,9 @@ export default function AppCliente() {
     g.setDate(oggi.getDate() + i);
     const chiave = chiavi[g.getDay()];
     const orarioGiorno = salone.orari?.[chiave];
-    if (orarioGiorno && orarioGiorno !== "Chiuso") giorni.push(g);
+    if (orarioGiorno && orarioGiorno !== "Chiuso" && !isGiornoInFerie(g)) giorni.push(g);
     i++;
-    if (i > 60) break; // safety
+    if (i > 90) break;
   }
 
   const fmtData = (d) => {
@@ -701,11 +731,25 @@ export default function AppCliente() {
                   {salone.descrizione}
                 </p>
 
+                {/* Banner ferie */}
+                {salone.ferieAttive && salone.ferieDal && salone.ferieAl && (() => {
+                  const dal = new Date(salone.ferieDal);
+                  const al = new Date(salone.ferieAl);
+                  const fmtD = (d) => `${d.getDate()} ${["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"][d.getMonth()]}`;
+                  return (
+                    <div className="mt-6 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#fff8e1", border: "1px solid #f9c74f", borderRadius: 8 }}>
+                      <div className="text-sm font-medium" style={{ color: "#7d5a00" }}>Il salone è in ferie dal {fmtD(dal)} al {fmtD(al)}</div>
+                      {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#7d5a00" }}>{salone.ferieMessaggio}</div>}
+                      <div className="text-xs mt-2" style={{ color: "#a07820" }}>Le prenotazioni riaprono il {fmtD(new Date(al.getTime() + 86400000))}</div>
+                    </div>
+                  );
+                })()}
+
                 {/* CTA principale */}
                 <button
-                  onClick={() => setStep(1)}
+                  onClick={() => { if (!salone.ferieAttive) setStep(1); }}
                   className="mt-8 px-12 py-4 tracking-widest text-sm transition"
-                  style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
+                  style={{ backgroundColor: salone.ferieAttive ? "#aaa" : "#6c5ce7", color: "#fff", letterSpacing: "0.2em", cursor: salone.ferieAttive ? "not-allowed" : "pointer", opacity: salone.ferieAttive ? 0.6 : 1 }}
                 >
                   PRENOTA ORA
                 </button>
@@ -1214,12 +1258,23 @@ export default function AppCliente() {
           <div>
             <h3 className="text-2xl mb-2">Scegli l'orario</h3>
             <p className="text-sm mb-6" style={{ color: T.textSoft }}>Orari disponibili</p>
+            {(() => {
+              const chiusure = data ? chiusureDelGiorno(data) : [];
+              if (chiusure.length > 0) {
+                return chiusure.map(c => (
+                  <div key={c.id} className="mb-4 p-3 text-sm" style={{ backgroundColor: "#fff8e1", border: "1px solid #f9c74f", borderRadius: 6, color: "#7d5a00" }}>
+                    Chiusura temporanea {c.dalle} – {c.alle}{c.motivo ? ` · ${c.motivo}` : ""}. Il salone riapre alle {c.alle}.
+                  </div>
+                ));
+              }
+              return null;
+            })()}
             <div className="grid grid-cols-4 gap-3">
               {orari.map((o) => {
                 const sel = ora === o;
-                // BLOCCO ANTI-SOVRAPPOSIZIONE DISATTIVATO
-                // Per riattivarlo: const occupato = orariOccupati.includes(o);
-                const occupato = orariOccupati.includes(o);
+                const chiusure = data ? chiusureDelGiorno(data) : [];
+                const inChiusura = isSlotInChiusura(o, chiusure);
+                const occupato = orariOccupati.includes(o) || inChiusura;
                 return (
                   <button
                     key={o}
@@ -1227,13 +1282,13 @@ export default function AppCliente() {
                     disabled={occupato}
                     className="py-3 border text-center transition"
                     style={{
-                      backgroundColor: occupato ? T.bg : sel ? T.accentSoft : T.card,
-                      borderColor: occupato ? T.border : sel ? T.accent : T.border,
+                      backgroundColor: inChiusura ? "#fff8e1" : occupato ? T.bg : sel ? T.accentSoft : T.card,
+                      borderColor: inChiusura ? "#f9c74f" : occupato ? T.border : sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
-                      color: occupato ? T.textMuted : T.text,
+                      color: inChiusura ? "#c0712a" : occupato ? T.textMuted : T.text,
                       textDecoration: occupato ? "line-through" : "none",
                       cursor: occupato ? "not-allowed" : "pointer",
-                      opacity: occupato ? 0.5 : 1,
+                      opacity: occupato ? 0.6 : 1,
                     }}
                   >
                     {o}
