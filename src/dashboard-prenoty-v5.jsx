@@ -3244,20 +3244,14 @@ useEffect(() => {
                   <div>
                     <div className="text-xs mb-1" style={{ color: T.textMuted }}>Dal</div>
                     <input type="date" value={salone.ferieDal}
-                      onChange={async (e) => {
-                        setSalone({ ...salone, ferieDal: e.target.value });
-                        if (salone.dbId) await supabase.from("saloni").update({ ferie_dal: e.target.value || null }).eq("id", salone.dbId);
-                      }}
+                      onChange={(e) => setSalone({ ...salone, ferieDal: e.target.value })}
                       className="p-2 border outline-none text-sm"
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
                   </div>
                   <div>
                     <div className="text-xs mb-1" style={{ color: T.textMuted }}>Al</div>
                     <input type="date" value={salone.ferieAl}
-                      onChange={async (e) => {
-                        setSalone({ ...salone, ferieAl: e.target.value });
-                        if (salone.dbId) await supabase.from("saloni").update({ ferie_al: e.target.value || null }).eq("id", salone.dbId);
-                      }}
+                      onChange={(e) => setSalone({ ...salone, ferieAl: e.target.value })}
                       className="p-2 border outline-none text-sm"
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
                   </div>
@@ -3266,9 +3260,20 @@ useEffect(() => {
                 <input type="text" value={salone.ferieMessaggio} maxLength={120}
                   placeholder="es. Siamo in ferie! Torniamo il 21 agosto, ci vediamo presto."
                   onChange={(e) => setSalone({ ...salone, ferieMessaggio: e.target.value })}
-                  onBlur={async () => { if (salone.dbId) await supabase.from("saloni").update({ ferie_messaggio: salone.ferieMessaggio }).eq("id", salone.dbId); }}
                   className="w-full p-2 border outline-none text-sm"
                   style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                <button
+                  onClick={async () => {
+                    if (!salone.dbId) return;
+                    await supabase.from("saloni").update({ ferie_dal: salone.ferieDal || null, ferie_al: salone.ferieAl || null, ferie_messaggio: salone.ferieMessaggio }).eq("id", salone.dbId);
+                    setSalone(prev => ({ ...prev, _ferieSalvato: true }));
+                    setTimeout(() => setSalone(prev => ({ ...prev, _ferieSalvato: false })), 2000);
+                  }}
+                  className="mt-3 px-5 py-2 text-xs tracking-widest"
+                  style={{ backgroundColor: salone._ferieSalvato ? "#00b894" : T.accent, color: "#fff", border: "none", cursor: "pointer", letterSpacing: "0.12em" }}
+                >
+                  {salone._ferieSalvato ? "✓ SALVATO" : "SALVA DATE"}
+                </button>
               </div>
 
               {/* CHIUSURE TEMPORANEE */}
