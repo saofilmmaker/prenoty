@@ -335,12 +335,16 @@ export default function AppCliente() {
   const giorni = [];
   const oggi = new Date();
   let i = 0;
-  while (giorni.length < 14) {
+  let disponibiliTrovati = 0;
+  while (disponibiliTrovati < 14) {
     const g = new Date(oggi);
     g.setDate(oggi.getDate() + i);
     const chiave = chiavi[g.getDay()];
     const orarioGiorno = salone.orari?.[chiave];
-    if (orarioGiorno && orarioGiorno !== "Chiuso" && !isGiornoInFerie(g)) giorni.push(g);
+    if (orarioGiorno && orarioGiorno !== "Chiuso") {
+      giorni.push(g);
+      if (!isGiornoInFerie(g)) disponibiliTrovati++;
+    }
     i++;
     if (i > 90) break;
   }
@@ -747,9 +751,9 @@ export default function AppCliente() {
 
                 {/* CTA principale */}
                 <button
-                  onClick={() => { if (!salone.ferieAttive) setStep(1); }}
+                  onClick={() => setStep(1)}
                   className="mt-8 px-12 py-4 tracking-widest text-sm transition"
-                  style={{ backgroundColor: salone.ferieAttive ? "#aaa" : "#6c5ce7", color: "#fff", letterSpacing: "0.2em", cursor: salone.ferieAttive ? "not-allowed" : "pointer", opacity: salone.ferieAttive ? 0.6 : 1 }}
+                  style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
                 >
                   PRENOTA ORA
                 </button>
@@ -1232,20 +1236,24 @@ export default function AppCliente() {
               {giorni.map((g, idx) => {
                 const f = fmtData(g);
                 const sel = data && data.toDateString() === g.toDateString();
+                const inFerie = isGiornoInFerie(g);
                 return (
                   <button
                     key={idx}
-                    onClick={() => { setData(g); setOra(null); caricaOrariOccupati(g); }}
+                    onClick={() => { if (!inFerie) { setData(g); setOra(null); caricaOrariOccupati(g); } }}
+                    disabled={inFerie}
                     className="p-3 border text-center transition"
                     style={{
-                      backgroundColor: sel ? T.accentSoft : T.card,
-                      borderColor: sel ? T.accent : T.border,
+                      backgroundColor: inFerie ? "#fdecea" : sel ? T.accentSoft : T.card,
+                      borderColor: inFerie ? "#e24b4a" : sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
+                      opacity: inFerie ? 0.6 : 1,
+                      cursor: inFerie ? "not-allowed" : "pointer",
                     }}
                   >
-                    <div className="text-xs tracking-wider" style={{ color: T.textMuted }}>{f.gs.toUpperCase()}</div>
-                    <div className="text-2xl my-1">{f.num}</div>
-                    <div className="text-xs" style={{ color: T.textMuted }}>{f.mese}</div>
+                    <div className="text-xs tracking-wider" style={{ color: inFerie ? "#e24b4a" : T.textMuted }}>{f.gs.toUpperCase()}</div>
+                    <div className="text-2xl my-1" style={{ color: inFerie ? "#e24b4a" : T.text, textDecoration: inFerie ? "line-through" : "none" }}>{f.num}</div>
+                    <div className="text-xs" style={{ color: inFerie ? "#e24b4a" : T.textMuted }}>{inFerie ? "Ferie" : f.mese}</div>
                   </button>
                 );
               })}
