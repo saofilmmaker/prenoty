@@ -206,6 +206,7 @@ export default function AppCliente() {
         mostraSocial: saloneDb.mostra_social ?? true,
         bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
         bloccoOccupato: saloneDb.blocco_occupato ?? false,
+        prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
         ferieAttive: saloneDb.ferie_attive ?? false,
         ferieDal: saloneDb.ferie_dal || null,
         ferieAl: saloneDb.ferie_al || null,
@@ -335,18 +336,15 @@ export default function AppCliente() {
   const giorni = [];
   const oggi = new Date();
   let i = 0;
-  let disponibiliTrovati = 0;
-  while (disponibiliTrovati < 14) {
+  const anticipoGiorniMap = { "2sett": 14, "1mese": 30, "2mesi": 60, "3mesi": 90 };
+  const anticipoGiorni = anticipoGiorniMap[salone.prenotazioneAnticipo] || 30;
+  while (i <= anticipoGiorni) {
     const g = new Date(oggi);
     g.setDate(oggi.getDate() + i);
     const chiave = chiavi[g.getDay()];
     const orarioGiorno = salone.orari?.[chiave];
-    if (orarioGiorno && orarioGiorno !== "Chiuso") {
-      giorni.push(g);
-      if (!isGiornoInFerie(g)) disponibiliTrovati++;
-    }
+    if (orarioGiorno && orarioGiorno !== "Chiuso") giorni.push(g);
     i++;
-    if (i > 90) break;
   }
 
   const fmtData = (d) => {

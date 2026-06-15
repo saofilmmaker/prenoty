@@ -437,6 +437,7 @@ useEffect(() => {
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
+          prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
           ferieAttive: saloneDb.ferie_attive ?? false,
           ferieDal: saloneDb.ferie_dal || "",
           ferieAl: saloneDb.ferie_al || "",
@@ -579,6 +580,7 @@ useEffect(() => {
     mostraStatistiche: true,
     bloccoSovrapposizione: false,
     bloccoOccupato: false,
+    prenotazioneAnticipo: "1mese",
     ferieAttive: false,
     ferieDal: "",
     ferieAl: "",
@@ -3213,6 +3215,30 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOccupato ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
+
+                <div className="flex items-center justify-between py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Finestra di prenotazione</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>Quanto in anticipo i clienti possono prenotare online.</div>
+                  </div>
+                  <select
+                    value={salone.prenotazioneAnticipo}
+                    onChange={async (e) => {
+                      const val = e.target.value;
+                      setSalone({ ...salone, prenotazioneAnticipo: val });
+                      if (salone.dbId) await supabase.from("saloni").update({ prenotazione_anticipo: val }).eq("id", salone.dbId);
+                    }}
+                    className="p-2 border outline-none text-sm"
+                    style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text, minWidth: 130 }}
+                  >
+                    <option value="2sett">2 settimane</option>
+                    <option value="1mese">1 mese</option>
+                    <option value="2mesi">2 mesi</option>
+                    <option value="3mesi">3 mesi</option>
+                  </select>
+                </div>
               </div>
 
               {/* CHIUSURA PER FERIE */}
