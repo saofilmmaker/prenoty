@@ -1268,8 +1268,8 @@ export default function AppCliente() {
               const chiusure = data ? chiusureDelGiorno(data) : [];
               if (chiusure.length > 0) {
                 return chiusure.map(c => (
-                  <div key={c.id} className="mb-4 p-3 text-sm" style={{ backgroundColor: "#fff8e1", border: "1px solid #f9c74f", borderRadius: 6, color: "#7d5a00" }}>
-                    Chiusura temporanea {c.dalle} – {c.alle}{c.motivo ? ` · ${c.motivo}` : ""}. Il salone riapre alle {c.alle}.
+                  <div key={c.id} className="mb-4 p-3 text-sm" style={{ backgroundColor: "#f9ca24", border: "1px solid #e0b400", borderRadius: 6, color: "#5a4200" }}>
+                    Chiusura temporanea {c.dalle} – {c.alle}{c.motivo ? ` · ${c.motivo}` : ""}. Le prenotazioni si riaprono alle {c.alle}.
                   </div>
                 ));
               }
