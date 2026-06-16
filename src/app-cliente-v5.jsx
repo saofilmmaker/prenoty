@@ -739,10 +739,10 @@ export default function AppCliente() {
                   const al = new Date(salone.ferieAl);
                   const fmtD = (d) => `${d.getDate()} ${["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"][d.getMonth()]}`;
                   return (
-                    <div className="mt-6 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#fff8e1", border: "1px solid #f9c74f", borderRadius: 8 }}>
-                      <div className="text-sm font-medium" style={{ color: "#7d5a00" }}>Chiusi dal {fmtD(dal)} al {fmtD(al)}</div>
-                      {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#7d5a00" }}>{salone.ferieMessaggio}</div>}
-                      <div className="text-xs mt-2" style={{ color: "#a07820" }}>Le prenotazioni riaprono il {fmtD(new Date(al.getTime() + 86400000))}</div>
+                    <div className="mt-6 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#f9ca24", border: "1px solid #e0b400", borderRadius: 8 }}>
+                      <div className="text-sm font-medium" style={{ color: "#4a3200" }}>Chiusi dal {fmtD(dal)} al {fmtD(al)}</div>
+                      {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#5a4200" }}>{salone.ferieMessaggio}</div>}
+                      <div className="text-xs mt-2" style={{ color: "#7a5c00" }}>Le prenotazioni riaprono il {fmtD(new Date(al.getTime() + 86400000))}</div>
                     </div>
                   );
                 })()}
