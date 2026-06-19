@@ -174,6 +174,7 @@ export default function DashboardPrenoty() {
 
   const [sezione, setSezione] = useState("agenda"); // agenda, clienti, servizi, staff, report, impostazioni
   const [vista, setVista] = useState("oggi");
+  const [saltaData, setSaltaData] = useState("");
   const [filtro, setFiltro] = useState("");
 
   const [refreshing, setRefreshing] = useState(false);
@@ -1030,8 +1031,9 @@ useEffect(() => {
   const filtraPrenotazioni = () => {
     let f = prenotazioni;
     if (filtroCard === "pagati") { return f.filter(p => p.pagamento === "pagato").sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora)); }
-    if (vista === "oggi") f = f.filter(p => p.data === oggiStr);
-    if (vista === "settimana") f = f.filter(p => p.data >= oggiStr);
+    if (saltaData) f = f.filter(p => p.data === saltaData);
+    else if (vista === "oggi") f = f.filter(p => p.data === oggiStr);
+    else if (vista === "settimana") f = f.filter(p => p.data >= oggiStr);
     if (filtro) f = f.filter(p => p.cliente.toLowerCase().includes(filtro.toLowerCase()) || p.servizio.toLowerCase().includes(filtro.toLowerCase()));
     return f.sort((a, b) => (a.data + a.ora).localeCompare(b.data + b.ora));
   };
@@ -1800,11 +1802,11 @@ useEffect(() => {
                   {["oggi", "settimana", "tutti"].map(v => (
                     <button
                       key={v}
-                      onClick={() => { setVista(v); setFiltroCard(null); }}
+                      onClick={() => { setVista(v); setFiltroCard(null); setSaltaData(""); }}
                       className="px-4 py-2 text-xs tracking-widest transition"
                       style={{
-                        backgroundColor: vista === v ? T.dark : "transparent",
-                        color: vista === v ? T.bg : T.textSoft,
+                        backgroundColor: vista === v && !saltaData ? T.dark : "transparent",
+                        color: vista === v && !saltaData ? T.bg : T.textSoft,
                         letterSpacing: "0.15em",
                         borderRadius: 7,
                       }}
@@ -1812,6 +1814,27 @@ useEffect(() => {
                       {v.toUpperCase()}
                     </button>
                   ))}
+                  <div className="relative flex items-center" style={{ marginLeft: 4 }}>
+                    <input
+                      type="date"
+                      value={saltaData}
+                      onChange={e => { setSaltaData(e.target.value); setFiltroCard(null); }}
+                      className="px-3 py-2 text-xs outline-none"
+                      style={{
+                        backgroundColor: saltaData ? T.dark : "transparent",
+                        color: saltaData ? T.bg : T.textSoft,
+                        border: "none",
+                        borderRadius: 7,
+                        cursor: "pointer",
+                        width: saltaData ? 130 : 32,
+                        transition: "width 0.2s",
+                      }}
+                      title="Salta a una data"
+                    />
+                    {!saltaData && (
+                      <Calendar className="w-4 h-4 pointer-events-none" style={{ color: T.textSoft, position: "absolute", left: 8 }} />
+                    )}
+                  </div>
                 </div>
                 <div className="flex-1 relative">
                   <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2" style={{ color: T.textMuted }} />
