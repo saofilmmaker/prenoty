@@ -3969,8 +3969,19 @@ useEffect(() => {
                       </ul>
                     </div>
                     <button
-                      onClick={() => {
-                        window.open("https://buy.stripe.com/28E9AT5OO23kbTz73e7IY00", "_blank");
+                      onClick={async () => {
+                        try {
+                          const res = await fetch("/api/create-checkout-session", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({ saloneId: salone.dbId, email: salone.email, nomeNegozio: salone.nome }),
+                          });
+                          const data = await res.json();
+                          if (data.url) window.location.href = data.url;
+                          else alert("Errore: " + (data.error || "risposta non valida"));
+                        } catch (err) {
+                          alert("Errore di rete: " + err.message);
+                        }
                       }}
                       className="w-full py-3 text-sm tracking-widest"
                       style={{ backgroundColor: T.accent, color: "#fff", border: "none", letterSpacing: "0.15em", borderRadius: 8, cursor: "pointer" }}
