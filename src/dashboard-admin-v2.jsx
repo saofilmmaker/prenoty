@@ -132,7 +132,11 @@ export default function DashboardAdmin() {
           stato: statoMap[s.stato_abbonamento] ?? "trial",
           ultimoPagamento: null,
           prossimoRinnovo: s.abbonamento_scadenza ? s.abbonamento_scadenza.slice(0, 10) : null,
-          provaScadeIl: s.prova_scade_il ? s.prova_scade_il.slice(0, 10) : null,
+          provaScadeIl: (() => {
+            if (s.prova_scade_il) return s.prova_scade_il.slice(0, 10);
+            if (s.created_at) { const d = new Date(s.created_at); d.setDate(d.getDate() + 30); return d.toISOString().slice(0, 10); }
+            return null;
+          })(),
           abbonamentoAttivo: s.abbonamento_attivo ?? false,
           prenotazioni: countPren[s.id] || 0,
         })));
