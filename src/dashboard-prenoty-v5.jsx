@@ -1403,7 +1403,12 @@ useEffect(() => {
 
   // Espande un appuntamento multi-servizio in righe separate, ognuna con il suo orario
   const espandiServizi = (p) => {
-    const nomi = (p.servizio || "").split(",").map(s => s.trim()).filter(Boolean);
+    const nomi = (p.servizio || "").split(",").map(s => s.trim()).filter(Boolean)
+      .sort((a, b) => {
+        const da = servizi.find(s => s.nome?.trim().toLowerCase() === a.toLowerCase())?.durata || 0;
+        const db = servizi.find(s => s.nome?.trim().toLowerCase() === b.toLowerCase())?.durata || 0;
+        return db - da;
+      });
     if (nomi.length <= 1) return [{ ...p, _prenOrig: p, _subIdx: 0, _subCount: 1 }];
     const [oreStr, minStr] = (p.ora || "00:00").split(":");
     let minTot = parseInt(oreStr) * 60 + parseInt(minStr || 0);
