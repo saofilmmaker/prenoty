@@ -1431,7 +1431,7 @@ export default function Home(){
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
-          <p style={{fontSize:19,color:"#6b6488",marginBottom:48}}>30 giorni gratis,{isMobile&&<br/>} poi un unico pagamento.<br/>Nessun abbonamento mensile.</p>
+          <p style={{fontSize:19,color:"#6b6488",marginBottom:48}}>30 giorni gratis,{isMobile&&<br/>} poi un unico pagamento per tutto l'anno.<br/>Poi abbonamento annuale.</p>
         </FadeIn>
 
         <FadeIn delay={0.12}>
@@ -1482,7 +1482,7 @@ export default function Home(){
               <div style={{marginBottom:28,textAlign:"left"}}>
                 <div style={{display:"flex",alignItems:"baseline",gap:8,marginBottom:4}}>
                   <span style={{fontSize:64,fontWeight:800,color:"#fff",letterSpacing:2,lineHeight:1}}>€299</span>
-                  <span style={{fontSize:15,color:"rgba(224,220,255,0.7)",fontWeight:500}}>pagamento unico</span>
+                  <span style={{fontSize:15,color:"rgba(224,220,255,0.7)",fontWeight:500}}>pagamento unico per il primo anno</span>
                 </div>
                 <p style={{fontSize:13,color:"rgba(224,220,255,0.5)",margin:0,lineHeight:1.6}}>Prezzo di lancio, riservato ai primi 100 professionisti.<br/>Poi passeremo all'abbonamento.</p>
               </div>
@@ -1531,7 +1531,7 @@ export default function Home(){
           </div>
           <div style={{maxWidth:760,margin:"0 auto"}}>
             {[
-              {q:"Perché pagamento unico e non abbonamento?", a:"Siamo in fase di lancio e vogliamo premiare chi ci crede da subito. Chi acquista ora paga €299 una volta sola e mantiene l'accesso completo per sempre, anche quando introdurremo i piani in abbonamento."},
+              {q:"Perché pagamento unico e non abbonamento?", a:"Siamo in fase di lancio e vogliamo premiare chi ci crede da subito. Chi acquista ora paga €299 una volta sola e mantiene l'accesso completo per tutto il primo anno, poi si passa a un abbonamento annuale."},
               {q:"Cosa succede dopo i 30 giorni gratis?", a:"Puoi scegliere se acquistare Prenoty a €299 oppure smettere di usarlo, senza penali, senza carte di credito richieste per iniziare."},
               {q:"I miei clienti devono scaricare un'app?", a:"No. I tuoi clienti prenotano direttamente dal link della tua pagina, dal browser del telefono. Nessuna app da installare."},
               {q:"È difficile configurare?", a:"No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."},
