@@ -884,6 +884,7 @@ useEffect(() => {
   const [editTel, setEditTel] = useState("");
   const [editEmail, setEditEmail] = useState("");
   const [cercaCliente, setCercaCliente] = useState("");
+  const [ordinaClienti, setOrdinaClienti] = useState("az");
   const [salvandoCliente, setSalvandoCliente] = useState(false);
   const [salvatoOk, setSalvatoOk] = useState(false);
   const [erroreCliente, setErroreCliente] = useState("");
@@ -2046,6 +2047,10 @@ useEffect(() => {
                       style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
                     />
                   </div>
+                  <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
+                    <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
+                    <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
+                  </div>
                   <button
                     onClick={() => setModalNuovoCliente(true)}
                     className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest text-white whitespace-nowrap"
@@ -2097,13 +2102,17 @@ useEffect(() => {
               <div className="border divide-y" style={{ backgroundColor: T.card, borderColor: T.border }}>
                 {(() => {
                   const q = cercaCliente.trim().toLowerCase();
-                  const clientiFiltrati = q
+                  const clientiFiltrati = (q
                     ? clienti.filter(c =>
                         (c.nome || "").toLowerCase().includes(q) ||
                         (c.tel || "").includes(q) ||
                         (c.email || "").toLowerCase().includes(q)
                       )
-                    : clienti;
+                    : [...clienti]
+                  ).sort((a, b) => ordinaClienti === "visite"
+                    ? b.visite - a.visite
+                    : a.nome.localeCompare(b.nome, "it")
+                  );
                   if (clientiFiltrati.length === 0) {
                     return (
                       <div className="p-12 text-center" style={{ color: T.textMuted }}>
@@ -2121,8 +2130,9 @@ useEffect(() => {
                       </div>
                     );
                   }
-                  return clientiFiltrati.map(c => {
+                  return clientiFiltrati.map((c, idx) => {
                   const comp = infoCompleanno(c.dataNascita);
+                  const isTop = ordinaClienti === "visite" && idx === 0 && c.visite > 0;
                   return (
                   <div key={c.id} className="p-5 flex items-center gap-4 cursor-pointer transition hover:opacity-80" style={{ borderColor: T.border }} onClick={() => apriDettaglioCliente(c)}>
                     <div className="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0 text-sm font-bold" style={{ backgroundColor: T.accentSoft, color: T.accent }}>
@@ -2131,6 +2141,9 @@ useEffect(() => {
                     <div className="flex-1 min-w-0">
                       <div className="flex items-center gap-2 flex-wrap">
                         <span className="font-medium">{c.nome}</span>
+                        {isTop && (
+                          <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold" style={{ background: T.accentSoft, color: T.accent }}>★ Top cliente</span>
+                        )}
                         {comp && (
                           <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold inline-flex items-center gap-1" style={{ background: "#fff3cd", color: "#856404" }}>
                             <Gift className="w-3 h-3" /> Compleanno {comp}
