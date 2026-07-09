@@ -4232,6 +4232,9 @@ useEffect(() => {
                 </>
               ) : (
                 <>
+                  <a href={`tel:${dettaglio.tel}`} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
+                    <Phone className="w-4 h-4" /> CHIAMA
+                  </a>
                   <button onClick={apriModifica} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
                     <Scissors className="w-4 h-4" /> MODIFICA
                   </button>
