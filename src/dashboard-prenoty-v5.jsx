@@ -2037,7 +2037,7 @@ useEffect(() => {
                 </div>
                 {/* Riga 1 su mobile: cerca — su desktop: cerca + ordina + nuovo */}
                 <div className="flex items-center gap-2">
-                  <div className="relative flex-1">
+                  <div className="relative flex-1 md:flex-none md:w-64">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: T.textMuted }} />
                     <input
                       type="text"
