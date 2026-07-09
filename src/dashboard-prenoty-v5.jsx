@@ -2031,12 +2031,14 @@ useEffect(() => {
           {/* CLIENTI */}
           {sezione === "clienti" && (
             <div>
-              <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-3 mb-5">
-                <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
-                  {clienti.length} CLIENTI IN ANAGRAFICA
+              <div className="flex flex-col gap-3 mb-5">
+                <div className="flex items-center justify-between">
+                  <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
+                    {clienti.length} CLIENTI IN ANAGRAFICA
+                  </div>
                 </div>
                 <div className="flex items-center gap-2">
-                  <div className="relative flex-1 md:w-64">
+                  <div className="relative flex-1">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: T.textMuted }} />
                     <input
                       type="text"
@@ -2047,16 +2049,14 @@ useEffect(() => {
                       style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
                     />
                   </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs whitespace-nowrap" style={{ color: T.textMuted }}>Ordina per</span>
-                    <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
-                      <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
-                      <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
-                    </div>
+                  <span className="text-xs whitespace-nowrap hidden md:inline" style={{ color: T.textMuted }}>Ordina per</span>
+                  <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
+                    <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
+                    <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
                   </div>
                   <button
                     onClick={() => setModalNuovoCliente(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest text-white whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap"
                     style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
                   >
                     <Plus className="w-4 h-4" /> NUOVO
