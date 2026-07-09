@@ -4236,8 +4236,9 @@ useEffect(() => {
                 </div>
               )}
               {dettaglio.extraDescrizione && (
-                <div className="px-3 py-2 rounded text-sm" style={{ background: T.accentBg || "rgba(99,91,255,0.08)", color: T.accent }}>
-                  <span className="font-medium">Extra:</span> {dettaglio.extraDescrizione}
+                <div className="px-3 py-2 rounded text-sm flex justify-between items-center" style={{ background: T.accentBg || "rgba(99,91,255,0.08)", color: T.accent }}>
+                  <span><span className="font-medium">Extra:</span> {dettaglio.extraDescrizione}</span>
+                  {dettaglio.extraImporto > 0 && <span className="font-medium">+€{dettaglio.extraImporto}</span>}
                 </div>
               )}
               <div className="pt-4 border-t flex justify-between items-center" style={{ borderColor: T.border }}>
