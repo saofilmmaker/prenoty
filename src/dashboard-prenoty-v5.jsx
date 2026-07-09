@@ -385,6 +385,7 @@ export default function DashboardPrenoty() {
   const [detEditMode, setDetEditMode] = useState(false);
   const [detEditServizi, setDetEditServizi] = useState([]);
   const [detEditPrezzoExtra, setDetEditPrezzoExtra] = useState(0);
+  const [detEditDescExtra, setDetEditDescExtra] = useState("");
   const [detEditNote, setDetEditNote] = useState("");
   const [detEditSaving, setDetEditSaving] = useState(false);
   const [menuAperto, setMenuAperto] = useState(false);
@@ -551,6 +552,7 @@ useEffect(() => {
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
+          extraDescrizione: p.extra_descrizione || "",
           creatoIl: p.created_at || null,
         })) : []);
         if (saloneDb) caricaClienti(saloneDb.id);
@@ -1228,6 +1230,7 @@ useEffect(() => {
             staffId: p.staff_id || 1,
             nuovo: true,
             note: p.note || "",
+            extraDescrizione: p.extra_descrizione || "",
             creatoIl: p.created_at || null,
           };
           setPrenotazioni(prev => [nuovaPren, ...prev]);
@@ -1401,6 +1404,7 @@ useEffect(() => {
     const nomi = (dettaglio.servizio || "").split(",").map(s => s.trim()).filter(Boolean);
     setDetEditServizi(nomi);
     setDetEditPrezzoExtra(0);
+    setDetEditDescExtra(dettaglio.extraDescrizione || "");
     setDetEditNote(dettaglio.note || "");
     setDetEditMode(true);
   };
@@ -1418,6 +1422,7 @@ useEffect(() => {
       nomi_servizi: nuoviServizi,
       prezzo: nuovoPrezzo,
       note: detEditNote,
+      extra_descrizione: detEditDescExtra,
     }).eq("id", dettaglio.id);
     if (error) {
       alert(`Errore: ${error.message}`);
@@ -1425,10 +1430,10 @@ useEffect(() => {
       return;
     }
     setPrenotazioni(prev => prev.map(p => p.id === dettaglio.id
-      ? { ...p, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote }
+      ? { ...p, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra }
       : p
     ));
-    setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote }));
+    setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra }));
     setDetEditMode(false);
     setDetEditSaving(false);
   };
@@ -2987,6 +2992,35 @@ useEffect(() => {
                   </div>
                 </div>
 
+                {/* Extra manuali del mese */}
+                {(() => {
+                  const extra = prenMese.filter(p => p.extraDescrizione);
+                  if (extra.length === 0) return null;
+                  return (
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                      <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>EXTRA AGGIUNTI IN SALONE</h3>
+                      <div className="space-y-2">
+                        {extra.map(p => {
+                          const prezzoServizi = (p.servizio || "").split(",").map(s => s.trim()).filter(Boolean).reduce((acc, nome) => {
+                            const sv = servizi.find(sv => sv.nome?.trim().toLowerCase() === nome.toLowerCase());
+                            return acc + (sv?.prezzo || 0);
+                          }, 0);
+                          const importoExtra = p.prezzo - prezzoServizi;
+                          return (
+                            <div key={p.id} className="flex justify-between items-center text-sm py-2 border-b" style={{ borderColor: T.border }}>
+                              <div>
+                                <div style={{ color: T.text }}>{p.extraDescrizione}</div>
+                                <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{p.cliente} · {fmtData(p.data)}</div>
+                              </div>
+                              <div style={{ color: T.accent, fontWeight: 500 }}>+€{importoExtra > 0 ? importoExtra : "—"}</div>
+                            </div>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Confronto mesi — ultimi 6 */}
                 {(() => {
                   const ultimi6 = Array.from({ length: 6 }, (_, i) => {
@@ -4134,17 +4168,27 @@ useEffect(() => {
                     </select>
                   </div>
                   <div>
-                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>EXTRA (€ manuali)</div>
-                    <input
-                      type="number"
-                      min="0"
-                      className="w-full text-sm px-3 py-2 rounded"
-                      style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
-                      value={detEditPrezzoExtra}
-                      onChange={e => setDetEditPrezzoExtra(e.target.value)}
-                      placeholder="0"
-                    />
-                    <div className="text-xs mt-1" style={{ color: T.textMuted }}>Es. prodotto venduto, trattamento aggiunto in salone</div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>EXTRA</div>
+                    <div className="flex gap-2">
+                      <input
+                        type="number"
+                        min="0"
+                        className="text-sm px-3 py-2 rounded"
+                        style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, width: 80, flexShrink: 0 }}
+                        value={detEditPrezzoExtra}
+                        onChange={e => setDetEditPrezzoExtra(e.target.value)}
+                        placeholder="€"
+                      />
+                      <input
+                        type="text"
+                        className="flex-1 text-sm px-3 py-2 rounded"
+                        style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
+                        value={detEditDescExtra}
+                        onChange={e => setDetEditDescExtra(e.target.value)}
+                        placeholder="Es. shampoo venduto, sfumatura..."
+                      />
+                    </div>
+                    <div className="text-xs mt-1" style={{ color: T.textMuted }}>Appare anche nel report mensile</div>
                   </div>
                   <div>
                     <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>NOTE INTERNE</div>
@@ -4191,6 +4235,11 @@ useEffect(() => {
                 <div>
                   <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>NOTE</div>
                   <div className="italic text-sm" style={{ color: T.textSoft }}>{dettaglio.note}</div>
+                </div>
+              )}
+              {dettaglio.extraDescrizione && (
+                <div className="px-3 py-2 rounded text-sm" style={{ background: T.accentBg || "rgba(99,91,255,0.08)", color: T.accent }}>
+                  <span className="font-medium">Extra:</span> {dettaglio.extraDescrizione}
                 </div>
               )}
               <div className="pt-4 border-t flex justify-between items-center" style={{ borderColor: T.border }}>
