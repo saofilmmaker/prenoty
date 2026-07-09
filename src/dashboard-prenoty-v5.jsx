@@ -2032,11 +2032,10 @@ useEffect(() => {
           {sezione === "clienti" && (
             <div>
               <div className="flex flex-col gap-3 mb-5">
-                <div className="flex items-center justify-between">
-                  <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
-                    {clienti.length} CLIENTI IN ANAGRAFICA
-                  </div>
+                <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
+                  {clienti.length} CLIENTI IN ANAGRAFICA
                 </div>
+                {/* Riga 1 su mobile: cerca — su desktop: cerca + ordina + nuovo */}
                 <div className="flex items-center gap-2">
                   <div className="relative flex-1">
                     <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2" style={{ color: T.textMuted }} />
@@ -2049,14 +2048,31 @@ useEffect(() => {
                       style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
                     />
                   </div>
-                  <span className="text-xs whitespace-nowrap hidden md:inline" style={{ color: T.textMuted }}>Ordina per</span>
+                  <div className="hidden md:flex items-center gap-2">
+                    <span className="text-xs whitespace-nowrap" style={{ color: T.textMuted }}>Ordina per</span>
+                    <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
+                      <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
+                      <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
+                    </div>
+                    <button
+                      onClick={() => setModalNuovoCliente(true)}
+                      className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap"
+                      style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
+                    >
+                      <Plus className="w-4 h-4" /> NUOVO
+                    </button>
+                  </div>
+                </div>
+                {/* Riga 2 solo su mobile: ordina + nuovo */}
+                <div className="flex items-center gap-2 md:hidden">
+                  <span className="text-xs whitespace-nowrap" style={{ color: T.textMuted }}>Ordina per</span>
                   <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
                     <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
                     <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
                   </div>
                   <button
                     onClick={() => setModalNuovoCliente(true)}
-                    className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap"
+                    className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap ml-auto"
                     style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
                   >
                     <Plus className="w-4 h-4" /> NUOVO
