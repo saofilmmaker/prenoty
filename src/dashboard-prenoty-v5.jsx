@@ -2047,9 +2047,12 @@ useEffect(() => {
                       style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
                     />
                   </div>
-                  <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
-                    <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
-                    <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs whitespace-nowrap" style={{ color: T.textMuted }}>Ordina per</span>
+                    <div className="flex rounded-lg overflow-hidden border" style={{ borderColor: T.border }}>
+                      <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
+                      <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
+                    </div>
                   </div>
                   <button
                     onClick={() => setModalNuovoCliente(true)}
