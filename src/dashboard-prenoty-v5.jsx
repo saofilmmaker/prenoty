@@ -941,7 +941,7 @@ useEffect(() => {
           dataNascita: c.data_nascita || "",
           fedelta: Math.floor(visite / 2),
         };
-      }));
+      }).sort((a, b) => a.nome.localeCompare(b.nome, "it")));
     }
   };
 
