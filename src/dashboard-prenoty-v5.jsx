@@ -382,6 +382,11 @@ export default function DashboardPrenoty() {
     }
   };
   const [dettaglio, setDettaglio] = useState(null);
+  const [detEditMode, setDetEditMode] = useState(false);
+  const [detEditServizi, setDetEditServizi] = useState([]);
+  const [detEditPrezzoExtra, setDetEditPrezzoExtra] = useState(0);
+  const [detEditNote, setDetEditNote] = useState("");
+  const [detEditSaving, setDetEditSaving] = useState(false);
   const [menuAperto, setMenuAperto] = useState(false);
 
   // TIPO DI ATTIVITÀ (parrucchiere | estetista | spa)
@@ -1389,6 +1394,43 @@ useEffect(() => {
       console.error("Errore cancellazione:", error);
       alert(`Errore: ${error.message}`);
     }
+  };
+
+  const apriModifica = () => {
+    if (!dettaglio) return;
+    const nomi = (dettaglio.servizio || "").split(",").map(s => s.trim()).filter(Boolean);
+    setDetEditServizi(nomi);
+    setDetEditPrezzoExtra(0);
+    setDetEditNote(dettaglio.note || "");
+    setDetEditMode(true);
+  };
+
+  const salvaModifica = async () => {
+    if (!dettaglio) return;
+    setDetEditSaving(true);
+    const nuoviServizi = detEditServizi.join(", ");
+    const prezzoBase = detEditServizi.reduce((acc, nome) => {
+      const s = servizi.find(s => s.nome?.trim().toLowerCase() === nome.toLowerCase());
+      return acc + (s?.prezzo || 0);
+    }, 0);
+    const nuovoPrezzo = prezzoBase + Number(detEditPrezzoExtra || 0);
+    const { error } = await supabase.from("prenotazioni").update({
+      nomi_servizi: nuoviServizi,
+      prezzo: nuovoPrezzo,
+      note: detEditNote,
+    }).eq("id", dettaglio.id);
+    if (error) {
+      alert(`Errore: ${error.message}`);
+      setDetEditSaving(false);
+      return;
+    }
+    setPrenotazioni(prev => prev.map(p => p.id === dettaglio.id
+      ? { ...p, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote }
+      : p
+    ));
+    setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote }));
+    setDetEditMode(false);
+    setDetEditSaving(false);
   };
 
   const fmtData = (d) => {
@@ -4011,7 +4053,7 @@ useEffect(() => {
 
       {/* MODAL DETTAGLIO */}
       {dettaglio && (
-        <div className="fixed inset-0 bg-black/50 z-20 flex items-end md:items-center justify-center p-0 md:p-6" onClick={() => setDettaglio(null)}>
+        <div className="fixed inset-0 bg-black/50 z-20 flex items-end md:items-center justify-center p-0 md:p-6" onClick={() => { setDettaglio(null); setDetEditMode(false); }}>
           <div className="w-full md:max-w-lg md:border" style={{ backgroundColor: T.bg, borderColor: T.border }} onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
               <div className="flex items-start justify-between mb-4">
@@ -4019,7 +4061,7 @@ useEffect(() => {
                   <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>DETTAGLIO APPUNTAMENTO</div>
                   <h3 className="text-2xl">{dettaglio.cliente}</h3>
                 </div>
-                <button onClick={() => setDettaglio(null)} className="text-2xl leading-none" style={{ color: T.textMuted }}>×</button>
+                <button onClick={() => { setDettaglio(null); setDetEditMode(false); }} className="text-2xl leading-none" style={{ color: T.textMuted }}>×</button>
               </div>
               <div className="flex items-center gap-2 text-sm" style={{ color: T.textSoft }}>
                 <Phone className="w-4 h-4" />
@@ -4060,6 +4102,71 @@ useEffect(() => {
                   </div>
                 </div>
               )}
+              {detEditMode ? (
+                <div className="space-y-3">
+                  <div className="text-xs tracking-widest" style={{ color: T.textMuted }}>SERVIZI</div>
+                  <div className="space-y-1">
+                    {detEditServizi.map((nome, i) => {
+                      const s = servizi.find(sv => sv.nome?.trim().toLowerCase() === nome.toLowerCase());
+                      return (
+                        <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded" style={{ background: T.card, border: `1px solid ${T.border}` }}>
+                          <span className="text-sm">{nome}</span>
+                          <div className="flex items-center gap-3">
+                            <span className="text-sm" style={{ color: T.textMuted }}>€{s?.prezzo ?? 0}</span>
+                            <button onClick={() => setDetEditServizi(prev => prev.filter((_, j) => j !== i))} className="text-lg leading-none" style={{ color: T.danger }}>×</button>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                  <div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>AGGIUNGI SERVIZIO</div>
+                    <select
+                      className="w-full text-sm px-3 py-2 rounded"
+                      style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
+                      value=""
+                      onChange={e => { if (e.target.value) setDetEditServizi(prev => [...prev, e.target.value]); }}
+                    >
+                      <option value="">Seleziona servizio...</option>
+                      {servizi.filter(s => !detEditServizi.includes(s.nome?.trim())).map(s => (
+                        <option key={s.id} value={s.nome?.trim()}>{s.nome} — €{s.prezzo}</option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>EXTRA (€ manuali)</div>
+                    <input
+                      type="number"
+                      min="0"
+                      className="w-full text-sm px-3 py-2 rounded"
+                      style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
+                      value={detEditPrezzoExtra}
+                      onChange={e => setDetEditPrezzoExtra(e.target.value)}
+                      placeholder="0"
+                    />
+                    <div className="text-xs mt-1" style={{ color: T.textMuted }}>Es. prodotto venduto, trattamento aggiunto in salone</div>
+                  </div>
+                  <div>
+                    <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>NOTE INTERNE</div>
+                    <textarea
+                      className="w-full text-sm px-3 py-2 rounded resize-none"
+                      style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, minHeight: 56 }}
+                      value={detEditNote}
+                      onChange={e => setDetEditNote(e.target.value)}
+                      placeholder="Es. ha aggiunto sfumatura in salone..."
+                    />
+                  </div>
+                  <div className="flex justify-between items-center pt-2 border-t" style={{ borderColor: T.border }}>
+                    <span className="text-xs tracking-widest" style={{ color: T.textMuted }}>TOTALE</span>
+                    <span className="text-2xl" style={{ color: T.accent }}>
+                      €{detEditServizi.reduce((acc, nome) => {
+                        const s = servizi.find(sv => sv.nome?.trim().toLowerCase() === nome.toLowerCase());
+                        return acc + (s?.prezzo || 0);
+                      }, 0) + Number(detEditPrezzoExtra || 0)}
+                    </span>
+                  </div>
+                </div>
+              ) : (
               <div>
                 <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>SERVIZIO</div>
                 <div className="flex items-center gap-2">
@@ -4067,6 +4174,7 @@ useEffect(() => {
                   {dettaglio.servizio}
                 </div>
               </div>
+              )}
               <div>
                 <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>OPERATORE</div>
                 <div className="flex items-center gap-2">
@@ -4113,12 +4221,25 @@ useEffect(() => {
             </div>
 
             <div className="p-6 border-t flex gap-3" style={{ backgroundColor: T.card, borderColor: T.border }}>
-              <a href={`tel:${dettaglio.tel}`} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
-                <Phone className="w-4 h-4" /> CHIAMA
-              </a>
-              <button onClick={() => cancella(dettaglio.id)} className="flex-1 py-3 tracking-widest text-sm text-white transition flex items-center justify-center gap-2" style={{ backgroundColor: T.danger, letterSpacing: "0.15em" }}>
-                <XCircle className="w-4 h-4" /> ANNULLA
-              </button>
+              {detEditMode ? (
+                <>
+                  <button onClick={() => setDetEditMode(false)} className="flex-1 py-3 border tracking-widest text-sm transition" style={{ borderColor: T.borderStrong, color: T.textMuted, letterSpacing: "0.15em" }}>
+                    ANNULLA
+                  </button>
+                  <button onClick={salvaModifica} disabled={detEditSaving} className="flex-1 py-3 tracking-widest text-sm text-white transition" style={{ backgroundColor: T.accent, letterSpacing: "0.15em", opacity: detEditSaving ? 0.6 : 1 }}>
+                    {detEditSaving ? "SALVO..." : "SALVA"}
+                  </button>
+                </>
+              ) : (
+                <>
+                  <button onClick={apriModifica} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
+                    <Scissors className="w-4 h-4" /> MODIFICA
+                  </button>
+                  <button onClick={() => cancella(dettaglio.id)} className="flex-1 py-3 tracking-widest text-sm text-white transition flex items-center justify-center gap-2" style={{ backgroundColor: T.danger, letterSpacing: "0.15em" }}>
+                    <XCircle className="w-4 h-4" /> ANNULLA
+                  </button>
+                </>
+              )}
             </div>
           </div>
         </div>
