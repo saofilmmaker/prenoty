@@ -553,6 +553,7 @@ useEffect(() => {
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
           extraDescrizione: p.extra_descrizione || "",
+          extraImporto: p.extra_importo || 0,
           creatoIl: p.created_at || null,
         })) : []);
         if (saloneDb) caricaClienti(saloneDb.id);
@@ -1231,6 +1232,7 @@ useEffect(() => {
             nuovo: true,
             note: p.note || "",
             extraDescrizione: p.extra_descrizione || "",
+            extraImporto: p.extra_importo || 0,
             creatoIl: p.created_at || null,
           };
           setPrenotazioni(prev => [nuovaPren, ...prev]);
@@ -1301,6 +1303,8 @@ useEffect(() => {
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
+          extraDescrizione: p.extra_descrizione || "",
+          extraImporto: p.extra_importo || 0,
           creatoIl: p.created_at || null,
         })));
       }
@@ -1423,6 +1427,7 @@ useEffect(() => {
       prezzo: nuovoPrezzo,
       note: detEditNote,
       extra_descrizione: detEditDescExtra,
+      extra_importo: Number(detEditPrezzoExtra || 0),
     }).eq("id", dettaglio.id);
     if (error) {
       alert(`Errore: ${error.message}`);
@@ -1430,10 +1435,10 @@ useEffect(() => {
       return;
     }
     setPrenotazioni(prev => prev.map(p => p.id === dettaglio.id
-      ? { ...p, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra }
+      ? { ...p, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra, extraImporto: Number(detEditPrezzoExtra || 0) }
       : p
     ));
-    setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra }));
+    setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra, extraImporto: Number(detEditPrezzoExtra || 0) }));
     setDetEditMode(false);
     setDetEditSaving(false);
   };
@@ -3000,22 +3005,15 @@ useEffect(() => {
                     <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
                       <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>EXTRA AGGIUNTI IN SALONE</h3>
                       <div className="space-y-2">
-                        {extra.map(p => {
-                          const prezzoServizi = (p.servizio || "").split(",").map(s => s.trim()).filter(Boolean).reduce((acc, nome) => {
-                            const sv = servizi.find(sv => sv.nome?.trim().toLowerCase() === nome.toLowerCase());
-                            return acc + (sv?.prezzo || 0);
-                          }, 0);
-                          const importoExtra = p.prezzo - prezzoServizi;
-                          return (
-                            <div key={p.id} className="flex justify-between items-center text-sm py-2 border-b" style={{ borderColor: T.border }}>
-                              <div>
-                                <div style={{ color: T.text }}>{p.extraDescrizione}</div>
-                                <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{p.cliente} · {fmtData(p.data)}</div>
-                              </div>
-                              <div style={{ color: T.accent, fontWeight: 500 }}>+€{importoExtra > 0 ? importoExtra : "—"}</div>
+                        {extra.map(p => (
+                          <div key={p.id} className="flex justify-between items-center text-sm py-2 border-b" style={{ borderColor: T.border }}>
+                            <div>
+                              <div style={{ color: T.text }}>{p.extraDescrizione}</div>
+                              <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>{p.cliente} · {fmtData(p.data)}</div>
                             </div>
-                          );
-                        })}
+                            <div style={{ color: T.accent, fontWeight: 500 }}>+€{p.extraImporto || 0}</div>
+                          </div>
+                        ))}
                       </div>
                     </div>
                   );
