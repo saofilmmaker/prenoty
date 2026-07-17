@@ -384,8 +384,10 @@ export default function DashboardPrenoty() {
   const [reportLocked, setReportLocked] = useState(true);
   const [reportPwdInput, setReportPwdInput] = useState("");
   const [reportPwdError, setReportPwdError] = useState(false);
+  const [pwdImpostazMode, setPwdImpostazMode] = useState(""); // "" | "set" | "change" | "disable" | "recover"
   const [pwdImpostazInput, setPwdImpostazInput] = useState("");
   const [pwdImpostazConfirm, setPwdImpostazConfirm] = useState("");
+  const [pwdImpostazConfirm2, setPwdImpostazConfirm2] = useState("");
   const [dettaglio, setDettaglio] = useState(null);
   const [detEditMode, setDetEditMode] = useState(false);
   const [detEditServizi, setDetEditServizi] = useState([]);
@@ -3343,18 +3345,19 @@ useEffect(() => {
                     <div className="flex-1 pr-3">
                       <div className="text-sm">Password sezione Report</div>
                       <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
-                        {salone.reportPassword ? <span style={{ color: "#00b894" }}>● Attiva — solo con password si accede al Report</span> : "Proteggi il Report con una password per uso esclusivo del titolare"}
+                        {salone.reportPassword
+                          ? <span style={{ color: "#00b894" }}>● Attiva — solo con password si accede al Report</span>
+                          : "Proteggi il Report con una password per uso esclusivo del titolare"}
                       </div>
                     </div>
                     <button
                       onClick={() => {
-                        if (salone.reportPassword) {
-                          if (window.confirm("Vuoi rimuovere la password dal Report?")) {
-                            setSalone(s => ({ ...s, reportPassword: "" }));
-                            if (salone.dbId) supabase.from("saloni").update({ report_password: null }).eq("id", salone.dbId);
-                          }
+                        if (!salone.reportPassword) {
+                          // Attivo toggle: mostro form impostazione
+                          setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazMode("set");
                         } else {
-                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                          // Disattivo toggle: chiedo la password corrente prima
+                          setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazMode("disable");
                         }
                       }}
                       className="w-10 h-6 rounded-full relative transition flex-shrink-0"
@@ -3364,78 +3367,90 @@ useEffect(() => {
                     </button>
                   </div>
 
-                  {/* Form impostazione password — visibile se non c'è password ancora */}
-                  {!salone.reportPassword && (
+                  {/* Form ATTIVAZIONE — toggle appena cliccato su ON, nessuna password ancora */}
+                  {pwdImpostazMode === "set" && !salone.reportPassword && (
                     <div className="mt-4 flex flex-col gap-3">
+                      <div className="text-xs" style={{ color: T.textMuted }}>Scegli una password per proteggere il Report</div>
                       <div className="flex gap-2">
-                        <input
-                          type="password"
-                          value={pwdImpostazInput}
-                          onChange={e => setPwdImpostazInput(e.target.value)}
-                          placeholder="Nuova password..."
-                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
-                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
-                        />
-                        <input
-                          type="password"
-                          value={pwdImpostazConfirm}
-                          onChange={e => setPwdImpostazConfirm(e.target.value)}
-                          placeholder="Conferma..."
-                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
-                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
-                        />
+                        <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                        <input type="password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Conferma..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
                       </div>
-                      <button
-                        onClick={async () => {
+                      <div className="flex gap-2">
+                        <button onClick={async () => {
                           if (!pwdImpostazInput) return alert("Inserisci una password.");
                           if (pwdImpostazInput !== pwdImpostazConfirm) return alert("Le password non corrispondono.");
                           setSalone(s => ({ ...s, reportPassword: pwdImpostazInput }));
                           if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
-                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
-                        }}
-                        className="self-start px-4 py-2 text-xs font-bold tracking-widest rounded-lg"
-                        style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
-                      >
-                        SALVA PASSWORD
-                      </button>
+                          setPwdImpostazMode(""); setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                        }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>SALVA PASSWORD</button>
+                        <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
+                      </div>
                     </div>
                   )}
 
-                  {/* Cambio password — visibile se password già impostata */}
+                  {/* Sezione quando password È già attiva */}
                   {salone.reportPassword && (
-                    <div className="mt-4 flex flex-col gap-3">
-                      <div className="text-xs mb-1" style={{ color: T.textMuted }}>Cambia password</div>
-                      <div className="flex gap-2">
-                        <input
-                          type="password"
-                          value={pwdImpostazInput}
-                          onChange={e => setPwdImpostazInput(e.target.value)}
-                          placeholder="Nuova password..."
-                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
-                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
-                        />
-                        <input
-                          type="password"
-                          value={pwdImpostazConfirm}
-                          onChange={e => setPwdImpostazConfirm(e.target.value)}
-                          placeholder="Conferma..."
-                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
-                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
-                        />
-                      </div>
-                      <button
-                        onClick={async () => {
-                          if (!pwdImpostazInput) return alert("Inserisci una nuova password.");
-                          if (pwdImpostazInput !== pwdImpostazConfirm) return alert("Le password non corrispondono.");
-                          setSalone(s => ({ ...s, reportPassword: pwdImpostazInput }));
-                          if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
-                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
-                        }}
-                        className="self-start px-4 py-2 text-xs font-bold tracking-widest rounded-lg"
-                        style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
-                      >
-                        AGGIORNA PASSWORD
-                      </button>
+                    <div className="mt-3 flex flex-col gap-2">
+
+                      {/* Pulsanti azioni */}
+                      {pwdImpostazMode === "" && (
+                        <div className="flex gap-3">
+                          <button onClick={() => { setPwdImpostazMode("change"); setPwdImpostazInput(""); setPwdImpostazConfirm(""); }} className="text-xs font-semibold" style={{ color: T.accent, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Cambia password</button>
+                          <span style={{ color: T.border }}>·</span>
+                          <button onClick={() => { setPwdImpostazMode("recover"); setPwdImpostazInput(""); }} className="text-xs" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Ho dimenticato la password</button>
+                        </div>
+                      )}
+
+                      {/* Form CAMBIO password */}
+                      {pwdImpostazMode === "change" && (
+                        <div className="flex flex-col gap-3 mt-1">
+                          <div className="text-xs" style={{ color: T.textMuted }}>Inserisci la password attuale e poi quella nuova</div>
+                          <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                          <div className="flex gap-2">
+                            <input type="password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                            <input type="password" value={pwdImpostazConfirm2} onChange={e => setPwdImpostazConfirm2(e.target.value)} placeholder="Conferma nuova..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                          </div>
+                          <div className="flex gap-2">
+                            <button onClick={async () => {
+                              if (pwdImpostazInput !== salone.reportPassword) return alert("Password attuale errata.");
+                              if (!pwdImpostazConfirm) return alert("Inserisci la nuova password.");
+                              if (pwdImpostazConfirm !== pwdImpostazConfirm2) return alert("Le nuove password non corrispondono.");
+                              setSalone(s => ({ ...s, reportPassword: pwdImpostazConfirm }));
+                              if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazConfirm }).eq("id", salone.dbId);
+                              setPwdImpostazMode(""); setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazConfirm2("");
+                            }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>AGGIORNA</button>
+                            <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Form DISATTIVAZIONE — richiede password corrente */}
+                      {pwdImpostazMode === "disable" && (
+                        <div className="flex flex-col gap-3 mt-1">
+                          <div className="text-xs" style={{ color: T.textMuted }}>Inserisci la password attuale per disattivare la protezione</div>
+                          <div className="flex gap-2">
+                            <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                            <button onClick={async () => {
+                              if (pwdImpostazInput !== salone.reportPassword) return alert("Password errata.");
+                              setSalone(s => ({ ...s, reportPassword: "" }));
+                              if (salone.dbId) await supabase.from("saloni").update({ report_password: null }).eq("id", salone.dbId);
+                              setPwdImpostazMode(""); setPwdImpostazInput("");
+                            }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: "#e74c3c", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>DISATTIVA</button>
+                            <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* RECUPERO PASSWORD */}
+                      {pwdImpostazMode === "recover" && (
+                        <div className="flex flex-col gap-2 mt-1 p-3 rounded-lg" style={{ backgroundColor: T.accentSoft }}>
+                          <div className="text-xs font-semibold" style={{ color: T.accent }}>Recupero password</div>
+                          <div className="text-xs" style={{ color: T.textMuted }}>La tua password verrà mostrata qui sotto. Questa funzione è disponibile solo al titolare del salone.</div>
+                          <div className="text-sm font-bold tracking-widest mt-1 p-2 rounded" style={{ backgroundColor: T.bg, color: T.text, letterSpacing: "0.15em" }}>{salone.reportPassword}</div>
+                          <button onClick={() => setPwdImpostazMode("")} className="self-start text-xs mt-1" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Chiudi</button>
+                        </div>
+                      )}
+
                     </div>
                   )}
                 </div>
