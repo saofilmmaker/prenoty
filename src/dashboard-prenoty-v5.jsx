@@ -3402,7 +3402,7 @@ useEffect(() => {
                         <div className="flex gap-3">
                           <button onClick={() => { setPwdImpostazMode("change"); setPwdImpostazInput(""); setPwdImpostazConfirm(""); }} className="text-xs font-semibold" style={{ color: T.accent, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Cambia password</button>
                           <span style={{ color: T.border }}>·</span>
-                          <button onClick={() => { setPwdImpostazMode("recover"); setPwdImpostazInput(""); }} className="text-xs" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Ho dimenticato la password</button>
+                          <button onClick={() => { setPwdImpostazMode("recover"); setPwdImpostazInput(""); }} className="text-xs" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Ho dimenticato la password?</button>
                         </div>
                       )}
 
@@ -3446,15 +3446,21 @@ useEffect(() => {
                         </div>
                       )}
 
-                      {/* RECUPERO PASSWORD */}
-                      {pwdImpostazMode === "recover" && (
-                        <div className="flex flex-col gap-2 mt-1 p-3 rounded-lg" style={{ backgroundColor: T.accentSoft }}>
-                          <div className="text-xs font-semibold" style={{ color: T.accent }}>Recupero password</div>
-                          <div className="text-xs" style={{ color: T.textMuted }}>La tua password verrà mostrata qui sotto. Questa funzione è disponibile solo al titolare del salone.</div>
-                          <div className="text-sm font-bold tracking-widest mt-1 p-2 rounded" style={{ backgroundColor: T.bg, color: T.text, letterSpacing: "0.15em" }}>{salone.reportPassword}</div>
-                          <button onClick={() => setPwdImpostazMode("")} className="self-start text-xs mt-1" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Chiudi</button>
-                        </div>
-                      )}
+                      {/* INDIZIO PASSWORD */}
+                      {pwdImpostazMode === "recover" && (() => {
+                        const pwd = salone.reportPassword || "";
+                        const indizio = pwd.length <= 2
+                          ? pwd[0] + "•".repeat(Math.max(pwd.length - 1, 1))
+                          : pwd.slice(0, 2) + "•".repeat(Math.max(pwd.length - 4, 1)) + pwd.slice(-2);
+                        return (
+                          <div className="flex flex-col gap-2 mt-1 p-3 rounded-lg" style={{ backgroundColor: T.accentSoft }}>
+                            <div className="text-xs font-semibold" style={{ color: T.accent }}>Indizio password</div>
+                            <div className="text-sm font-bold tracking-widest mt-1 p-2 rounded" style={{ backgroundColor: T.bg, color: T.text, letterSpacing: "0.15em" }}>{indizio}</div>
+                            <div className="text-xs" style={{ color: T.textMuted }}>Continui a non ricordarla? Contatta l'assistenza per reimpostarla.</div>
+                            <button onClick={() => setPwdImpostazMode("")} className="self-start text-xs mt-1" style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", padding: 0, fontFamily: "inherit" }}>Chiudi</button>
+                          </div>
+                        );
+                      })()}
 
                     </div>
                   )}
