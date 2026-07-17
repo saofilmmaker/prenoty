@@ -4120,7 +4120,7 @@ useEffect(() => {
       {/* MODAL DETTAGLIO */}
       {dettaglio && (
         <div className="fixed inset-0 bg-black/50 z-20 flex items-end md:items-center justify-center p-0 md:p-6">
-          <div className="w-full md:max-w-lg md:border" style={{ backgroundColor: T.bg, borderColor: T.border }} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full md:max-w-lg md:border flex flex-col" style={{ backgroundColor: T.bg, borderColor: T.border, maxHeight: "92dvh", overflowY: "auto", WebkitOverflowScrolling: "touch" }} onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
               <div className="flex items-start justify-between mb-4">
                 <div>
