@@ -381,6 +381,11 @@ export default function DashboardPrenoty() {
       setSalvandoApp(false);
     }
   };
+  const [reportLocked, setReportLocked] = useState(true);
+  const [reportPwdInput, setReportPwdInput] = useState("");
+  const [reportPwdError, setReportPwdError] = useState(false);
+  const [pwdImpostazInput, setPwdImpostazInput] = useState("");
+  const [pwdImpostazConfirm, setPwdImpostazConfirm] = useState("");
   const [dettaglio, setDettaglio] = useState(null);
   const [detEditMode, setDetEditMode] = useState(false);
   const [detEditServizi, setDetEditServizi] = useState([]);
@@ -442,6 +447,7 @@ useEffect(() => {
           mostraGalleria: saloneDb.mostra_galleria ?? true,
           mostraSocial: saloneDb.mostra_social ?? true,
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
+          reportPassword: saloneDb.report_password || "",
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
           prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
@@ -596,6 +602,7 @@ useEffect(() => {
     ferieMessaggio: "",
     chiusureTemporanee: [],
     suonoNotifica: "ding",
+    reportPassword: "",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
     provaScadeIl: null,
@@ -1517,7 +1524,7 @@ useEffect(() => {
             return (
               <button
                 key={m.id}
-                onClick={() => setSezione(m.id)}
+                onClick={() => { if (m.id === "report") { setReportLocked(true); setReportPwdInput(""); setReportPwdError(false); } setSezione(m.id); }}
                 className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
                 style={{
                   borderRadius: 10,
@@ -1719,7 +1726,7 @@ useEffect(() => {
             return (
               <button
                 key={m.id}
-                onClick={() => setSezione(m.id)}
+                onClick={() => { if (m.id === "report") { setReportLocked(true); setReportPwdInput(""); setReportPwdError(false); } setSezione(m.id); }}
                 className="flex-shrink-0 flex flex-col items-center gap-1 px-4 py-3 text-xs transition"
                 style={{
                   color: attivo ? T.accent : T.textMuted,
@@ -2928,8 +2935,41 @@ useEffect(() => {
             </div>
           )}
 
+          {/* REPORT — LOCK SCREEN */}
+          {sezione === "report" && salone.reportPassword && reportLocked && (
+            <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
+              <div className="w-full max-w-sm p-8 border rounded-2xl flex flex-col items-center gap-5 text-center" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: T.accentSoft }}>
+                  <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+                </div>
+                <div>
+                  <div className="text-lg font-semibold mb-1" style={{ color: T.text }}>Report protetto</div>
+                  <div className="text-sm" style={{ color: T.textMuted }}>Inserisci la password per accedere alla sezione Report</div>
+                </div>
+                <input
+                  type="password"
+                  value={reportPwdInput}
+                  onChange={e => { setReportPwdInput(e.target.value); setReportPwdError(false); }}
+                  onKeyDown={e => { if (e.key === "Enter") { if (reportPwdInput === salone.reportPassword) { setReportLocked(false); setReportPwdInput(""); } else { setReportPwdError(true); } } }}
+                  placeholder="••••••••"
+                  className="w-full text-center text-lg tracking-widest border rounded-xl px-4 py-3 outline-none"
+                  style={{ borderColor: reportPwdError ? "#e74c3c" : T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
+                  autoFocus
+                />
+                {reportPwdError && <div className="text-sm" style={{ color: "#e74c3c" }}>Password errata. Riprova.</div>}
+                <button
+                  onClick={() => { if (reportPwdInput === salone.reportPassword) { setReportLocked(false); setReportPwdInput(""); } else { setReportPwdError(true); } }}
+                  className="w-full py-3 text-sm font-bold tracking-widest rounded-xl"
+                  style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                >
+                  ACCEDI AL REPORT
+                </button>
+              </div>
+            </div>
+          )}
+
           {/* REPORT */}
-          {sezione === "report" && (() => {
+          {sezione === "report" && (!salone.reportPassword || !reportLocked) && (() => {
             // Filtra per mese selezionato (usa data appuntamento)
             const prenMese = prenotazioni.filter(p => {
               if (!p.data) return false;
@@ -3296,6 +3336,109 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.mostraStatistiche ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+
+                {/* PASSWORD REPORT */}
+                <div className="border-t pt-4 mt-2" style={{ borderColor: T.border }}>
+                  <div className="flex items-center justify-between">
+                    <div className="flex-1 pr-3">
+                      <div className="text-sm">Password sezione Report</div>
+                      <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                        {salone.reportPassword ? <span style={{ color: "#00b894" }}>● Attiva — solo con password si accede al Report</span> : "Proteggi il Report con una password per uso esclusivo del titolare"}
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => {
+                        if (salone.reportPassword) {
+                          if (window.confirm("Vuoi rimuovere la password dal Report?")) {
+                            setSalone(s => ({ ...s, reportPassword: "" }));
+                            if (salone.dbId) supabase.from("saloni").update({ report_password: null }).eq("id", salone.dbId);
+                          }
+                        } else {
+                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                        }
+                      }}
+                      className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                      style={{ backgroundColor: salone.reportPassword ? T.accent : T.border }}
+                    >
+                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.reportPassword ? "calc(100% - 20px)" : "4px" }} />
+                    </button>
+                  </div>
+
+                  {/* Form impostazione password — visibile se non c'è password ancora */}
+                  {!salone.reportPassword && (
+                    <div className="mt-4 flex flex-col gap-3">
+                      <div className="flex gap-2">
+                        <input
+                          type="password"
+                          value={pwdImpostazInput}
+                          onChange={e => setPwdImpostazInput(e.target.value)}
+                          placeholder="Nuova password..."
+                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
+                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
+                        />
+                        <input
+                          type="password"
+                          value={pwdImpostazConfirm}
+                          onChange={e => setPwdImpostazConfirm(e.target.value)}
+                          placeholder="Conferma..."
+                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
+                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (!pwdImpostazInput) return alert("Inserisci una password.");
+                          if (pwdImpostazInput !== pwdImpostazConfirm) return alert("Le password non corrispondono.");
+                          setSalone(s => ({ ...s, reportPassword: pwdImpostazInput }));
+                          if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
+                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                        }}
+                        className="self-start px-4 py-2 text-xs font-bold tracking-widest rounded-lg"
+                        style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                      >
+                        SALVA PASSWORD
+                      </button>
+                    </div>
+                  )}
+
+                  {/* Cambio password — visibile se password già impostata */}
+                  {salone.reportPassword && (
+                    <div className="mt-4 flex flex-col gap-3">
+                      <div className="text-xs mb-1" style={{ color: T.textMuted }}>Cambia password</div>
+                      <div className="flex gap-2">
+                        <input
+                          type="password"
+                          value={pwdImpostazInput}
+                          onChange={e => setPwdImpostazInput(e.target.value)}
+                          placeholder="Nuova password..."
+                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
+                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
+                        />
+                        <input
+                          type="password"
+                          value={pwdImpostazConfirm}
+                          onChange={e => setPwdImpostazConfirm(e.target.value)}
+                          placeholder="Conferma..."
+                          className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none"
+                          style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
+                        />
+                      </div>
+                      <button
+                        onClick={async () => {
+                          if (!pwdImpostazInput) return alert("Inserisci una nuova password.");
+                          if (pwdImpostazInput !== pwdImpostazConfirm) return alert("Le password non corrispondono.");
+                          setSalone(s => ({ ...s, reportPassword: pwdImpostazInput }));
+                          if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
+                          setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                        }}
+                        className="self-start px-4 py-2 text-xs font-bold tracking-widest rounded-lg"
+                        style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                      >
+                        AGGIORNA PASSWORD
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* GESTIONE PRENOTAZIONI */}
