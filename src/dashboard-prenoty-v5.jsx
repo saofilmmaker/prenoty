@@ -3353,17 +3353,22 @@ useEffect(() => {
                     <button
                       onClick={() => {
                         if (!salone.reportPassword) {
-                          // Attivo toggle: mostro form impostazione
-                          setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazMode("set");
+                          if (pwdImpostazMode === "set") {
+                            // Richiudo il form se il toggle viene ricliccato
+                            setPwdImpostazMode(""); setPwdImpostazInput(""); setPwdImpostazConfirm("");
+                          } else {
+                            // Attivo toggle: mostro form impostazione
+                            setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazMode("set");
+                          }
                         } else {
                           // Disattivo toggle: chiedo la password corrente prima
                           setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazMode("disable");
                         }
                       }}
                       className="w-10 h-6 rounded-full relative transition flex-shrink-0"
-                      style={{ backgroundColor: salone.reportPassword ? T.accent : T.border }}
+                      style={{ backgroundColor: (salone.reportPassword || pwdImpostazMode === "set") ? T.accent : T.border }}
                     >
-                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.reportPassword ? "calc(100% - 20px)" : "4px" }} />
+                      <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: (salone.reportPassword || pwdImpostazMode === "set") ? "calc(100% - 20px)" : "4px" }} />
                     </button>
                   </div>
 
