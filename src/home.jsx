@@ -1537,7 +1537,7 @@ export default function Home(){
               {q:"È difficile configurare?", a:"No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."},
               {q:"Posso gestire più servizi e dipendenti?", a:"Sì. Puoi aggiungere tutti i servizi che offri e tutti i collaboratori del tuo staff, ognuno con foto e ruolo. I clienti scelgono l'operatore preferito al momento della prenotazione."},
               {q:"Gli aggiornamenti futuri sono inclusi?", a:"Sì, per il piano attuale. Chi acquista oggi a €299 mantiene per sempre tutte le funzionalità incluse oggi, senza pagare nulla in più. In futuro lanceremo una versione Pro con funzionalità aggiuntive, disponibile in abbonamento. Chi ha già acquistato potrà scegliere se restare sul piano attuale o passare alla Pro."},
-              {q:"E se ho bisogno di aiuto?", a:<>Siamo raggiungibili via email a <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>prenoty.official@gmail.com</a>. Rispondiamo entro 24 ore.</>},
+              {q:"E se ho bisogno di aiuto?", a:<>Scrivici su WhatsApp direttamente dalla dashboard (bottone Assistenza in basso, risposta entro 1 ora) oppure via email a <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>prenoty.official@gmail.com</a>.</>},
             ].map(({q,a},i)=><FaqItem key={i} q={q} a={a}/>)}
             <div style={{textAlign:"center",marginTop:40,fontSize:15,color:"#7a748a"}}>
               Non hai trovato risposta?{" "}
