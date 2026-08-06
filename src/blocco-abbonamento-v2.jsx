@@ -9,6 +9,7 @@ export default function BloccoAbbonamento() {
   const [nomeS, setNomeS] = useState("il tuo salone");
   const [logoS, setLogoS] = useState(null);
   const [emailS, setEmailS] = useState("");
+  const [sospeso, setSospeso] = useState(false);
 
   const T = tema === "chiaro" ? {
     bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff",
@@ -26,8 +27,8 @@ export default function BloccoAbbonamento() {
     supabase.auth.getSession().then(async ({ data }) => {
       const uid = data?.session?.user?.id;
       if (!uid) return;
-      const { data: s } = await supabase.from("saloni").select("id,nome,logo,email").eq("user_id", uid).maybeSingle();
-      if (s) { setSaloneId(s.id); setNomeS(s.nome); setLogoS(s.logo); setEmailS(s.email || ""); }
+      const { data: s } = await supabase.from("saloni").select("id,nome,logo,email,stato_abbonamento").eq("user_id", uid).maybeSingle();
+      if (s) { setSaloneId(s.id); setNomeS(s.nome); setLogoS(s.logo); setEmailS(s.email || ""); setSospeso(s.stato_abbonamento === "sospeso"); }
     });
   }, []);
 
@@ -131,14 +132,16 @@ export default function BloccoAbbonamento() {
 
           {/* Titolo */}
           <h1 style={{ fontSize: 26, fontWeight: 700, margin: "0 0 12px", letterSpacing: 0.2 }}>
-            Il tuo periodo di prova è finito
+            {sospeso ? "Account sospeso" : "Il tuo periodo di prova è finito"}
           </h1>
           <p style={{ fontSize: 15, color: T.textSoft, margin: "0 0 32px", lineHeight: 1.6 }}>
-            Acquista Prenoty per continuare a gestire il tuo salone senza interruzioni.
+            {sospeso
+              ? "Il tuo accesso a Prenoty è stato sospeso. Contatta l'assistenza per maggiori informazioni o per riattivarlo."
+              : "Acquista Prenoty per continuare a gestire il tuo salone senza interruzioni."}
           </p>
 
           {/* Box prezzo */}
-          <div style={{
+          {!sospeso && <div style={{
             background: "linear-gradient(135deg, #6c5ce7 0%, #a29bfe 100%)",
             borderRadius: 16,
             padding: "24px 20px",
@@ -170,10 +173,10 @@ export default function BloccoAbbonamento() {
                 </div>
               ))}
             </div>
-          </div>
+          </div>}
 
           {/* Bottone acquista */}
-          <button
+          {!sospeso && <button
             onClick={acquista}
             disabled={inCaricamento}
             style={{
@@ -192,7 +195,7 @@ export default function BloccoAbbonamento() {
             }}
           >
             {inCaricamento ? "Attendere..." : "Acquista ora — €299"}
-          </button>
+          </button>}
 
           <button
             onClick={contattaAssistenza}

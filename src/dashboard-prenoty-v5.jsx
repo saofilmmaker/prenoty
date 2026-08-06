@@ -450,6 +450,7 @@ useEffect(() => {
           mostraSocial: saloneDb.mostra_social ?? true,
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
           reportPassword: saloneDb.report_password || "",
+          statoAbbonamento: saloneDb.stato_abbonamento || "",
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
           prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
@@ -605,6 +606,7 @@ useEffect(() => {
     chiusureTemporanee: [],
     suonoNotifica: "ding",
     reportPassword: "",
+    statoAbbonamento: "",
     abbonamentoAttivo: false,
     abbonamentoScade: null,
     provaScadeIl: null,
@@ -1178,15 +1180,19 @@ useEffect(() => {
     return Math.ceil(diff / (1000 * 60 * 60 * 24));
   })();
 
-  // Redirect a /blocco se la prova è scaduta e non ha pagato
+  // Redirect a /blocco se l'account è stato sospeso dall'admin, o se la prova è scaduta e non ha pagato
   useEffect(() => {
     if (!salone.dbId) return; // aspetta che i dati siano caricati
+    if (salone.statoAbbonamento === "sospeso") {
+      navigate("/blocco");
+      return;
+    }
     if (salone.abbonamentoAttivo) return; // ha pagato, ok
     if (salone.pianoSpeciale) return; // uso gratis concesso dall'admin, ok
     if (giorniProvaRimasti !== null && giorniProvaRimasti <= 0) {
       navigate("/blocco");
     }
-  }, [salone.dbId, salone.abbonamentoAttivo, salone.pianoSpeciale, giorniProvaRimasti, navigate]);
+  }, [salone.dbId, salone.statoAbbonamento, salone.abbonamentoAttivo, salone.pianoSpeciale, giorniProvaRimasti, navigate]);
 
   // Ref per salone.dbId — usato in handler asincroni senza stale closure
   const saloneIdRef = useRef(null);

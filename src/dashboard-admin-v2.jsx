@@ -170,7 +170,7 @@ export default function DashboardAdmin() {
     { lbl: "Invia email al titolare", azione: (s) => window.open(`mailto:${s.email}?subject=Prenoty - Comunicazione importante`, "_blank") },
     { lbl: "Chiama titolare", azione: (s) => window.open(`tel:${s.tel}`, "_blank") },
     { lbl: "🎁 Concedi uso gratis", azione: (s) => setModalUsoGratis({ salone: s, durata: "lifetime" }), gratis: true },
-    { lbl: "Sospendi account", azione: (s) => alert(`Sospensione account di ${s.nome}\n\nIn produzione: blocca login, mostra schermata "abbonamento sospeso", da Supabase aggiorni il campo stato.`), pericoloso: true },
+    { lbl: "Sospendi account", azione: (s) => sospendiAccount(s), pericoloso: true },
   ];
 
   const concediUsoGratis = async () => {
@@ -202,6 +202,24 @@ export default function DashboardAdmin() {
     }
 
     setModalUsoGratis(null);
+    setMenuSaloneAperto(null);
+  };
+
+  const sospendiAccount = async (s) => {
+    const conferma = window.confirm(`Sospendere l'account di "${s.nome}"?\n\nIl titolare non potrà più accedere alla dashboard e la sua pagina di prenotazione pubblica verrà disattivata.`);
+    if (!conferma) return;
+
+    const { error } = await supabase
+      .from("saloni")
+      .update({ stato_abbonamento: "sospeso" })
+      .eq("id", s.id);
+
+    if (error) {
+      alert(`Errore: ${error.message}`);
+      return;
+    }
+
+    setSaloni(prev => prev.map(x => x.id === s.id ? { ...x, stato: "pagamento_fallito" } : x));
     setMenuSaloneAperto(null);
   };
 
