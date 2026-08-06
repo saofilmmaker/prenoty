@@ -610,6 +610,24 @@ export default function AppCliente() {
     </>
   );
 
+  // Account sospeso dall'admin, oppure prova scaduta senza pagamento e senza piano speciale concesso
+  const accountSospeso = salone.stato_abbonamento === "sospeso";
+  const provaScadutaSenzaPagamento = !salone.abbonamento_attivo && !salone.piano_speciale && salone.prova_scade_il && new Date(salone.prova_scade_il) < new Date();
+  if (accountSospeso || provaScadutaSenzaPagamento) return (
+    <>
+      <Helmet>
+        <title>Prenotazioni non disponibili | Prenoty</title>
+        <meta name="robots" content="noindex, nofollow" />
+      </Helmet>
+      <div style={{ minHeight: "100vh", display: "flex", alignItems: "center", justifyContent: "center", background: "#1a1730", flexDirection: "column", gap: 16, padding: 24, textAlign: "center" }}>
+        <div style={{ fontSize: 48 }}>🚧</div>
+        <div style={{ color: "#fff", fontSize: 20, fontWeight: 600 }}>Prenotazioni temporaneamente non disponibili</div>
+        <div style={{ color: "#9b96c8", fontSize: 14, maxWidth: 320 }}>Questa attività non sta al momento accettando prenotazioni online. Riprova più tardi o contatta direttamente l'attività.</div>
+        <a href="https://prenoty.com" style={{ color: "#6c5ce7", fontSize: 14, marginTop: 8 }}>← Torna a Prenoty</a>
+      </div>
+    </>
+  );
+
   return (
     <>
     <Helmet>
