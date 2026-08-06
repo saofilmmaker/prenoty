@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle } from "lucide-react";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle, Download, Upload } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
 
@@ -1043,6 +1043,118 @@ useEffect(() => {
     setConfermaEliminaCliente(null);
   };
 
+  // EXPORT CLIENTI — genera un CSV scaricabile dall'anagrafica corrente
+  const esportaClienti = () => {
+    const escapeCSV = (val) => {
+      const s = String(val ?? "");
+      return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+    };
+    const intestazione = ["Nome", "Telefono", "Email", "Note", "Visite", "Totale speso"];
+    const righe = clienti.map(c => [c.nome, c.tel, c.email || "", c.note || "", c.visite || 0, c.totaleSpeso || 0]);
+    const csv = [intestazione, ...righe].map(r => r.map(escapeCSV).join(",")).join("\n");
+    const blob = new Blob(["﻿" + csv], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `clienti-${salone.nome || "prenoty"}.csv`.replace(/\s+/g, "-").toLowerCase();
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  // IMPORT CLIENTI — parsing CSV, anteprima e conferma
+  const [modalImportaClienti, setModalImportaClienti] = useState(false);
+  const [importAnteprima, setImportAnteprima] = useState(null); // { nuovi: [], duplicati: number }
+  const [importInCorso, setImportInCorso] = useState(false);
+
+  const parseCSV = (testo) => {
+    const righe = testo.split(/\r\n|\n|\r/).filter(r => r.trim() !== "");
+    const parseRiga = (riga) => {
+      const campi = [];
+      let campo = "", dentroVirgolette = false;
+      for (let i = 0; i < riga.length; i++) {
+        const ch = riga[i];
+        if (ch === '"') {
+          if (dentroVirgolette && riga[i + 1] === '"') { campo += '"'; i++; }
+          else dentroVirgolette = !dentroVirgolette;
+        } else if (ch === "," && !dentroVirgolette) {
+          campi.push(campo); campo = "";
+        } else campo += ch;
+      }
+      campi.push(campo);
+      return campi.map(c => c.trim());
+    };
+    if (righe.length === 0) return [];
+    const intestazioni = parseRiga(righe[0]).map(h => h.toLowerCase().replace(/\s+/g, ""));
+    const trovaCampo = (aliases) => intestazioni.findIndex(h => aliases.includes(h));
+    const idxNome = trovaCampo(["nome", "nomecliente", "name"]);
+    const idxTel = trovaCampo(["telefono", "tel", "cellulare", "phone", "numero"]);
+    const idxEmail = trovaCampo(["email", "mail", "e-mail"]);
+    const idxNote = trovaCampo(["note", "notes", "allergie", "preferenze"]);
+    if (idxNome === -1 || idxTel === -1) return null; // colonne minime non trovate
+    return righe.slice(1).map(riga => {
+      const campi = parseRiga(riga);
+      return {
+        nome: campi[idxNome]?.trim() || "",
+        tel: campi[idxTel]?.trim() || "",
+        email: idxEmail >= 0 ? campi[idxEmail]?.trim() || "" : "",
+        note: idxNote >= 0 ? campi[idxNote]?.trim() || "" : "",
+      };
+    }).filter(c => c.nome && c.tel);
+  };
+
+  const gestisciFileImport = (file) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const righe = parseCSV(e.target.result);
+      if (righe === null) {
+        alert("File non riconosciuto. Assicurati che il CSV contenga almeno le colonne \"Nome\" e \"Telefono\".");
+        return;
+      }
+      const telEsistenti = new Set(clienti.map(c => normalizzaTel(c.tel)).filter(Boolean));
+      const visti = new Set();
+      let duplicati = 0;
+      const nuovi = [];
+      righe.forEach(r => {
+        const telNorm = normalizzaTel(r.tel);
+        if (!telNorm || telEsistenti.has(telNorm) || visti.has(telNorm)) { duplicati++; return; }
+        visti.add(telNorm);
+        nuovi.push(r);
+      });
+      setImportAnteprima({ nuovi, duplicati });
+    };
+    reader.readAsText(file);
+  };
+
+  const confermaImportClienti = async () => {
+    if (!importAnteprima || importAnteprima.nuovi.length === 0) return;
+    setImportInCorso(true);
+    const saloneId = salone.dbId;
+    if (saloneId) {
+      const daInserire = importAnteprima.nuovi.map(c => ({
+        salone_id: saloneId,
+        nome: c.nome,
+        telefono: normalizzaTel(c.tel),
+        email: c.email || null,
+        note: c.note || "",
+        visite: 0,
+      }));
+      const { data: inseriti, error } = await supabase.from("clienti").insert(daInserire).select();
+      if (error) {
+        alert(`Errore durante l'importazione: ${error.message}`);
+        setImportInCorso(false);
+        return;
+      }
+      const nuoviClienti = (inseriti || []).map(ins => ({ id: ins.id, nome: ins.nome, tel: ins.telefono, email: ins.email || "", visite: 0, totaleSpeso: 0, ultimaVisita: null, note: ins.note || "", fedelta: 0 }));
+      setClienti(prev => [...nuoviClienti, ...prev].sort((a, b) => a.nome.localeCompare(b.nome, "it")));
+    } else {
+      const nuoviClienti = importAnteprima.nuovi.map(c => ({ id: Date.now() + Math.random(), nome: c.nome, tel: c.tel, email: c.email || "", note: c.note || "", visite: 0, totaleSpeso: 0, ultimaVisita: null, fedelta: 0 }));
+      setClienti(prev => [...nuoviClienti, ...prev]);
+    }
+    setImportInCorso(false);
+    setImportAnteprima(null);
+    setModalImportaClienti(false);
+  };
+
   // PRENOTAZIONI
   const [prenotazioni, setPrenotazioni] = useState([]);
 
@@ -2069,7 +2181,21 @@ useEffect(() => {
                       <button onClick={() => setOrdinaClienti("az")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "az" ? T.accent : T.card, color: ordinaClienti === "az" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>A→Z</button>
                       <button onClick={() => setOrdinaClienti("visite")} className="px-3 py-2 text-xs tracking-widest transition" style={{ background: ordinaClienti === "visite" ? T.accent : T.card, color: ordinaClienti === "visite" ? "#fff" : T.textMuted, letterSpacing: "0.1em", border: "none" }}>VISITE</button>
                     </div>
-                    <div className="ml-auto">
+                    <div className="ml-auto flex items-center gap-2">
+                      <button
+                        onClick={esportaClienti}
+                        className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap"
+                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                      >
+                        <Download className="w-4 h-4" /> ESPORTA
+                      </button>
+                      <button
+                        onClick={() => { setModalImportaClienti(true); setImportAnteprima(null); }}
+                        className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap"
+                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                      >
+                        <Upload className="w-4 h-4" /> IMPORTA
+                      </button>
                       <button
                         onClick={() => setModalNuovoCliente(true)}
                         className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap"
@@ -2093,6 +2219,23 @@ useEffect(() => {
                     style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
                   >
                     <Plus className="w-4 h-4" /> NUOVO
+                  </button>
+                </div>
+                {/* Riga 3 solo su mobile: esporta + importa */}
+                <div className="flex items-center gap-2 md:hidden">
+                  <button
+                    onClick={esportaClienti}
+                    className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap flex-1 justify-center"
+                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                  >
+                    <Download className="w-4 h-4" /> ESPORTA
+                  </button>
+                  <button
+                    onClick={() => { setModalImportaClienti(true); setImportAnteprima(null); }}
+                    className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap flex-1 justify-center"
+                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                  >
+                    <Upload className="w-4 h-4" /> IMPORTA
                   </button>
                 </div>
               </div>
@@ -4731,6 +4874,59 @@ useEffect(() => {
               <button onClick={() => { setModalNuovoCliente(false); setNuovoCliente({ nome: "", tel: "", note: "" }); }} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
               <button onClick={aggiungiCliente} disabled={!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()} style={{ flex: 1, padding: 12, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: (!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()) ? 0.4 : 1 }}>AGGIUNGI</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* MODAL IMPORTA CLIENTI */}
+      {modalImportaClienti && (
+        <div
+          onClick={() => { setModalImportaClienti(false); setImportAnteprima(null); }}
+          style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}
+        >
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
+              <div>
+                <h3 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>Importa clienti da CSV</h3>
+                <p style={{ fontSize: 13, color: T.textSoft, margin: "0 0 20px" }}>Carica un file .csv con almeno le colonne Nome e Telefono.</p>
+              </div>
+              <button onClick={() => { setModalImportaClienti(false); setImportAnteprima(null); }} style={{ background: "transparent", border: "none", color: T.textMuted, fontSize: 20, cursor: "pointer", lineHeight: 1 }}>×</button>
+            </div>
+
+            {!importAnteprima ? (
+              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, border: `1.5px dashed ${T.border}`, borderRadius: 10, padding: "32px 16px", cursor: "pointer", background: T.bg }}>
+                <Upload className="w-6 h-6" style={{ color: T.accent }} />
+                <span style={{ fontSize: 13, fontWeight: 600, color: T.accent }}>Scegli file CSV</span>
+                <span style={{ fontSize: 11, color: T.textMuted }}>Colonne accettate: nome, telefono, email, note</span>
+                <input type="file" accept=".csv,text/csv" style={{ display: "none" }} onChange={(e) => e.target.files[0] && gestisciFileImport(e.target.files[0])} />
+              </label>
+            ) : (
+              <>
+                <div style={{ border: `1px solid ${T.border}`, borderRadius: 8, overflow: "hidden", marginBottom: 14, maxHeight: 220, overflowY: "auto" }}>
+                  <div style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", background: T.bg, fontSize: 10, fontWeight: 700, letterSpacing: "0.06em", textTransform: "uppercase", color: T.textMuted }}>
+                    <span>Nome</span><span>Telefono</span>
+                  </div>
+                  {importAnteprima.nuovi.slice(0, 8).map((c, i) => (
+                    <div key={i} style={{ display: "flex", justifyContent: "space-between", padding: "8px 12px", fontSize: 12, borderTop: `1px solid ${T.border}`, color: T.text }}>
+                      <span>{c.nome}</span><span style={{ color: T.textMuted }}>{c.tel}</span>
+                    </div>
+                  ))}
+                  {importAnteprima.nuovi.length > 8 && (
+                    <div style={{ padding: "8px 12px", fontSize: 11, color: T.textMuted, borderTop: `1px solid ${T.border}` }}>+ altri {importAnteprima.nuovi.length - 8}...</div>
+                  )}
+                </div>
+                <div style={{ fontSize: 12, color: T.textSoft, marginBottom: 20 }}>
+                  📋 <strong style={{ color: "#00b894" }}>{importAnteprima.nuovi.length} clienti</strong> pronti da importare
+                  {importAnteprima.duplicati > 0 && <> · {importAnteprima.duplicati} già presenti verranno saltati</>}
+                </div>
+                <div style={{ display: "flex", gap: 8 }}>
+                  <button onClick={() => setImportAnteprima(null)} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
+                  <button onClick={confermaImportClienti} disabled={importInCorso || importAnteprima.nuovi.length === 0} style={{ flex: 1, padding: 12, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: importInCorso || importAnteprima.nuovi.length === 0 ? 0.5 : 1 }}>
+                    {importInCorso ? "IMPORTO..." : `IMPORTA ${importAnteprima.nuovi.length} CLIENTI`}
+                  </button>
+                </div>
+              </>
+            )}
           </div>
         </div>
       )}
