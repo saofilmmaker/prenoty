@@ -751,8 +751,8 @@ export default function AppCliente() {
                   {salone.descrizione}
                 </p>
 
-                {/* Banner ferie */}
-                {salone.ferieAttive && salone.ferieDal && salone.ferieAl && (() => {
+                {/* Banner ferie — visibile solo finché la data di fine ferie non è passata */}
+                {salone.ferieAttive && salone.ferieDal && salone.ferieAl && new Date(new Date(salone.ferieAl).setHours(23,59,59,999)) >= new Date() && (() => {
                   const dal = new Date(salone.ferieDal);
                   const al = new Date(salone.ferieAl);
                   const fmtD = (d) => `${d.getDate()} ${["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"][d.getMonth()]}`;
