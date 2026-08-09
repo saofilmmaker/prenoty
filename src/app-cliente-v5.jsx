@@ -429,7 +429,7 @@ export default function AppCliente() {
     const dataStr = `${dataScelta.getFullYear()}-${String(dataScelta.getMonth()+1).padStart(2,"0")}-${String(dataScelta.getDate()).padStart(2,"0")}`;
     const { data: prenotazioniDb } = await supabase
       .from("prenotazioni")
-      .select("ora, servizio_id, durata_totale, staff_id")
+      .select("ora, servizio_id, durata_totale, pausa_totale, staff_id")
       .eq("salone_id", salone.id)
       .eq("data", dataStr)
       .neq("stato", "annullata");
@@ -450,18 +450,19 @@ export default function AppCliente() {
       for (const slot of slotList) {
         const [sh, sm] = slot.split(":").map(Number);
         const slotMin = sh * 60 + sm;
-        const contaPresenti = (lista) => {
+        const contaPresenti = (lista, conPausa) => {
           let n = 0;
           for (const pren of lista) {
             const [ph, pm] = (pren.ora?.slice(0, 5) || "00:00").split(":").map(Number);
             const startMin = ph * 60 + pm;
-            const endMin = startMin + (pren.durata_totale || 30);
+            const endMin = startMin + (pren.durata_totale || 30) + (conPausa ? (pren.pausa_totale || 0) : 0);
             if (startMin <= slotMin && slotMin < endMin) n++;
           }
           return n;
         };
-        if (salone.bloccoOccupato && contaPresenti(prenPerOccupato) >= 1) occupati.add(slot);
-        else if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= 3) occupati.add(slot);
+        // bloccoOccupato include anche la pausa impostata sui servizi (tempo di preparazione tra un cliente e l'altro)
+        if (salone.bloccoOccupato && contaPresenti(prenPerOccupato, true) >= 1) occupati.add(slot);
+        else if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap, false) >= 3) occupati.add(slot);
       }
     }
 
@@ -488,6 +489,7 @@ export default function AppCliente() {
 
     const dataStr = `${data.getFullYear()}-${String(data.getMonth()+1).padStart(2,"0")}-${String(data.getDate()).padStart(2,"0")}`;
     const durataTot = serviziScelti.reduce((s, x) => s + x.durata, 0);
+    const pausaTot = serviziScelti.reduce((s, x) => s + (x.pausa || 0), 0);
     const nomiServizi = serviziScelti.map(x => x.nome).join(", ");
     const { error } = await supabase.from("prenotazioni").insert({
       salone_id: salone.id,
@@ -500,6 +502,7 @@ export default function AppCliente() {
       ora: ora,
       stato: "confermato",
       durata_totale: durataTot,
+      pausa_totale: pausaTot,
       nomi_servizi: nomiServizi,
       prezzo: totale,
       note: note || null,

@@ -287,6 +287,7 @@ export default function DashboardPrenoty() {
     try {
       const serviziSel = servizi.filter(s => nuovoApp.serviziIds.includes(s.id));
       const durataTot = serviziSel.reduce((a, s) => a + (s.durata || 0), 0) || 30;
+      const pausaTot = serviziSel.reduce((a, s) => a + (s.pausa || 0), 0);
       const prezzoTot = serviziSel.reduce((a, s) => a + (s.prezzo || 0), 0);
       const nomiServizi = serviziSel.map(s => s.nome).join(", ");
       const { data: ins, error } = await supabase.from("prenotazioni").insert({
@@ -300,6 +301,7 @@ export default function DashboardPrenoty() {
         ora: nuovoApp.ora,
         stato: "confermato",
         durata_totale: durataTot,
+        pausa_totale: pausaTot,
         nomi_servizi: nomiServizi,
         prezzo: prezzoTot,
         note: nuovoApp.note.trim() || null,
@@ -527,6 +529,7 @@ useEffect(() => {
         nome: s.nome,
         durata: s.durata,
         prezzo: s.prezzo,
+        pausa: s.pausa || 0,
         nota: s.nota || "",
         posizione: s.posizione ?? 0,
       })) : []);
@@ -847,7 +850,7 @@ useEffect(() => {
     // 3. Ricarica dal DB per confermare
     if (salone.dbId) {
       const { data } = await supabase.from("servizi").select("*").eq("salone_id", salone.dbId).order("posizione", { ascending: true });
-      if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, nota: s.nota || "", posizione: s.posizione ?? 0 })));
+      if (data) setServizi(data.map(s => ({ id: s.id, nome: s.nome, durata: s.durata, prezzo: s.prezzo, pausa: s.pausa || 0, nota: s.nota || "", posizione: s.posizione ?? 0 })));
     }
   };
 
@@ -860,7 +863,7 @@ useEffect(() => {
         .select()
         .single();
       if (data) {
-        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo, nota: data.nota || "", posizione: nuovaPosizione }]);
+        setServizi(prev => [...prev, { id: data.id, nome: data.nome, durata: data.durata, prezzo: data.prezzo, pausa: data.pausa || 0, nota: data.nota || "", posizione: nuovaPosizione }]);
         setModificaServizio({ id: data.id, campo: "nome" });
         return;
       }
@@ -2728,6 +2731,38 @@ useEffect(() => {
                             €{s.prezzo}
                           </span>
                         )}
+
+                        {inMod("pausa") ? (
+                          <input
+                            autoFocus
+                            type="number"
+                            min="0"
+                            max="60"
+                            step="5"
+                            value={s.pausa || 0}
+                            onChange={(e) => aggiornaServizio(s.id, "pausa", e.target.value)}
+                            onBlur={() => setModificaServizio(null)}
+                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
+                            style={{
+                              fontFamily: "inherit",
+                              background: "transparent",
+                              color: T.text,
+                              border: `1px solid ${T.accent}`,
+                              outline: "none",
+                              width: 60,
+                              padding: "2px 6px",
+                              fontSize: 14,
+                            }}
+                          />
+                        ) : (
+                          <span
+                            onClick={() => setModificaServizio({ id: s.id, campo: "pausa" })}
+                            className="cursor-pointer flex items-center gap-1"
+                            style={{ color: s.pausa > 0 ? T.accent : T.textMuted, borderBottom: `1px dashed ${s.pausa > 0 ? T.accent : T.borderStrong}` }}
+                          >
+                            ⏸ {s.pausa > 0 ? `Pausa: ${s.pausa} min` : "Aggiungi pausa..."}
+                          </span>
+                        )}
                       </div>
 
                       {/* NOTA — campo opzionale */}
@@ -2785,7 +2820,7 @@ useEffect(() => {
               </div>
 
               <p className="text-xs mt-4" style={{ color: T.textMuted, fontStyle: "italic" }}>
-                💡 Tocca direttamente nome, durata, prezzo o nota per modificarli. Premi Invio o tocca fuori per salvare.
+                💡 Tocca direttamente nome, durata, prezzo, pausa o nota per modificarli. Premi Invio o tocca fuori per salvare.
               </p>
             </div>
           )}
