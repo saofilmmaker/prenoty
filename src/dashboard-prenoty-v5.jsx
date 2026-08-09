@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle, Download, Upload } from "lucide-react";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle, Download, Upload } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
 
@@ -2733,27 +2733,49 @@ useEffect(() => {
                         )}
 
                         {inMod("pausa") ? (
-                          <input
-                            autoFocus
-                            type="number"
-                            min="0"
-                            max="60"
-                            step="5"
-                            value={s.pausa || 0}
-                            onChange={(e) => aggiornaServizio(s.id, "pausa", e.target.value)}
-                            onBlur={() => setModificaServizio(null)}
-                            onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
-                            style={{
-                              fontFamily: "inherit",
-                              background: "transparent",
-                              color: T.text,
-                              border: `1px solid ${T.accent}`,
-                              outline: "none",
-                              width: 60,
-                              padding: "2px 6px",
-                              fontSize: 14,
-                            }}
-                          />
+                          <span style={{ display: "inline-flex", alignItems: "stretch", border: `1px solid ${T.accent}` }}>
+                            <input
+                              autoFocus
+                              type="number"
+                              inputMode="numeric"
+                              min="0"
+                              max="60"
+                              step="5"
+                              value={s.pausa || 0}
+                              onChange={(e) => aggiornaServizio(s.id, "pausa", e.target.value)}
+                              onBlur={() => setModificaServizio(null)}
+                              onKeyDown={(e) => { if (e.key === "Enter" || e.key === "Escape") setModificaServizio(null); }}
+                              className="no-native-spinner"
+                              style={{
+                                fontFamily: "inherit",
+                                background: "transparent",
+                                color: T.text,
+                                border: "none",
+                                outline: "none",
+                                width: 40,
+                                padding: "2px 4px 2px 6px",
+                                fontSize: 14,
+                              }}
+                            />
+                            <span style={{ display: "flex", flexDirection: "column", borderLeft: `1px solid ${T.accent}` }}>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => aggiornaServizio(s.id, "pausa", Math.min(60, (Number(s.pausa) || 0) + 5))}
+                                style={{ background: "transparent", border: "none", padding: "0 4px", cursor: "pointer", color: T.accent, lineHeight: 0 }}
+                              >
+                                <ChevronUp className="w-3 h-3" />
+                              </button>
+                              <button
+                                type="button"
+                                onMouseDown={(e) => e.preventDefault()}
+                                onClick={() => aggiornaServizio(s.id, "pausa", Math.max(0, (Number(s.pausa) || 0) - 5))}
+                                style={{ background: "transparent", border: "none", padding: "0 4px", cursor: "pointer", color: T.accent, lineHeight: 0, borderTop: `1px solid ${T.accent}` }}
+                              >
+                                <ChevronDown className="w-3 h-3" />
+                              </button>
+                            </span>
+                          </span>
                         ) : (
                           <span
                             onClick={() => setModificaServizio({ id: s.id, campo: "pausa" })}
