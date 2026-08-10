@@ -560,6 +560,7 @@ useEffect(() => {
           stato: p.stato || "confermato",
           pagamento: "salone",
           metodoPagamento: p.metodo_pagamento || "salone",
+          bonificoConfermato: p.bonifico_confermato ?? false,
           codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
@@ -1175,6 +1176,14 @@ useEffect(() => {
 
   const prenOggi = prenotazioni.filter(p => p.data === oggiStr);
   const incassoOggi = prenOggi.reduce((s, p) => s + p.prezzo, 0);
+  const [breakdownIncassoAperto, setBreakdownIncassoAperto] = useState(false);
+  const prenOggiSalone = prenOggi.filter(p => (p.metodoPagamento || "salone") === "salone");
+  const prenOggiBonifico = prenOggi.filter(p => p.metodoPagamento === "bonifico");
+  const prenOggiOnline = prenOggi.filter(p => p.metodoPagamento === "carta");
+  const incassoOggiSalone = prenOggiSalone.reduce((s, p) => s + p.prezzo, 0);
+  const incassoOggiBonifico = prenOggiBonifico.reduce((s, p) => s + p.prezzo, 0);
+  const incassoOggiBonificoConfermato = prenOggiBonifico.filter(p => p.bonificoConfermato).reduce((s, p) => s + p.prezzo, 0);
+  const incassoOggiOnline = prenOggiOnline.reduce((s, p) => s + p.prezzo, 0);
   const pagatiOggi = prenOggi.filter(p => p.pagamento === "pagato").reduce((s, p) => s + p.prezzo, 0);
   const nuoveNotifiche = prenotazioni.filter(p => p.nuovo).length;
 
@@ -1358,6 +1367,7 @@ useEffect(() => {
             stato: p.stato || "confermato",
             pagamento: "salone",
             metodoPagamento: p.metodo_pagamento || "salone",
+            bonificoConfermato: p.bonifico_confermato ?? false,
             codiceBonifico: p.codice_bonifico || null,
             staffId: p.staff_id || 1,
             nuovo: true,
@@ -1430,6 +1440,7 @@ useEffect(() => {
           stato: p.stato || "confermato",
           pagamento: "salone",
           metodoPagamento: p.metodo_pagamento || "salone",
+          bonificoConfermato: p.bonifico_confermato ?? false,
           codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
           nuovo: !letteSet.has(p.id),
@@ -1572,6 +1583,22 @@ useEffect(() => {
     setDettaglio(prev => ({ ...prev, servizio: nuoviServizi, prezzo: nuovoPrezzo, note: detEditNote, extraDescrizione: detEditDescExtra, extraImporto: Number(detEditPrezzoExtra || 0) }));
     setDetEditMode(false);
     setDetEditSaving(false);
+  };
+
+  const [salvandoBonifico, setSalvandoBonifico] = useState(false);
+  const toggleBonificoConfermato = async () => {
+    if (!dettaglio) return;
+    setSalvandoBonifico(true);
+    const nuovoValore = !dettaglio.bonificoConfermato;
+    const { error } = await supabase.from("prenotazioni").update({ bonifico_confermato: nuovoValore }).eq("id", dettaglio.id);
+    if (error) {
+      alert(`Errore: ${error.message}`);
+      setSalvandoBonifico(false);
+      return;
+    }
+    setPrenotazioni(prev => prev.map(p => p.id === dettaglio.id ? { ...p, bonificoConfermato: nuovoValore } : p));
+    setDettaglio(prev => ({ ...prev, bonificoConfermato: nuovoValore }));
+    setSalvandoBonifico(false);
   };
 
   const fmtData = (d) => {
@@ -1897,7 +1924,7 @@ useEffect(() => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
-                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: null },
+                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: () => setBreakdownIncassoAperto(v => !v) },
                   { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotazioni confermate",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
                   { lbl: "PAGATO ONLINE", val: `€${pagatiOggi}`, sub: "ricevuto oggi online", icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
                 ].map((s, i) => {
@@ -1929,6 +1956,60 @@ useEffect(() => {
                   );
                 })}
               </div>
+              )}
+
+              {/* Pannello dettaglio incasso previsto per metodo di pagamento */}
+              {salone.mostraStatistiche && breakdownIncassoAperto && (
+                <div className="mb-6 p-5" style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 14 }}>
+                  <div className="text-xs tracking-widest mb-4" style={{ color: T.textMuted, letterSpacing: "0.12em" }}>INCASSO PREVISTO OGGI · PER METODO DI PAGAMENTO</div>
+
+                  <div className="flex items-center gap-3 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 9, background: "#eafaf1", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <Home className="w-4 h-4" style={{ color: "#00b894" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold" style={{ color: T.text }}>In salone</div>
+                      <div className="text-xs" style={{ color: T.textMuted }}>{prenOggiSalone.length} {prenOggiSalone.length === 1 ? "cliente" : "clienti"}</div>
+                    </div>
+                    <div className="text-sm font-bold" style={{ color: T.text }}>€{incassoOggiSalone}</div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+                    <div style={{ width: 34, height: 34, borderRadius: 9, background: "#fff8e1", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <FileText className="w-4 h-4" style={{ color: "#d97706" }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold flex items-center gap-2 flex-wrap" style={{ color: T.text }}>
+                        Bonifico bancario
+                        {incassoOggiBonifico > 0 && (
+                          incassoOggiBonificoConfermato === incassoOggiBonifico ? (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#eafaf1", color: "#00b894" }}>CONFERMATO</span>
+                          ) : (
+                            <span className="text-[10px] font-bold px-2 py-0.5 rounded-full" style={{ background: "#fff3cd", color: "#8a6100" }}>IN ATTESA</span>
+                          )
+                        )}
+                      </div>
+                      <div className="text-xs" style={{ color: T.textMuted }}>{prenOggiBonifico.length} {prenOggiBonifico.length === 1 ? "cliente" : "clienti"}</div>
+                    </div>
+                    <div className="text-sm font-bold" style={{ color: T.text }}>€{incassoOggiBonifico}</div>
+                  </div>
+
+                  <div className="flex items-center gap-3 py-3">
+                    <div style={{ width: 34, height: 34, borderRadius: 9, background: "#f0eeff", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                      <CreditCard className="w-4 h-4" style={{ color: T.accent }} />
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <div className="text-sm font-semibold" style={{ color: T.text }}>Online (Stripe)</div>
+                      <div className="text-xs" style={{ color: T.textMuted }}>{prenOggiOnline.length} {prenOggiOnline.length === 1 ? "cliente" : "clienti"}</div>
+                    </div>
+                    <div className="text-sm font-bold" style={{ color: T.text }}>€{incassoOggiOnline}</div>
+                  </div>
+
+                  <div className="flex items-center justify-between pt-3 mt-1" style={{ borderTop: `1px solid ${T.border}` }}>
+                    <span className="text-xs font-semibold" style={{ color: T.textMuted }}>Totale incasso previsto</span>
+                    <span className="text-base font-bold" style={{ color: "#00b894" }}>€{incassoOggi}</span>
+                  </div>
+                </div>
               )}
 
               {/* Banner filtro pagati attivo */}
@@ -4650,7 +4731,7 @@ useEffect(() => {
                   {dettaglio.extraImporto > 0 && <span className="font-medium">+€{dettaglio.extraImporto}</span>}
                 </div>
               )}
-              <div className="pt-4 border-t flex justify-between items-center" style={{ borderColor: T.border }}>
+              <div className="pt-4 border-t flex justify-between items-start" style={{ borderColor: T.border }}>
                 <div>
                   <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>PAGAMENTO</div>
                   <div className="flex items-center gap-2">
@@ -4658,15 +4739,36 @@ useEffect(() => {
                       <><CheckCircle className="w-4 h-4" style={{ color: "#16a34a" }} /><span style={{ color: "#16a34a" }}>Pagato online</span></>
                     ) : dettaglio.metodoPagamento === "bonifico" ? (
                       <div>
-                        <div className="flex items-center gap-2">
-                          <CreditCard className="w-4 h-4" style={{ color: "#d97706" }} />
-                          <span style={{ color: "#d97706", fontWeight: 600 }}>Bonifico bancario</span>
-                        </div>
+                        {dettaglio.bonificoConfermato ? (
+                          <div className="flex items-center gap-2">
+                            <CheckCircle className="w-4 h-4" style={{ color: "#16a34a" }} />
+                            <span style={{ color: "#16a34a", fontWeight: 600 }}>Bonifico ricevuto</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-2">
+                            <CreditCard className="w-4 h-4" style={{ color: "#d97706" }} />
+                            <span style={{ color: "#d97706", fontWeight: 600 }}>Bonifico bancario</span>
+                          </div>
+                        )}
                         {dettaglio.codiceBonifico && (
                           <div className="text-xs mt-1 font-mono font-bold tracking-wider" style={{ color: T.textMuted }}>
                             {dettaglio.codiceBonifico}
                           </div>
                         )}
+                        <button
+                          onClick={toggleBonificoConfermato}
+                          disabled={salvandoBonifico}
+                          className="mt-2 text-xs font-semibold px-3 py-1.5 rounded-md transition"
+                          style={{
+                            background: dettaglio.bonificoConfermato ? "transparent" : "#16a34a",
+                            color: dettaglio.bonificoConfermato ? T.textMuted : "#fff",
+                            border: dettaglio.bonificoConfermato ? `1px solid ${T.border}` : "none",
+                            cursor: salvandoBonifico ? "wait" : "pointer",
+                            opacity: salvandoBonifico ? 0.6 : 1,
+                          }}
+                        >
+                          {salvandoBonifico ? "Salvo..." : dettaglio.bonificoConfermato ? "Annulla conferma" : "✓ Segna come ricevuto"}
+                        </button>
                       </div>
                     ) : (
                       <><CreditCard className="w-4 h-4" style={{ color: T.textMuted }} /><span>Paga in salone</span></>
