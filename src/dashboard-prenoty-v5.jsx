@@ -2227,8 +2227,14 @@ useEffect(() => {
                                 <div className="text-lg font-semibold" style={{ color: col.bar }}>€{p.prezzo}</div>
                                 {isLast && (
                                   <div className="text-xs flex items-center gap-1 justify-end mt-0.5">
-                                    {orig.pagamento === "pagato" ? (
+                                    {orig.pagamento === "pagato" || orig.metodoPagamento === "carta" ? (
                                       <><CheckCircle className="w-3 h-3" style={{ color: "#00b894" }} /><span style={{ color: "#00b894" }}>Pagato</span></>
+                                    ) : orig.metodoPagamento === "bonifico" ? (
+                                      orig.bonificoConfermato ? (
+                                        <><CheckCircle className="w-3 h-3" style={{ color: "#00b894" }} /><span style={{ color: "#00b894" }}>Bonifico ricevuto</span></>
+                                      ) : (
+                                        <span style={{ color: "#d97706" }}>Bonifico in attesa</span>
+                                      )
                                     ) : (
                                       <span style={{ color: T.textMuted }}>In salone</span>
                                     )}
