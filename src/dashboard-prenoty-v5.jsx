@@ -3373,6 +3373,53 @@ useEffect(() => {
                   </div>
                 </div>
 
+                {/* Pagamenti ricevuti nel mese, per metodo */}
+                {(() => {
+                  const pmSalone = prenMese.filter(p => (p.metodoPagamento || "salone") === "salone");
+                  const pmBonifico = prenMese.filter(p => p.metodoPagamento === "bonifico" && p.bonificoConfermato);
+                  const pmOnline = prenMese.filter(p => p.metodoPagamento === "carta");
+                  const totSalone = pmSalone.reduce((s, p) => s + (p.prezzo || 0), 0);
+                  const totBonifico = pmBonifico.reduce((s, p) => s + (p.prezzo || 0), 0);
+                  const totOnline = pmOnline.reduce((s, p) => s + (p.prezzo || 0), 0);
+                  const totRicevuto = totSalone + totBonifico + totOnline;
+                  const pct = (v) => totRicevuto > 0 ? Math.round((v / totRicevuto) * 100) : 0;
+                  const metodi = [
+                    { nome: "In salone", count: pmSalone.length, tot: totSalone, colore: "#00b894", bg: "#eafaf1", Icon: Home },
+                    { nome: "Bonifico bancario", count: pmBonifico.length, tot: totBonifico, colore: "#f9a825", bg: "#fff8e1", Icon: FileText },
+                    { nome: "Online (Stripe)", count: pmOnline.length, tot: totOnline, colore: T.accent, bg: T.accentSoft, Icon: CreditCard },
+                  ];
+                  if (prenMese.length === 0) return null;
+                  return (
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                      <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>PAGAMENTI RICEVUTI</h3>
+                      <div>
+                        {metodi.map((m) => (
+                          <div key={m.nome} className="flex items-center gap-3 py-3" style={{ borderBottom: `1px solid ${T.border}` }}>
+                            <div style={{ width: 36, height: 36, borderRadius: 10, background: m.bg, display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0 }}>
+                              <m.Icon className="w-4 h-4" style={{ color: m.colore }} />
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="text-sm font-semibold" style={{ color: T.text }}>{m.nome}</div>
+                              <div className="text-xs" style={{ color: T.textMuted }}>{m.count} {m.count === 1 ? "pagamento" : "pagamenti"}</div>
+                              <div className="h-1 rounded-full overflow-hidden mt-1.5" style={{ backgroundColor: T.border }}>
+                                <div className="h-full rounded-full" style={{ width: `${pct(m.tot)}%`, backgroundColor: m.colore }} />
+                              </div>
+                            </div>
+                            <div className="text-right flex-shrink-0">
+                              <div className="text-sm font-bold" style={{ color: T.text }}>€{m.tot}</div>
+                              <div className="text-xs" style={{ color: T.textMuted }}>{pct(m.tot)}%</div>
+                            </div>
+                          </div>
+                        ))}
+                        <div className="flex items-center justify-between pt-3 mt-1">
+                          <span className="text-xs font-semibold" style={{ color: T.textMuted }}>Totale incasso mese</span>
+                          <span className="text-base font-bold" style={{ color: T.text }}>€{totRicevuto}</span>
+                        </div>
+                      </div>
+                    </div>
+                  );
+                })()}
+
                 {/* Extra manuali del mese */}
                 {(() => {
                   const extra = prenMese.filter(p => p.extraDescrizione);
