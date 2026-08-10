@@ -1924,7 +1924,7 @@ useEffect(() => {
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
-                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: () => setBreakdownIncassoAperto(v => !v) },
+                  { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: () => setBreakdownIncassoAperto(v => !v), espandibile: true },
                   { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotazioni confermate",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
                   { lbl: "PAGATO ONLINE", val: `€${pagatiOggi}`, sub: "ricevuto oggi online", icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
                 ].map((s, i) => {
@@ -1948,7 +1948,14 @@ useEffect(() => {
                         <div style={{ width: 32, height: 32, borderRadius: 14, background: s.light ? T.accentSoft : "rgba(255,255,255,0.2)", display: "flex", alignItems: "center", justifyContent: "center" }}>
                           <Ic className="w-4 h-4" style={{ color: s.light ? T.accent : "#fff" }} />
                         </div>
-                        <span className="text-xs tracking-widest" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em", textAlign: "right" }}>{s.lbl}</span>
+                        <span className="text-xs tracking-widest flex items-center gap-1.5" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.7)", letterSpacing: "0.12em", textAlign: "right" }}>
+                          {s.lbl}
+                          {s.espandibile && (
+                            <span style={{ width: 16, height: 16, borderRadius: "50%", background: "rgba(255,255,255,0.25)", display: "flex", alignItems: "center", justifyContent: "center", flexShrink: 0, transition: "transform 0.2s", transform: breakdownIncassoAperto ? "rotate(180deg)" : "none" }}>
+                              <ChevronDown className="w-2.5 h-2.5" style={{ color: "#fff", strokeWidth: 3 }} />
+                            </span>
+                          )}
+                        </span>
                       </div>
                       <div className="text-2xl md:text-3xl font-semibold" style={{ color: s.light ? T.text : "#fff" }}>{s.val}</div>
                       <div className="text-xs mt-1" style={{ color: s.light ? T.textMuted : "rgba(255,255,255,0.75)" }}>{i === 3 ? (filtroCard === "pagati" ? "▸ filtro attivo — clicca per togliere" : "ricevuto oggi online") : s.sub}</div>
