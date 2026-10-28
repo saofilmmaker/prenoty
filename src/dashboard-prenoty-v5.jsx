@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState, useEffect, useRef } from "react";
 import { useNavigate } from "react-router-dom";
-import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle, Download, Upload } from "lucide-react";
+import { Scissors, Calendar, Clock, User, Phone, CheckCircle, XCircle, CreditCard, Euro, TrendingUp, Bell, Search, MoreVertical, Settings, Users, Package, BarChart3, Home, Sun, Moon, Plus, Edit2, Trash2, Star, MessageSquare, LogOut, ChevronLeft, ChevronRight, ChevronUp, ChevronDown, FileText, Gift, Image, Camera, Globe, MapPin, X, Mail, Sparkles, Heart, Flower2, Music2, Zap, Waves, Link, Copy, Check, AlertTriangle, Download, Upload, Info } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
 
@@ -3893,6 +3893,13 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOccupato ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+
+                {!salone.bloccoSovrapposizione && !salone.bloccoOccupato && (
+                  <div className="flex items-start gap-2.5 mt-2 px-3 py-2.5 text-xs" style={{ backgroundColor: T.accentSoft, border: `1px solid ${T.border}`, borderRadius: 10, color: T.accent }}>
+                    <Info className="w-4 h-4 flex-shrink-0" style={{ marginTop: 1 }} />
+                    <div><span className="font-semibold">Nessun limite attivo.</span> Chiunque può prenotare alla stessa ora, anche con lo stesso operatore.</div>
+                  </div>
+                )}
 
                 <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
 
