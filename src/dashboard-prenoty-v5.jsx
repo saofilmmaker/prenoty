@@ -272,7 +272,7 @@ export default function DashboardPrenoty() {
         return n;
       };
       if (salone.bloccoOccupato && contaPresenti(prenPerOccupato) >= 1) return { ora, disponibile: false };
-      if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= 3) return { ora, disponibile: false };
+      if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= (salone.limiteSovrapposizione ?? 3)) return { ora, disponibile: false };
       return { ora, disponibile: true };
     });
   };
@@ -454,6 +454,7 @@ useEffect(() => {
           reportPassword: saloneDb.report_password || "",
           statoAbbonamento: saloneDb.stato_abbonamento || "",
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
+          limiteSovrapposizione: saloneDb.limite_sovrapposizione ?? 3,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
           prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
           ferieAttive: saloneDb.ferie_attive ?? false,
@@ -601,6 +602,7 @@ useEffect(() => {
     mostraSocial: true,
     mostraStatistiche: true,
     bloccoSovrapposizione: false,
+    limiteSovrapposizione: 3,
     bloccoOccupato: false,
     prenotazioneAnticipo: "1mese",
     ferieAttive: false,
@@ -3823,7 +3825,7 @@ useEffect(() => {
                     <div className="text-sm">Limite prenotazioni per stesso orario</div>
                     <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
                       Controlla quanti clienti possono prenotare lo stesso orario.<br />
-                      <span style={{ color: "#00b894" }}>● Attivo</span> — ogni orario può essere prenotato da massimo 3 clienti. Dal 4° in poi quell'orario non è più disponibile.<br />
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — ogni orario può essere prenotato da massimo {salone.limiteSovrapposizione ?? 3} {(salone.limiteSovrapposizione ?? 3) === 1 ? "cliente" : "clienti"}. Dal {(salone.limiteSovrapposizione ?? 3) + 1}° in poi quell'orario non è più disponibile.<br />
                       <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
                     </div>
                   </div>
@@ -3841,6 +3843,28 @@ useEffect(() => {
                     <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoSovrapposizione ? "calc(100% - 20px)" : "4px" }} />
                   </button>
                 </label>
+
+                {salone.bloccoSovrapposizione && (
+                  <div className="flex items-center justify-between gap-3 pb-2">
+                    <div className="text-xs" style={{ color: T.textMuted }}>Quanti clienti possono prenotare lo stesso orario</div>
+                    <select
+                      value={salone.limiteSovrapposizione ?? 3}
+                      onChange={async (e) => {
+                        const nuovo = Number(e.target.value);
+                        setSalone({ ...salone, limiteSovrapposizione: nuovo });
+                        if (salone.dbId) {
+                          await supabase.from("saloni").update({ limite_sovrapposizione: nuovo }).eq("id", salone.dbId);
+                        }
+                      }}
+                      className="px-3 py-2 text-sm flex-shrink-0"
+                      style={{ backgroundColor: T.card, color: T.text, border: `1px solid ${T.border}`, borderRadius: 8, fontFamily: "inherit" }}
+                    >
+                      {Array.from({ length: 20 }, (_, i) => i + 1).map(n => (
+                        <option key={n} value={n}>{n}</option>
+                      ))}
+                    </select>
+                  </div>
+                )}
 
                 <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
 

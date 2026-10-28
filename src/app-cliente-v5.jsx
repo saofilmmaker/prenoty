@@ -205,6 +205,7 @@ export default function AppCliente() {
         mostraGalleria: saloneDb.mostra_galleria ?? true,
         mostraSocial: saloneDb.mostra_social ?? true,
         bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
+        limiteSovrapposizione: saloneDb.limite_sovrapposizione ?? 3,
         bloccoOccupato: saloneDb.blocco_occupato ?? false,
         prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
         ferieAttive: saloneDb.ferie_attive ?? false,
@@ -462,7 +463,7 @@ export default function AppCliente() {
         };
         // bloccoOccupato include anche la pausa impostata sui servizi (tempo di preparazione tra un cliente e l'altro)
         if (salone.bloccoOccupato && contaPresenti(prenPerOccupato, true) >= 1) occupati.add(slot);
-        else if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap, false) >= 3) occupati.add(slot);
+        else if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap, false) >= (salone.limiteSovrapposizione ?? 3)) occupati.add(slot);
       }
     }
 
