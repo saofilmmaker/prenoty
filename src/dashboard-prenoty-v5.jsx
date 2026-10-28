@@ -3895,7 +3895,7 @@ useEffect(() => {
                 </label>
 
                 {!salone.bloccoSovrapposizione && !salone.bloccoOccupato && (
-                  <div className="flex items-start gap-2.5 mt-2 px-3 py-2.5 text-xs" style={{ backgroundColor: T.accentSoft, border: `1px solid ${T.border}`, borderRadius: 10, color: T.accent }}>
+                  <div className="flex items-start gap-2.5 mt-2 px-3 py-2.5 text-xs" style={{ backgroundColor: "#f9ca24", border: "1px solid #e0b400", borderRadius: 10, color: "#4a3200" }}>
                     <Info className="w-4 h-4 flex-shrink-0" style={{ marginTop: 1 }} />
                     <div><span className="font-semibold">Nessun limite attivo.</span> Chiunque può prenotare alla stessa ora, anche con lo stesso operatore.</div>
                   </div>
