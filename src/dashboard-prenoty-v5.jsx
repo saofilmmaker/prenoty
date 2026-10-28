@@ -3832,9 +3832,10 @@ useEffect(() => {
                   <button
                     onClick={async () => {
                       const nuovo = !salone.bloccoSovrapposizione;
-                      setSalone({ ...salone, bloccoSovrapposizione: nuovo });
+                      // Le due regole si escludono: accendendo questa si spegne "Blocco orari già occupati"
+                      setSalone({ ...salone, bloccoSovrapposizione: nuovo, ...(nuovo && { bloccoOccupato: false }) });
                       if (salone.dbId) {
-                        await supabase.from("saloni").update({ blocco_sovrapposizione: nuovo }).eq("id", salone.dbId);
+                        await supabase.from("saloni").update({ blocco_sovrapposizione: nuovo, ...(nuovo && { blocco_occupato: false }) }).eq("id", salone.dbId);
                       }
                     }}
                     className="w-10 h-6 rounded-full relative transition flex-shrink-0"
@@ -3880,9 +3881,10 @@ useEffect(() => {
                   <button
                     onClick={async () => {
                       const nuovo = !salone.bloccoOccupato;
-                      setSalone({ ...salone, bloccoOccupato: nuovo });
+                      // Le due regole si escludono: accendendo questa si spegne "Limite prenotazioni per stesso orario"
+                      setSalone({ ...salone, bloccoOccupato: nuovo, ...(nuovo && { bloccoSovrapposizione: false }) });
                       if (salone.dbId) {
-                        await supabase.from("saloni").update({ blocco_occupato: nuovo }).eq("id", salone.dbId);
+                        await supabase.from("saloni").update({ blocco_occupato: nuovo, ...(nuovo && { blocco_sovrapposizione: false }) }).eq("id", salone.dbId);
                       }
                     }}
                     className="w-10 h-6 rounded-full relative transition flex-shrink-0"
