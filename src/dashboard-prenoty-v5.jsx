@@ -2631,7 +2631,7 @@ useEffect(() => {
           {/* SERVIZI */}
           {sezione === "servizi" && (
             <div className="serv-col">
-              <style>{`@media (min-width: 1024px) { .serv-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
+              <style>{`@media (min-width: 1024px) { .serv-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; }`}</style>
               <div className="flex items-center justify-between mb-5">
                 <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   {servizi.length} SERVIZI ATTIVI · TOCCA PER MODIFICARE
@@ -3488,7 +3488,7 @@ useEffect(() => {
           {/* IMPOSTAZIONI */}
           {sezione === "impostazioni" && (
             <div className="space-y-6 imp-tondo">
-              <style>{`.imp-tondo input:not([type=checkbox]):not([type=file]):not([type=radio]), .imp-tondo textarea, .imp-tondo select { border-radius: 8px !important; } @media (min-width: 1024px) { .imp-tondo { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
+              <style>{`.imp-tondo input:not([type=checkbox]):not([type=file]):not([type=radio]), .imp-tondo textarea, .imp-tondo select { border-radius: 8px !important; } @media (min-width: 1024px) { .imp-tondo { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; }`}</style>
 
               {/* IL TUO LINK DI PRENOTAZIONE */}
               {salone.slug && (
