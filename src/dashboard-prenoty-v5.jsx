@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff") && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -3121,45 +3121,46 @@ useEffect(() => {
 
           {/* RECENSIONI */}
           {sezione === "recensioni" && (
-            <div>
+            <div className="rec-col">
+              <style>{`@media (min-width: 1024px) { .rec-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
               {/* Statistiche in alto */}
               <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>MEDIA</div>
                   <div className="text-2xl mt-1 flex items-center gap-1">
                     {recensioni.length > 0 ? (recensioni.reduce((s, r) => s + r.stelle, 0) / recensioni.length).toFixed(1) : "—"}
                     <Star className="w-4 h-4" style={{ fill: T.accent, color: T.accent }} />
                   </div>
                 </div>
-                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>TOTALI</div>
                   <div className="text-2xl mt-1">{recensioni.length}</div>
                 </div>
-                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>DA RISPONDERE</div>
                   <div className="text-2xl mt-1" style={{ color: T.accent }}>{recensioni.filter(r => !r.rispostaProprietario).length}</div>
                 </div>
-                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="p-4 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>SEGNALATE</div>
                   <div className="text-2xl mt-1" style={{ color: T.danger }}>{recensioni.filter(r => r.segnalata).length}</div>
                 </div>
               </div>
 
               {/* Info sul funzionamento */}
-              <div className="p-4 mb-5 border text-xs" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, color: T.textSoft, lineHeight: 1.6 }}>
+              <div className="p-4 mb-5 border text-xs" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, color: T.textSoft, lineHeight: 1.6, borderRadius: 16 }}>
                 💡 <strong style={{ color: T.text }}>Come funzionano le recensioni:</strong> sono <strong>pubblicate automaticamente</strong> appena il cliente le invia. Tu puoi <strong>rispondere pubblicamente</strong> per mostrare professionalità, oppure <strong>segnalarle</strong> a Prenoty se sono offensive, false o spam (Prenoty le valuterà).
               </div>
 
               {/* Lista recensioni */}
               <div className="space-y-3">
                 {recensioni.length === 0 ? (
-                  <div className="p-12 border text-center" style={{ backgroundColor: T.card, borderColor: T.border, color: T.textMuted }}>
+                  <div className="p-12 border text-center" style={{ backgroundColor: T.card, borderColor: T.border, color: T.textMuted, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                     <Star className="w-8 h-8 mx-auto mb-2" />
                     <div>Ancora nessuna recensione ricevuta.</div>
                   </div>
                 ) : (
                   recensioni.map(r => (
-                    <div key={r.id} className="p-5 border" style={{ backgroundColor: r.nascosta ? "rgba(150,150,150,0.05)" : T.card, borderColor: r.segnalata ? T.danger : T.border, borderWidth: r.segnalata ? "2px" : "1px", opacity: r.nascosta ? 0.65 : 1 }}>
+                    <div key={r.id} className="p-5 border" style={{ backgroundColor: r.nascosta ? "rgba(150,150,150,0.05)" : T.card, borderColor: r.segnalata ? T.danger : T.border, borderWidth: r.segnalata ? "2px" : "1px", opacity: r.nascosta ? 0.65 : 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                       {/* Header recensione */}
                       <div className="flex items-start justify-between mb-3">
                         <div>
@@ -3190,7 +3191,7 @@ useEffect(() => {
 
                       {/* Risposta proprietario (se c'è) */}
                       {r.rispostaProprietario && (
-                        <div className="p-3 mb-3 border-l-2" style={{ borderColor: T.accent, backgroundColor: T.accentSoft }}>
+                        <div className="p-3 mb-3 border-l-2" style={{ borderColor: T.accent, backgroundColor: T.accentSoft, borderRadius: 8 }}>
                           <div className="text-xs tracking-widest mb-1" style={{ color: T.accent, letterSpacing: "0.15em" }}>LA TUA RISPOSTA</div>
                           <p className="text-sm" style={{ color: T.text }}>{r.rispostaProprietario}</p>
                           <button
@@ -3212,14 +3213,14 @@ useEffect(() => {
                             placeholder="Scrivi una risposta pubblica..."
                             rows={2}
                             className="w-full p-2 border outline-none text-sm resize-none"
-                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text, fontFamily: "inherit" }}
+                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text, fontFamily: "inherit", borderRadius: 8 }}
                           />
                           <div className="flex gap-2">
                             <button
                               onClick={() => inviaRisposta(r.id)}
                               disabled={!risposteInCorso[r.id]?.trim()}
-                              className="px-4 py-2 text-xs tracking-widest disabled:opacity-30"
-                              style={{ backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}
+                              className="text-xs tracking-widest disabled:opacity-30"
+                              style={{ ...SALVA_PILLOLA, margin: "0 auto", padding: "9px 20px", backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}
                             >
                               PUBBLICA RISPOSTA
                             </button>
@@ -3239,6 +3240,7 @@ useEffect(() => {
                             borderColor: r.segnalata ? T.danger : T.border,
                             color: r.segnalata ? T.danger : T.textSoft,
                             letterSpacing: "0.15em",
+                            borderRadius: 8,
                           }}
                         >
                           {r.segnalata ? "✓ SEGNALATA" : "🚩 SEGNALA"}
