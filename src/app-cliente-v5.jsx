@@ -756,16 +756,14 @@ export default function AppCliente() {
               )}
 
               {/* Logo centrato sovrapposto alla copertina */}
-              <div className="flex justify-center" style={{ marginTop: salone.copertina ? -37 : 0, marginBottom: 12, position: "relative", zIndex: 1 }}>
-                <div style={{ ...vetroCard, padding: 5, borderRadius: 24 }}>
-                  {salone.logo ? (
-                    <img src={salone.logo} alt={salone.nome} className="w-16 h-16 object-cover" style={{ borderRadius: 19, display: "block" }} />
-                  ) : (
-                    <div className="w-16 h-16 flex items-center justify-center text-xl font-semibold" style={{ borderRadius: 19, backgroundColor: T.accentSoft, color: T.accent }}>
-                      {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
-                    </div>
-                  )}
-                </div>
+              <div className="flex justify-center" style={{ marginTop: salone.copertina ? -32 : 0, marginBottom: 12, position: "relative", zIndex: 1 }}>
+                {salone.logo ? (
+                  <img src={salone.logo} alt={salone.nome} className="w-16 h-16 rounded-2xl object-cover" style={{ boxShadow: `0 0 0 5px ${T.bg}` }} />
+                ) : (
+                  <div className="w-16 h-16 rounded-2xl flex items-center justify-center text-xl font-semibold" style={{ backgroundColor: T.accentSoft, color: T.accent, boxShadow: `0 0 0 5px ${T.bg}` }}>
+                    {salone.nome.split(" ").map(n => n[0]).join("").slice(0, 2).toUpperCase()}
+                  </div>
+                )}
               </div>
 
               <div className="text-center">
