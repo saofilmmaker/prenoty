@@ -1759,7 +1759,7 @@ useEffect(() => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* HEADER mobile + notifiche */}
         <header className="hd-col border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
-          <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; } }`}</style>
+          <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; border-bottom-width: 0 !important; } }`}</style>
           <div className="md:hidden flex items-center gap-2">
             {salone.logo ? (
               <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "cover", borderRadius: 8 }} />
