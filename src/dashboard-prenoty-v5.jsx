@@ -3349,18 +3349,22 @@ useEffect(() => {
                 {/* KPI mese selezionato */}
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
                   {[
-                    { lbl: "INCASSO MESE", val: `€${incassoSelMese}`, icon: Euro },
-                    { lbl: "APPUNTAMENTI", val: prenMese.length, icon: Calendar },
+                    { lbl: "INCASSO MESE", val: `€${incassoSelMese}`, icon: Euro, colore: "#00b894", ombra: "0 10px 22px rgba(0,184,148,.25)" },
+                    { lbl: "APPUNTAMENTI", val: prenMese.length, icon: Calendar, colore: "#6c5ce7", ombra: "0 10px 22px rgba(108,92,231,.28)" },
                     { lbl: "CLIENTI UNICI", val: clientiMese, icon: Users },
                   ].map((s, i) => {
                     const Ic = s.icon;
                     return (
-                      <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
+                      <div key={i} className="p-5 border" style={s.colore ? { backgroundColor: s.colore, borderColor: s.colore, borderRadius: 16, boxShadow: s.ombra } : { backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                         <div className="flex items-center gap-2 mb-3">
-                          <Ic className="w-4 h-4" style={{ color: T.accent }} />
-                          <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
+                          {s.colore ? (
+                            <div className="flex items-center justify-center flex-shrink-0" style={{ width: 24, height: 24, borderRadius: "50%", backgroundColor: "rgba(255,255,255,.28)", color: "#fff" }}><Ic className="w-3.5 h-3.5" /></div>
+                          ) : (
+                            <Ic className="w-4 h-4" style={{ color: T.accent }} />
+                          )}
+                          <div className="text-xs tracking-widest" style={{ color: s.colore ? "#fff" : T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
                         </div>
-                        <div className="text-3xl font-semibold" style={{ color: T.accent }}>{s.val}</div>
+                        <div className="text-3xl font-semibold" style={{ color: s.colore ? "#fff" : T.accent }}>{s.val}</div>
                       </div>
                     );
                   })}
