@@ -4492,7 +4492,7 @@ useEffect(() => {
                         <button onClick={async () => {
                           if (!nuovaA.giorno || !(nuovaA.orario || "").trim()) { setSalone({ ...salone, _aperturaErr: "Compila il giorno e gli orari." }); return; }
                           if (nuovaA.giorno < oggiStr) { setSalone({ ...salone, _aperturaErr: "Scegli una data da oggi in avanti." }); return; }
-                          const fasce = nuovaA.orario.trim().split(/\s+/);
+                          const fasce = nuovaA.orario.trim().replace(/\s*[-–]\s*/g, "-").replace(/(\d)\.(\d{2})/g, "$1:$2").split(/\s+/);
                           const fasceOk = fasce.every((f) => {
                             const m = f.match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
                             if (!m) return false;
