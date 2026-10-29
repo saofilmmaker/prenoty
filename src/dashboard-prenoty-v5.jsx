@@ -1922,10 +1922,11 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni" || sezione === "report") && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni" || sezione === "report" || sezione === "agenda") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
-            <div>
+            <div className="ag-col">
+              <style>{`@media (min-width: 1024px) { .ag-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
               {/* STATS */}
               {/* Animazione pulse per notifiche */}
               <style>{`@keyframes prenoty-glow{0%,100%{box-shadow:0 0 0 0 rgba(108,92,231,0)}50%{box-shadow:0 0 0 8px rgba(108,92,231,0.6)}}`}</style>
@@ -1945,9 +1946,9 @@ useEffect(() => {
                       className="p-4"
                       style={{
                         backgroundColor: s.bg,
-                        borderRadius: 14,
-                        border: s.light ? `1.5px solid ${filtroCard === "pagati" && i === 3 ? T.accent : s.pulse ? T.accent : T.border}` : "none",
-                        boxShadow: s.light ? "none" : "0 4px 16px rgba(108,92,231,0.25)",
+                        borderRadius: 16,
+                        border: s.light ? `1px solid ${filtroCard === "pagati" && i === 3 ? T.accent : s.pulse ? T.accent : T.border}` : "none",
+                        boxShadow: s.light ? "0 2px 8px rgba(108,92,231,.08)" : "0 4px 16px rgba(108,92,231,0.25)",
                         cursor: s.onClick ? "pointer" : "default",
                         animation: s.pulse ? "prenoty-glow 1.4s ease-in-out infinite" : "none",
                         transition: "background 0.2s",
@@ -2083,7 +2084,7 @@ useEffect(() => {
 
               {/* FILTRI */}
               <div className="flex flex-col md:flex-row gap-3 mb-5">
-                <div className="flex gap-1 p-1" style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10 }}>
+                <div className="flex gap-1 p-1" style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 8 }}>
                   {["oggi", "settimana", "tutti"].map(v => (
                     <button
                       key={v}
@@ -2093,7 +2094,7 @@ useEffect(() => {
                         backgroundColor: vista === v && !saltaData ? T.dark : "transparent",
                         color: vista === v && !saltaData ? T.bg : T.textSoft,
                         letterSpacing: "0.15em",
-                        borderRadius: 7,
+                        borderRadius: 6,
                       }}
                     >
                       {v.toUpperCase()}
@@ -2109,7 +2110,7 @@ useEffect(() => {
                         backgroundColor: saltaData ? T.dark : "transparent",
                         color: saltaData ? T.bg : T.textSoft,
                         border: "none",
-                        borderRadius: 7,
+                        borderRadius: 6,
                         cursor: "pointer",
                         width: saltaData ? 130 : 32,
                         transition: "width 0.2s",
@@ -2129,21 +2130,21 @@ useEffect(() => {
                     value={filtro}
                     onChange={(e) => setFiltro(e.target.value)}
                     className="w-full pl-11 pr-4 py-3 outline-none"
-                    style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
+                    style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 16 }}
                   />
                 </div>
                 {/* PULSANTE APPUNTAMENTO MANUALE */}
                 <button
                   onClick={() => apriModalApp()}
                   className="flex items-center justify-center gap-2 px-5 py-3 text-sm font-bold whitespace-nowrap"
-                  style={{ backgroundColor: T.accent, color: "#fff", borderRadius: 10, letterSpacing: "0.04em", boxShadow: "0 4px 14px rgba(108,92,231,0.3)" }}
+                  style={{ backgroundColor: T.accent, color: "#fff", borderRadius: 8, letterSpacing: "0.04em" }}
                 >
                   <Plus className="w-4 h-4" /> Appuntamento
                 </button>
               </div>
 
               {/* LISTA PRENOTAZIONI */}
-              <div style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 14, overflow: "hidden" }}>
+              <div style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)", overflow: "hidden" }}>
                 <div className="px-5 py-3 border-b" style={{ borderColor: T.border }}>
                   <h3 className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                     PRENOTAZIONI ({visibili.length})
