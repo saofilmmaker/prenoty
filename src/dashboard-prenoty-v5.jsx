@@ -1759,7 +1759,7 @@ useEffect(() => {
       <div className="flex-1 flex flex-col min-w-0">
         {/* HEADER mobile + notifiche */}
         <header className="hd-col border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
-          <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; border-bottom-width: 0 !important; padding-bottom: 0.5rem !important; } .hd-col h2 { font-size: 28px; line-height: 34px; } .main-col { padding-top: 1rem !important; } }`}</style>
+          <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; border-bottom-width: 0 !important; padding-bottom: 0.5rem !important; } .hd-col h2 { display: none; } .titolo-col { max-width: 760px; margin: 0.5rem auto 1.25rem auto; font-size: 28px; line-height: 34px; display: block !important; } .main-col { padding-top: 1rem !important; } }`}</style>
           <div className="md:hidden flex items-center gap-2">
             {salone.logo ? (
               <img src={salone.logo} alt="Logo" style={{ width: 28, height: 28, objectFit: "cover", borderRadius: 8 }} />
@@ -1771,7 +1771,7 @@ useEffect(() => {
             <span className="text-sm tracking-wider">{salone.nome.toUpperCase()}</span>
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 ml-auto">
             {/* AGGIORNA — ricarica i dati (mobile + desktop) */}
             <button
               onClick={aggiornaDati}
@@ -1924,6 +1924,7 @@ useEffect(() => {
         </div>
 
         <main className={"main-col flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni" || sezione === "report" || sezione === "agenda") && tema === "chiaro" ? " imp-bianco" : "")}>
+          <h2 className="titolo-col hidden capitalize">{sezione}</h2>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div className="ag-col">
