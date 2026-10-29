@@ -3991,7 +3991,7 @@ useEffect(() => {
                     setTimeout(() => setSalone(prev => ({ ...prev, _ferieSalvato: false })), 2000);
                   }}
                   className="mt-3 px-5 py-2 text-xs tracking-widest"
-                  style={{ backgroundColor: salone._ferieSalvato ? "#00b894" : T.accent, color: "#fff", border: "none", cursor: "pointer", letterSpacing: "0.12em" }}
+                  style={{ backgroundColor: salone._ferieSalvato ? "#00b894" : T.accent, color: "#fff", border: "none", cursor: "pointer", letterSpacing: "0.12em", borderRadius: 8 }}
                 >
                   {salone._ferieSalvato ? "✓ SALVATO" : "SALVA DATE"}
                 </button>
@@ -4058,7 +4058,7 @@ useEffect(() => {
                         const nuove = [...(salone.chiusureTemporanee || []), { id: Date.now(), ...nuovaC }];
                         setSalone({ ...salone, chiusureTemporanee: nuove, _nuovaChiusura: {} });
                         if (salone.dbId) await supabase.from("saloni").update({ chiusure_temporanee: nuove }).eq("id", salone.dbId);
-                      }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+                      }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", borderRadius: 8 }}>
                         + Aggiungi
                       </button>
                     </div>
@@ -4514,7 +4514,7 @@ useEffect(() => {
                             if (error) { setSalone({ ...salone, _aperturaErr: "Non è stato possibile salvare la data. Riprova." }); return; }
                           }
                           setSalone({ ...salone, apertureStraordinarie: nuove, _nuovaApertura: {}, _aperturaErr: "" });
-                        }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+                        }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", borderRadius: 8 }}>
                           + Aggiungi
                         </button>
                       </div>
