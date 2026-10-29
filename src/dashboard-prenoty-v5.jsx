@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni") && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff" || sezione === "recensioni" || sezione === "report") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -3256,7 +3256,7 @@ useEffect(() => {
           {/* REPORT — LOCK SCREEN */}
           {sezione === "report" && salone.reportPassword && reportLocked && (
             <div className="flex flex-col items-center justify-center min-h-[60vh] px-4">
-              <div className="w-full max-w-sm p-8 border rounded-2xl flex flex-col items-center gap-5 text-center" style={{ backgroundColor: T.card, borderColor: T.border }}>
+              <div className="w-full max-w-sm p-8 border rounded-2xl flex flex-col items-center gap-5 text-center" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <div className="w-14 h-14 rounded-2xl flex items-center justify-center" style={{ backgroundColor: T.accentSoft }}>
                   <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke={T.accent} strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
                 </div>
@@ -3270,15 +3270,15 @@ useEffect(() => {
                   onChange={e => { setReportPwdInput(e.target.value); setReportPwdError(false); }}
                   onKeyDown={e => { if (e.key === "Enter") { if (reportPwdInput === salone.reportPassword) { setReportLocked(false); setReportPwdInput(""); } else { setReportPwdError(true); } } }}
                   placeholder="••••••••"
-                  className="w-full text-center text-lg tracking-widest border rounded-xl px-4 py-3 outline-none"
+                  className="w-full text-center text-lg tracking-widest border rounded-lg px-4 py-3 outline-none"
                   style={{ borderColor: reportPwdError ? "#e74c3c" : T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }}
                   autoFocus
                 />
                 {reportPwdError && <div className="text-sm" style={{ color: "#e74c3c" }}>Password errata. Riprova.</div>}
                 <button
                   onClick={() => { if (reportPwdInput === salone.reportPassword) { setReportLocked(false); setReportPwdInput(""); } else { setReportPwdError(true); } }}
-                  className="w-full py-3 text-sm font-bold tracking-widest rounded-xl"
-                  style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
+                  className="text-sm font-bold tracking-widest"
+                  style={{ ...SALVA_PILLOLA, margin: "0 auto", backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}
                 >
                   ACCEDI AL REPORT
                 </button>
@@ -3306,7 +3306,8 @@ useEffect(() => {
             const maxCount = serviziOrdinati[0]?.[1] || 1;
 
             return (
-              <div className="space-y-6">
+              <div className="space-y-6 rep-col">
+                <style>{`@media (min-width: 1024px) { .rep-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
                 {/* Navigazione mese */}
                 <div className="flex flex-col gap-3">
                   {/* Selettori mese + anno */}
@@ -3354,7 +3355,7 @@ useEffect(() => {
                   ].map((s, i) => {
                     const Ic = s.icon;
                     return (
-                      <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                      <div key={i} className="p-5 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                         <div className="flex items-center gap-2 mb-3">
                           <Ic className="w-4 h-4" style={{ color: T.accent }} />
                           <div className="text-xs tracking-widest" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>{s.lbl}</div>
@@ -3366,7 +3367,7 @@ useEffect(() => {
                 </div>
 
                 {/* Servizi più richiesti nel mese */}
-                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SERVIZI PIÙ RICHIESTI</h3>
                   <div className="space-y-3">
                     {serviziOrdinati.length === 0 ? (
@@ -3406,7 +3407,7 @@ useEffect(() => {
                   ];
                   if (prenMese.length === 0) return null;
                   return (
-                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                       <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>PAGAMENTI RICEVUTI</h3>
                       <div>
                         {metodi.map((m) => (
@@ -3441,7 +3442,7 @@ useEffect(() => {
                   const extra = prenMese.filter(p => p.extraDescrizione);
                   if (extra.length === 0) return null;
                   return (
-                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                       <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>EXTRA AGGIUNTI IN SALONE</h3>
                       <div className="space-y-2">
                         {extra.map(p => (
@@ -3466,7 +3467,7 @@ useEffect(() => {
                   });
                   const maxInc = Math.max(...ultimi6.map(m => prenotazioni.filter(p => { if (!p.data) return false; const d = new Date(p.data); return d.getMonth() === m.mese && d.getFullYear() === m.anno; }).reduce((s, p) => s + (p.prezzo || 0), 0)), 1);
                   return (
-                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                       <h3 className="text-sm tracking-widest mb-5" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CONFRONTO ULTIMI 6 MESI</h3>
                       <div className="flex items-end gap-2 h-24">
                         {ultimi6.map((m, i) => {
