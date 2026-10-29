@@ -216,7 +216,8 @@ export default function DashboardPrenoty() {
     if (!dataStr || !salone.orari) return [];
     const chiavi = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
     const giorno = new Date(dataStr + "T00:00:00").getDay();
-    const orarioGiorno = salone.orari[chiavi[giorno]];
+    const speciale = (salone.apertureStraordinarie || []).find(a => a.giorno === dataStr);
+    const orarioGiorno = speciale ? `${speciale.dalle}-${speciale.alle}` : salone.orari[chiavi[giorno]];
     if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
     const fasce = orarioGiorno.trim().split(" ");
     const slots = [];
@@ -462,6 +463,7 @@ useEffect(() => {
           ferieAl: saloneDb.ferie_al || "",
           ferieMessaggio: saloneDb.ferie_messaggio || "",
           chiusureTemporanee: saloneDb.chiusure_temporanee || [],
+          apertureStraordinarie: saloneDb.aperture_straordinarie || [],
           suonoNotifica: saloneDb.suono_notifica || "ding",
           abbonamentoAttivo: saloneDb.abbonamento_attivo ?? false,
           abbonamentoScade: saloneDb.abbonamento_scade_il || null,
@@ -610,6 +612,7 @@ useEffect(() => {
     ferieAl: "",
     ferieMessaggio: "",
     chiusureTemporanee: [],
+    apertureStraordinarie: [],
     suonoNotifica: "ding",
     reportPassword: "",
     statoAbbonamento: "",
@@ -4434,6 +4437,83 @@ useEffect(() => {
                     T={T}
                   />
                 </div>
+
+                {/* APERTURE STRAORDINARIE — date singole in cui il salone apre anche se di solito è chiuso */}
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "20px 0 16px" }} />
+                <h4 className="text-xs tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>APERTURE STRAORDINARIE</h4>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Apri un giorno in cui di solito sei chiuso, o cambia gli orari di una data precisa. Vale solo per le date che aggiungi e si disattiva da solo dopo quel giorno.</p>
+                {(() => {
+                  const dOggi = new Date();
+                  const oggiStr = `${dOggi.getFullYear()}-${String(dOggi.getMonth() + 1).padStart(2, "0")}-${String(dOggi.getDate()).padStart(2, "0")}`;
+                  const attive = (salone.apertureStraordinarie || []).filter(a => a.giorno >= oggiStr).sort((a, b) => a.giorno.localeCompare(b.giorno));
+                  const fmtGiorno = (g) => {
+                    const d = new Date(g + "T00:00:00");
+                    const gs = ["Dom", "Lun", "Mar", "Mer", "Gio", "Ven", "Sab"][d.getDay()];
+                    return `${gs} ${String(d.getDate()).padStart(2, "0")}/${String(d.getMonth() + 1).padStart(2, "0")}/${d.getFullYear()}`;
+                  };
+                  const nuovaA = salone._nuovaApertura || {};
+                  const setNuovaA = (v) => setSalone({ ...salone, _nuovaApertura: v, _aperturaErr: "" });
+                  return (
+                    <>
+                      {attive.length > 0 && (
+                        <div className="mb-4">
+                          {attive.map((a) => (
+                            <div key={a.id} className="flex items-center gap-3 p-3 mb-2" style={{ backgroundColor: T.bg, border: `0.5px solid ${T.border}` }}>
+                              <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: T.accent }} />
+                              <div className="flex-1 text-sm">{fmtGiorno(a.giorno)} · {a.dalle} – {a.alle}</div>
+                              <button onClick={async () => {
+                                const nuove = (salone.apertureStraordinarie || []).filter(x => x.id !== a.id);
+                                if (salone.dbId) {
+                                  const { error } = await supabase.from("saloni").update({ aperture_straordinarie: nuove }).eq("id", salone.dbId);
+                                  if (error) { setSalone({ ...salone, _aperturaErr: "Non è stato possibile rimuovere la data. Riprova." }); return; }
+                                }
+                                setSalone({ ...salone, apertureStraordinarie: nuove, _aperturaErr: "" });
+                              }} style={{ color: T.textMuted, background: "none", border: "none", cursor: "pointer", fontSize: 18, lineHeight: 1 }}>×</button>
+                            </div>
+                          ))}
+                        </div>
+                      )}
+                      <div className="text-xs mb-2" style={{ color: T.textMuted }}>Aggiungi apertura</div>
+                      <div className="flex gap-3 flex-wrap items-end">
+                        <div>
+                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Giorno</div>
+                          <input type="date" value={nuovaA.giorno || ""} min={oggiStr}
+                            onChange={(e) => setNuovaA({ ...nuovaA, giorno: e.target.value })}
+                            className="p-2 border outline-none text-sm"
+                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                        </div>
+                        <div>
+                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Dalle</div>
+                          <input type="time" value={nuovaA.dalle || ""}
+                            onChange={(e) => setNuovaA({ ...nuovaA, dalle: e.target.value })}
+                            className="p-2 border outline-none text-sm"
+                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                        </div>
+                        <div>
+                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Alle</div>
+                          <input type="time" value={nuovaA.alle || ""}
+                            onChange={(e) => setNuovaA({ ...nuovaA, alle: e.target.value })}
+                            className="p-2 border outline-none text-sm"
+                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+                        </div>
+                        <button onClick={async () => {
+                          if (!nuovaA.giorno || !nuovaA.dalle || !nuovaA.alle) { setSalone({ ...salone, _aperturaErr: "Compila giorno, ora di inizio e ora di fine." }); return; }
+                          if (nuovaA.dalle >= nuovaA.alle) { setSalone({ ...salone, _aperturaErr: "L'ora di fine deve essere dopo quella di inizio." }); return; }
+                          if (nuovaA.giorno < oggiStr) { setSalone({ ...salone, _aperturaErr: "Scegli una data da oggi in avanti." }); return; }
+                          const nuove = [...(salone.apertureStraordinarie || []).filter(x => x.giorno !== nuovaA.giorno), { id: Date.now(), giorno: nuovaA.giorno, dalle: nuovaA.dalle, alle: nuovaA.alle }];
+                          if (salone.dbId) {
+                            const { error } = await supabase.from("saloni").update({ aperture_straordinarie: nuove }).eq("id", salone.dbId);
+                            if (error) { setSalone({ ...salone, _aperturaErr: "Non è stato possibile salvare la data. Riprova." }); return; }
+                          }
+                          setSalone({ ...salone, apertureStraordinarie: nuove, _nuovaApertura: {}, _aperturaErr: "" });
+                        }} className="p-2 px-4 text-sm" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+                          + Aggiungi
+                        </button>
+                      </div>
+                      {salone._aperturaErr && <div className="text-xs mt-2" style={{ color: T.danger }}>{salone._aperturaErr}</div>}
+                    </>
+                  );
+                })()}
               </div>
 
 

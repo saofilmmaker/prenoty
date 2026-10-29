@@ -213,6 +213,7 @@ export default function AppCliente() {
         ferieAl: saloneDb.ferie_al || null,
         ferieMessaggio: saloneDb.ferie_messaggio || "",
         chiusureTemporanee: saloneDb.chiusure_temporanee || [],
+        apertureStraordinarie: saloneDb.aperture_straordinarie || [],
         metodiPagamento: (() => {
           const mp = { ...(saloneDb.metodi_pagamento || prev.metodiPagamento) };
           delete mp.stripe_sk; // la chiave segreta non va mai al frontend
@@ -280,11 +281,17 @@ export default function AppCliente() {
 
   // Genera slot da 5 min dagli orari reali del salone per il giorno scelto
   // Supporta fasce multiple con pausa (es. "08:00-12:00 15:00-20:00")
+  const aperturaStraordinaria = (g) => {
+    const ds = `${g.getFullYear()}-${String(g.getMonth()+1).padStart(2,"0")}-${String(g.getDate()).padStart(2,"0")}`;
+    return (salone.apertureStraordinarie || []).find(a => a.giorno === ds);
+  };
+
   const generaSlot = (dataScelta) => {
     if (!dataScelta || !salone.orari) return [];
     const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
     const chiave = chiavi[dataScelta.getDay()];
-    const orarioGiorno = salone.orari[chiave];
+    const speciale = aperturaStraordinaria(dataScelta);
+    const orarioGiorno = speciale ? `${speciale.dalle}-${speciale.alle}` : salone.orari[chiave];
     if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
     const fasce = orarioGiorno.trim().split(" ");
     const slots = [];
@@ -344,7 +351,7 @@ export default function AppCliente() {
     g.setDate(oggi.getDate() + i);
     const chiave = chiavi[g.getDay()];
     const orarioGiorno = salone.orari?.[chiave];
-    if (orarioGiorno && orarioGiorno !== "Chiuso") giorni.push(g);
+    if ((orarioGiorno && orarioGiorno !== "Chiuso") || aperturaStraordinaria(g)) giorni.push(g);
     i++;
   }
 
