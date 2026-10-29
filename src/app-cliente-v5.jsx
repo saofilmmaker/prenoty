@@ -319,6 +319,7 @@ export default function AppCliente() {
 
   const isGiornoInFerie = (g) => {
     if (!salone.ferieAttive || !salone.ferieDal || !salone.ferieAl) return false;
+    if (aperturaStraordinaria(g)) return false; // un'apertura speciale vince sulle ferie
     const d = new Date(g); d.setHours(0,0,0,0);
     const dal = new Date(salone.ferieDal); dal.setHours(0,0,0,0);
     const al = new Date(salone.ferieAl); al.setHours(23,59,59,999);
@@ -776,12 +777,12 @@ export default function AppCliente() {
                   );
                 })()}
 
-                {/* Banner aperture speciali — solo date future, escluse quelle dentro le ferie */}
+                {/* Banner aperture speciali — solo date future (vincono sulle ferie) */}
                 {(() => {
                   const dOggi = new Date();
                   const oggiStr = `${dOggi.getFullYear()}-${String(dOggi.getMonth()+1).padStart(2,"0")}-${String(dOggi.getDate()).padStart(2,"0")}`;
                   const speciali = (salone.apertureStraordinarie || [])
-                    .filter(a => a.giorno >= oggiStr && !isGiornoInFerie(new Date(a.giorno + "T00:00:00")))
+                    .filter(a => a.giorno >= oggiStr)
                     .sort((a, b) => a.giorno.localeCompare(b.giorno));
                   if (speciali.length === 0) return null;
                   const gs = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
