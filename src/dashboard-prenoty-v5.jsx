@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti") && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti" || sezione === "staff") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -2956,7 +2956,8 @@ useEffect(() => {
 
           {/* STAFF */}
           {sezione === "staff" && (
-            <div>
+            <div className="staff-col">
+              <style>{`@media (min-width: 1024px) { .staff-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
               <div className="flex items-center justify-between mb-5">
                 <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   {staff.length} / {MAX_STAFF} MEMBRI · TOCCA PER MODIFICARE
@@ -2965,13 +2966,13 @@ useEffect(() => {
                   onClick={nuovoStaff}
                   disabled={staff.length >= MAX_STAFF}
                   className="flex items-center gap-2 px-4 py-2 text-xs tracking-widest disabled:opacity-40"
-                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em" }}
+                  style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.15em", borderRadius: 8 }}
                 >
                   <Plus className="w-4 h-4" /> NUOVO
                 </button>
               </div>
               {staff.length >= MAX_STAFF && (
-                <div className="mb-4 p-3 text-sm border" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, color: T.textSoft }}>
+                <div className="mb-4 p-3 text-sm border" style={{ backgroundColor: T.accentSoft, borderColor: T.accent, color: T.textSoft, borderRadius: 8 }}>
                   Hai raggiunto il limite di {MAX_STAFF} operatori.
                 </div>
               )}
@@ -2980,7 +2981,7 @@ useEffect(() => {
                   const inMod = (campo) => modificaStaff?.id === s.id && modificaStaff?.campo === campo;
 
                   return (
-                    <div key={s.id} className="p-5 border text-center relative" style={{ backgroundColor: T.card, borderColor: T.border }}>
+                    <div key={s.id} className="p-5 border text-center relative" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                       {/* Bottone elimina (in alto a destra) */}
                       <button
                         onClick={(e) => { e.stopPropagation(); eliminaStaff(s.id); }}
