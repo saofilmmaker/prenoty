@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi") && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi" || sezione === "clienti") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -2263,7 +2263,8 @@ useEffect(() => {
 
           {/* CLIENTI */}
           {sezione === "clienti" && (
-            <div>
+            <div className="cli-col">
+              <style>{`@media (min-width: 1024px) { .cli-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #f3f3f6; } @media (min-width: 1024px) { .imp-bianco { background-color: #fff; } }`}</style>
               <div className="flex flex-col gap-3 mb-5">
                 <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   {clienti.length} CLIENTI IN ANAGRAFICA
@@ -2278,7 +2279,7 @@ useEffect(() => {
                       value={cercaCliente}
                       onChange={(e) => setCercaCliente(e.target.value)}
                       className="w-full pl-10 pr-3 py-2.5 outline-none"
-                      style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 10, color: T.text, fontSize: 16 }}
+                      style={{ backgroundColor: T.card, border: `1px solid ${T.border}`, borderRadius: 8, color: T.text, fontSize: 16 }}
                     />
                   </div>
                   <div className="hidden md:flex items-center gap-2 flex-1">
@@ -2291,21 +2292,21 @@ useEffect(() => {
                       <button
                         onClick={esportaClienti}
                         className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap"
-                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 8 }}
                       >
                         <Download className="w-4 h-4" /> ESPORTA
                       </button>
                       <button
                         onClick={() => { setModalImportaClienti(true); setImportAnteprima(null); }}
                         className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap"
-                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                        style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 8 }}
                       >
                         <Upload className="w-4 h-4" /> IMPORTA
                       </button>
                       <button
                         onClick={() => setModalNuovoCliente(true)}
                         className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap"
-                        style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
+                        style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.15em", borderRadius: 8 }}
                       >
                         <Plus className="w-4 h-4" /> NUOVO
                       </button>
@@ -2322,7 +2323,7 @@ useEffect(() => {
                   <button
                     onClick={() => setModalNuovoCliente(true)}
                     className="flex items-center gap-2 px-4 py-2.5 text-xs tracking-widest whitespace-nowrap ml-auto"
-                    style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 10 }}
+                    style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.15em", borderRadius: 8 }}
                   >
                     <Plus className="w-4 h-4" /> NUOVO
                   </button>
@@ -2332,14 +2333,14 @@ useEffect(() => {
                   <button
                     onClick={esportaClienti}
                     className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap flex-1 justify-center"
-                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 8 }}
                   >
                     <Download className="w-4 h-4" /> ESPORTA
                   </button>
                   <button
                     onClick={() => { setModalImportaClienti(true); setImportAnteprima(null); }}
                     className="flex items-center gap-2 px-3 py-2.5 text-xs tracking-widest whitespace-nowrap flex-1 justify-center"
-                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 10 }}
+                    style={{ backgroundColor: T.card, color: T.accent, border: `1px solid ${T.border}`, letterSpacing: "0.1em", borderRadius: 8 }}
                   >
                     <Upload className="w-4 h-4" /> IMPORTA
                   </button>
@@ -2353,7 +2354,7 @@ useEffect(() => {
                   .filter(x => x.comp);
                 if (inArrivo.length === 0) return null;
                 return (
-                  <div className="rounded-2xl p-4 mb-5" style={{ background: T.card, border: `1px solid ${T.border}` }}>
+                  <div className="rounded-2xl p-4 mb-5" style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                     <div className="flex items-center justify-between mb-3">
                       <div className="text-xs font-bold tracking-widest flex items-center gap-2" style={{ color: T.text, letterSpacing: "0.12em" }}>
                         <Gift className="w-4 h-4" style={{ color: T.accent }} /> COMPLEANNI IN ARRIVO
@@ -2384,7 +2385,7 @@ useEffect(() => {
                 );
               })()}
 
-              <div className="border divide-y" style={{ backgroundColor: T.card, borderColor: T.border }}>
+              <div className="border divide-y" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, overflow: "hidden", boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 {(() => {
                   const q = cercaCliente.trim().toLowerCase();
                   const clientiFiltrati = (q
@@ -2507,7 +2508,7 @@ useEffect(() => {
                   <div className="px-4 pt-4 pb-2 border-b" style={{ borderColor: T.border }}>
                     <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted, letterSpacing: "0.15em" }}>CONTATTO</div>
                     <div className="space-y-2">
-                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: T.bg }}>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: T.bg }}>
                         <Phone className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
                         <input
                           type="tel"
@@ -2518,7 +2519,7 @@ useEffect(() => {
                           placeholder="Numero di telefono"
                         />
                       </div>
-                      <div className="flex items-center gap-3 p-3 rounded-xl" style={{ background: T.bg }}>
+                      <div className="flex items-center gap-3 p-3 rounded-lg" style={{ background: T.bg }}>
                         <Mail className="w-4 h-4 flex-shrink-0" style={{ color: T.accent }} />
                         <input
                           type="email"
@@ -2568,7 +2569,7 @@ useEffect(() => {
                       type="date"
                       value={editNascita}
                       onChange={e => setEditNascita(e.target.value)}
-                      className="w-full p-3 rounded-xl text-sm border outline-none"
+                      className="w-full p-3 rounded-lg text-sm border outline-none"
                       style={{ background: T.bg, color: T.text, borderColor: T.border, fontFamily: "inherit", fontSize: 16 }}
                     />
                     {editNascita && (
@@ -2586,7 +2587,7 @@ useEffect(() => {
                       onChange={e => setEditNote(e.target.value)}
                       rows={4}
                       placeholder="Preferenze, allergie, stile preferito..."
-                      className="w-full p-3 rounded-xl text-sm border outline-none resize-none"
+                      className="w-full p-3 rounded-lg text-sm border outline-none resize-none"
                       style={{ background: T.bg, color: T.text, borderColor: T.border, fontFamily: "inherit", fontSize: 16 }}
                     />
                   </div>
@@ -2601,23 +2602,23 @@ useEffect(() => {
                     {/* Crea appuntamento per questo cliente */}
                     <button
                       onClick={() => apriModalApp(clienteDettaglio)}
-                      className="w-full py-4 text-sm font-semibold rounded-xl tracking-widest flex items-center justify-center gap-2"
-                      style={{ background: T.accentSoft, color: T.accent, letterSpacing: "0.06em" }}
+                      className="text-sm font-semibold tracking-widest flex items-center justify-center gap-2"
+                      style={{ ...SALVA_PILLOLA, display: "flex", margin: "0 auto", background: T.accentSoft, color: T.accent, letterSpacing: "0.06em" }}
                     >
                       <Plus className="w-4 h-4" /> CREA APPUNTAMENTO
                     </button>
                     <button
                       onClick={salvaDettaglioCliente}
                       disabled={salvandoCliente}
-                      className="w-full py-4 text-sm font-semibold rounded-xl tracking-widest transition-all"
-                      style={{ background: salvatoOk ? "#5de279" : T.accent, color: salvatoOk ? "#13112a" : "#fff", letterSpacing: "0.1em", opacity: salvandoCliente ? 0.7 : 1 }}
+                      className="text-sm font-semibold tracking-widest transition-all"
+                      style={{ ...SALVA_PILLOLA, margin: "0 auto", background: salvatoOk ? "#5de279" : T.accent, color: salvatoOk ? "#13112a" : "#fff", letterSpacing: "0.1em", opacity: salvandoCliente ? 0.7 : 1 }}
                     >
                       {salvandoCliente ? "SALVO..." : salvatoOk ? "✓ SALVATO" : "SALVA MODIFICHE"}
                     </button>
                     <button
                       onClick={() => { setClienteDettaglio(null); setConfermaEliminaCliente(clienteDettaglio.id); }}
-                      className="w-full py-3 text-sm rounded-xl"
-                      style={{ background: "transparent", color: T.danger, border: `1px solid ${T.danger}` }}
+                      className="text-sm"
+                      style={{ ...SALVA_PILLOLA, margin: "0 auto", background: "transparent", color: T.danger, border: `1px solid ${T.danger}` }}
                     >
                       Elimina cliente
                     </button>
