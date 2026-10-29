@@ -2654,7 +2654,7 @@ useEffect(() => {
                     <div
                       key={s.id}
                       className="p-5 border"
-                      style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14, position: "relative" }}
+                      style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)", position: "relative" }}
                       onClick={() => { if (menuAperto) setMenuServizio(null); }}
                     >
                       {/* Header riga: nome + tre puntini */}
