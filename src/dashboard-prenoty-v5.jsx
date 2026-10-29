@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className="flex-1 p-4 md:p-8 overflow-y-auto">
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + (sezione === "impostazioni" && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -3485,7 +3485,7 @@ useEffect(() => {
           {/* IMPOSTAZIONI */}
           {sezione === "impostazioni" && (
             <div className="space-y-6 imp-tondo">
-              <style>{`.imp-tondo input:not([type=checkbox]):not([type=file]):not([type=radio]), .imp-tondo textarea, .imp-tondo select { border-radius: 8px !important; } @media (min-width: 1024px) { .imp-tondo { max-width: 760px; margin-left: auto; margin-right: auto; } }`}</style>
+              <style>{`.imp-tondo input:not([type=checkbox]):not([type=file]):not([type=radio]), .imp-tondo textarea, .imp-tondo select { border-radius: 8px !important; } @media (min-width: 1024px) { .imp-tondo { max-width: 760px; margin-left: auto; margin-right: auto; } .imp-bianco { background-color: #fff; } }`}</style>
 
               {/* IL TUO LINK DI PRENOTAZIONE */}
               {salone.slug && (
