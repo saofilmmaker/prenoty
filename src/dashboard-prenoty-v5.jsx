@@ -2639,7 +2639,7 @@ useEffect(() => {
                 <button
                   onClick={nuovoServizio}
                   className="flex items-center gap-2 px-4 py-2 text-xs tracking-widest"
-                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em" }}
+                  style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 8 }}
                 >
                   <Plus className="w-4 h-4" /> NUOVO
                 </button>
