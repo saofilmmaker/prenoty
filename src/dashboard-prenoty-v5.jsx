@@ -1922,7 +1922,7 @@ useEffect(() => {
           </div>
         </div>
 
-        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + (sezione === "impostazioni" && tema === "chiaro" ? " imp-bianco" : "")}>
+        <main className={"flex-1 p-4 md:p-8 overflow-y-auto" + ((sezione === "impostazioni" || sezione === "servizi") && tema === "chiaro" ? " imp-bianco" : "")}>
           {/* AGENDA */}
           {sezione === "agenda" && (
             <div>
@@ -2630,7 +2630,8 @@ useEffect(() => {
 
           {/* SERVIZI */}
           {sezione === "servizi" && (
-            <div>
+            <div className="serv-col">
+              <style>{`@media (min-width: 1024px) { .serv-col { max-width: 760px; margin-left: auto; margin-right: auto; } } .imp-bianco { background-color: #fff; }`}</style>
               <div className="flex items-center justify-between mb-5">
                 <div className="text-sm tracking-widest" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   {servizi.length} SERVIZI ATTIVI · TOCCA PER MODIFICARE
@@ -2653,7 +2654,7 @@ useEffect(() => {
                     <div
                       key={s.id}
                       className="p-5 border"
-                      style={{ backgroundColor: T.card, borderColor: T.border, position: "relative" }}
+                      style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14, position: "relative" }}
                       onClick={() => { if (menuAperto) setMenuServizio(null); }}
                     >
                       {/* Header riga: nome + tre puntini */}
@@ -2786,6 +2787,7 @@ useEffect(() => {
                                 border: `1px solid ${T.accent}`,
                                 outline: "none",
                                 width: 60,
+                                borderRadius: 8,
                                 padding: "2px 6px",
                                 fontSize: 14,
                               }}
@@ -2820,6 +2822,7 @@ useEffect(() => {
                                 border: `1px solid ${T.accent}`,
                                 outline: "none",
                                 width: 70,
+                                borderRadius: 8,
                                 padding: "2px 6px",
                                 fontSize: 14,
                               }}
@@ -2836,7 +2839,7 @@ useEffect(() => {
                         )}
 
                         {inMod("pausa") ? (
-                          <span style={{ display: "inline-flex", alignItems: "stretch", border: `1px solid ${T.accent}` }}>
+                          <span style={{ display: "inline-flex", alignItems: "stretch", border: `1px solid ${T.accent}`, borderRadius: 8, overflow: "hidden" }}>
                             <input
                               autoFocus
                               type="number"
@@ -2907,7 +2910,7 @@ useEffect(() => {
                               background: "transparent",
                               color: T.text,
                               border: `1px solid ${T.accent}`,
-                              borderRadius: 6,
+                              borderRadius: 8,
                               outline: "none",
                               width: "100%",
                               padding: "6px 10px",
