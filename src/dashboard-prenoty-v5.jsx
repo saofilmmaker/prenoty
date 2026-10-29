@@ -1764,12 +1764,12 @@ useEffect(() => {
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
           <div className="flex items-center gap-2">
-            {/* AGGIORNA — ricarica i dati (solo mobile/PWA, nascosto su desktop) */}
+            {/* AGGIORNA — ricarica i dati (mobile + desktop) */}
             <button
               onClick={aggiornaDati}
               title="Aggiorna"
               disabled={refreshing}
-              className="flex md:hidden"
+              className="flex"
               style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, alignItems: "center", justifyContent: "center", color: T.textSoft }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: refreshing ? "prenoty-spin 0.7s linear infinite" : "none" }}>
