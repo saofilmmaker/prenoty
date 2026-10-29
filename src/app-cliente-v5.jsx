@@ -2,9 +2,24 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone, CalendarPlus } from "lucide-react";
+import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone, CalendarPlus, Snowflake, Leaf } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
+
+// Effetto liquid glass dei riquadri ferie / aperture speciali (stessa ricetta dei pulsanti della home)
+const GLASS_SHADOW = "inset 0 0 0 1px rgba(255,255,255,.35), inset 1.8px 3px 0 -2px rgba(255,255,255,.95), inset -2px -2px 0 -2px rgba(255,255,255,.8), inset -3px -8px 1px -6px rgba(255,255,255,.6), inset -.3px -1px 4px 0 rgba(0,0,0,.08), inset -1.5px 2.5px 0 -2px rgba(0,0,0,.14), inset 0 3px 4px -2px rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.08), 0 6px 16px 0 rgba(0,0,0,.06)";
+const CERCHIO_SHADOW = "inset 0 2px 2px rgba(255,255,255,.6), inset 0 -2px 3px rgba(0,0,0,.12)";
+
+// Icona ombrellone (Tabler "beach") — lucide ha solo l'ombrello da pioggia
+const IconaOmbrellone = ({ className }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+    <path d="M17.553 16.75a7.5 7.5 0 0 0 -10.606 0" />
+    <path d="M18 3.804a6 6 0 0 0 -8.196 2.196l10.392 6a6 6 0 0 0 -2.196 -8.196z" />
+    <path d="M16.732 10c1.658 -2.87 2.225 -5.644 1.268 -6.196c-.957 -.552 -3.075 1.326 -4.732 4.196" />
+    <path d="M15 9l-3 5.196" />
+    <path d="M3 19.25a2.4 2.4 0 0 1 1 -.25a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 1 .25" />
+  </svg>
+);
 
 // Normalizza numero di telefono: rimuove +39, 0039, spazi, trattini
 function normalizzaTel(tel) {
@@ -767,12 +782,28 @@ export default function AppCliente() {
                 {salone.ferieAttive && salone.ferieDal && salone.ferieAl && new Date(new Date(salone.ferieAl).setHours(23,59,59,999)) >= new Date() && (() => {
                   const dal = new Date(salone.ferieDal);
                   const al = new Date(salone.ferieAl);
-                  const fmtD = (d) => `${d.getDate()} ${["gen","feb","mar","apr","mag","giu","lug","ago","set","ott","nov","dic"][d.getMonth()]}`;
+                  const mesi = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+                  const riapre = new Date(al.getTime() + 86400000);
+                  const stessoMese = dal.getMonth() === al.getMonth() && dal.getFullYear() === al.getFullYear();
+                  const titolo = stessoMese
+                    ? `In ferie dal ${dal.getDate()} al ${al.getDate()} ${mesi[al.getMonth()]}`
+                    : `In ferie dal ${dal.getDate()} ${mesi[dal.getMonth()]} al ${al.getDate()} ${mesi[al.getMonth()]}`;
+                  // Icona in base alla stagione del giorno di inizio ferie
+                  const meseInizio = Number(String(salone.ferieDal).slice(5, 7));
+                  const IconaStagione = [12, 1, 2].includes(meseInizio) ? Snowflake
+                    : [3, 4, 5].includes(meseInizio) ? Flower2
+                    : [6, 7, 8].includes(meseInizio) ? IconaOmbrellone
+                    : Leaf;
                   return (
-                    <div className="mt-6 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#f9ca24", border: "1px solid #e0b400", borderRadius: 8 }}>
-                      <div className="text-sm font-medium" style={{ color: "#4a3200" }}>Chiusi dal {fmtD(dal)} al {fmtD(al)}</div>
-                      {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#5a4200" }}>{salone.ferieMessaggio}</div>}
-                      <div className="text-xs mt-2" style={{ color: "#7a5c00" }}>Le prenotazioni riaprono il {fmtD(new Date(al.getTime() + 86400000))}</div>
+                    <div className="mt-6 mx-auto max-w-md p-4 text-left flex items-start gap-3" style={{ background: "linear-gradient(rgba(249,202,36,.30), rgba(249,202,36,.30)), #f4f3ff", border: "none", borderRadius: 16, backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)", boxShadow: GLASS_SHADOW }}>
+                      <div className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: "#f9ca24", color: "#4a3200", boxShadow: CERCHIO_SHADOW }}>
+                        <IconaStagione className="w-5 h-5" />
+                      </div>
+                      <div>
+                        <div className="text-sm font-medium" style={{ color: "#4a3200" }}>{titolo}</div>
+                        {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#5a4200" }}>{salone.ferieMessaggio}</div>}
+                        <div className="inline-block text-xs mt-2 px-2.5 py-1" style={{ backgroundColor: "rgba(249,202,36,.75)", color: "#4a3200", borderRadius: 20, boxShadow: "inset 0 1px 1px rgba(255,255,255,.7)" }}>Si riapre il {riapre.getDate()} {mesi[riapre.getMonth()]}</div>
+                      </div>
                     </div>
                   );
                 })()}
@@ -785,38 +816,29 @@ export default function AppCliente() {
                     .filter(a => a.giorno >= oggiStr)
                     .sort((a, b) => a.giorno.localeCompare(b.giorno));
                   if (speciali.length === 0) return null;
-                  const gs = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
                   const gsEsteso = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
                   const ms = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
-                  const orarioDi = (a) => a.orario || `${a.dalle}-${a.alle}`;
+                  const orarioDi = (a) => (a.orario || `${a.dalle}-${a.alle}`).replace(/ /g, " · ");
                   return (
-                    <div className="mt-4 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#d9f7ee", border: "1px solid #00b894", borderRadius: 8 }}>
-                      <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "#04503f" }}>
-                        <CalendarPlus className="w-4 h-4" />
-                        {speciali.length === 1 ? "Apertura speciale" : "Aperture speciali"}
+                    <div className="mt-4 mx-auto max-w-md p-4 text-left" style={{ background: "linear-gradient(rgba(0,184,148,.20), rgba(0,184,148,.20)), #f4f3ff", border: "none", borderRadius: 16, backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)", boxShadow: GLASS_SHADOW }}>
+                      <div className="flex items-center gap-3 mb-2">
+                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: "#00b894", color: "#fff", boxShadow: CERCHIO_SHADOW }}>
+                          <CalendarPlus className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <div className="text-sm font-medium" style={{ color: "#04503f" }}>{speciali.length === 1 ? "Apertura speciale" : "Aperture speciali"}</div>
+                          {speciali.length > 1 && <div className="text-xs" style={{ color: "#0b6b55" }}>Apriamo anche nei giorni di solito chiusi</div>}
+                        </div>
                       </div>
-                      {speciali.length === 1 ? (() => {
-                        const d = new Date(speciali[0].giorno + "T00:00:00");
+                      {speciali.map((a, i) => {
+                        const d = new Date(a.giorno + "T00:00:00");
                         return (
-                          <div className="text-sm mt-2" style={{ color: "#04503f" }}>
-                            <span className="font-medium">{gsEsteso[d.getDay()]} {d.getDate()} {ms[d.getMonth()]}</span>
-                            <span style={{ color: "#0b6b55" }}> · {orarioDi(speciali[0]).replace(/ /g, " · ")}</span>
+                          <div key={a.id} className="flex justify-between gap-3 text-sm" style={{ padding: i === speciali.length - 1 ? "7px 0 0" : "7px 0", borderTop: "1px dashed rgba(4,80,63,.25)" }}>
+                            <span className="font-medium" style={{ color: "#04503f" }}>{gsEsteso[d.getDay()]} {d.getDate()} {ms[d.getMonth()]}</span>
+                            <span className="text-right" style={{ color: "#0b6b55" }}>{orarioDi(a)}</span>
                           </div>
                         );
-                      })() : (
-                        <>
-                          <div className="text-xs mt-1 mb-2" style={{ color: "#0b6b55" }}>Apriamo anche nei giorni di solito chiusi.</div>
-                          {speciali.map((a) => {
-                            const d = new Date(a.giorno + "T00:00:00");
-                            return (
-                              <div key={a.id} className="flex justify-between gap-3 text-sm py-1.5" style={{ borderTop: "1px solid #8fe0cb" }}>
-                                <span className="font-medium" style={{ color: "#04503f" }}>{gs[d.getDay()]} {d.getDate()} {ms[d.getMonth()].slice(0, 3)}</span>
-                                <span style={{ color: "#0b6b55" }}>{orarioDi(a).replace(/ /g, " · ")}</span>
-                              </div>
-                            );
-                          })}
-                        </>
-                      )}
+                      })}
                     </div>
                   );
                 })()}
