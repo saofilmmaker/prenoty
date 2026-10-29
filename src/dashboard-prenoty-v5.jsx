@@ -3492,7 +3492,7 @@ useEffect(() => {
 
               {/* IL TUO LINK DI PRENOTAZIONE */}
               {salone.slug && (
-                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+                <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                   <h3 className="text-sm tracking-widest mb-1 flex items-center gap-2" style={{ color: T.accent, letterSpacing: "0.15em" }}>
                     <Link className="w-4 h-4" /> IL TUO LINK DI PRENOTAZIONE
                   </h3>
@@ -3517,7 +3517,7 @@ useEffect(() => {
               )}
 
               {/* TIPO DI ATTIVITÀ — primo blocco perché è la scelta più importante */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>TIPO DI ATTIVITÀ</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Determina servizi predefiniti, etichette e tagline mostrate ai clienti</p>
 
@@ -3553,7 +3553,7 @@ useEffect(() => {
                 </p>
               </div>
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>{tipoAttivita === "generico" ? "DATI ATTIVITÀ" : "DATI SALONE"}</h3>
                 <div className="space-y-4">
                   <div>
@@ -3678,7 +3678,7 @@ useEffect(() => {
               </div>
 
               {/* VISUALIZZAZIONE — preferenze della dashboard del titolare */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>VISUALIZZAZIONE</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Personalizza la tua dashboard</p>
                 <label className="flex items-center justify-between cursor-pointer py-2">
@@ -3830,7 +3830,7 @@ useEffect(() => {
               </div>
 
               {/* GESTIONE PRENOTAZIONI */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>GESTIONE PRENOTAZIONI</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Regole che si applicano a tutte le prenotazioni — online e manuali</p>
                 <label className="flex items-center justify-between cursor-pointer py-2">
@@ -3940,7 +3940,7 @@ useEffect(() => {
               </div>
 
               {/* CHIUSURA PER FERIE */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CHIUSURA PER FERIE</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>I clienti vedranno un avviso e non potranno prenotare nei giorni indicati.</p>
                 <label className="flex items-center justify-between cursor-pointer py-2">
@@ -4001,7 +4001,7 @@ useEffect(() => {
               </div>
 
               {/* CHIUSURE TEMPORANEE */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>CHIUSURE TEMPORANEE</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Blocca fasce orarie specifiche in un giorno — utile per commissioni, pause o imprevisti.</p>
                 {(salone.chiusureTemporanee || []).length > 0 && (
@@ -4069,7 +4069,7 @@ useEffect(() => {
                 })()}
               </div>
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>VETRINA PUBBLICA</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Tutto quello che il cliente vede sulla pagina di prenotazione</p>
 
@@ -4420,7 +4420,7 @@ useEffect(() => {
                 </button>
               </div>
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-4" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>ORARI DI APERTURA</h3>
                 <div className="space-y-2">
                   {["lun","mar","mer","gio","ven","sab","dom"].map((giorno) => {
@@ -4528,7 +4528,7 @@ useEffect(() => {
               </div>
 
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>NOTIFICHE EMAIL</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Tutte le comunicazioni al cliente avvengono via email</p>
                 <div className="space-y-3">
@@ -4551,7 +4551,7 @@ useEffect(() => {
                 </div>
               </div>
 
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>METODI DI PAGAMENTO</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Scegli come vuoi ricevere i pagamenti dai clienti</p>
                 <div className="space-y-3">
@@ -4691,7 +4691,7 @@ useEffect(() => {
               </div>
 
               {/* PIANO PRENOTY */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1 flex items-center gap-2" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>
                   <CreditCard className="w-4 h-4" /> PIANO PRENOTY
                 </h3>
@@ -4746,7 +4746,7 @@ useEffect(() => {
               </div>
 
               {/* SICUREZZA */}
-              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderWidth: 2, borderRadius: 14 }}>
+              <div className="p-6 border" style={{ backgroundColor: T.card, borderColor: T.border, borderWidth: 1, borderRadius: 16, boxShadow: "0 2px 8px rgba(108,92,231,.08)" }}>
                 <h3 className="text-sm tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>SICUREZZA</h3>
                 <p className="text-xs mb-4" style={{ color: T.textMuted }}>Cambia la password del tuo account</p>
                 <CambioPassword T={T} />
