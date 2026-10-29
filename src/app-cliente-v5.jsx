@@ -291,7 +291,7 @@ export default function AppCliente() {
     const chiavi = ["dom","lun","mar","mer","gio","ven","sab"];
     const chiave = chiavi[dataScelta.getDay()];
     const speciale = aperturaStraordinaria(dataScelta);
-    const orarioGiorno = speciale ? `${speciale.dalle}-${speciale.alle}` : salone.orari[chiave];
+    const orarioGiorno = speciale ? (speciale.orario || `${speciale.dalle}-${speciale.alle}`) : salone.orari[chiave];
     if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
     const fasce = orarioGiorno.trim().split(" ");
     const slots = [];

@@ -217,7 +217,7 @@ export default function DashboardPrenoty() {
     const chiavi = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
     const giorno = new Date(dataStr + "T00:00:00").getDay();
     const speciale = (salone.apertureStraordinarie || []).find(a => a.giorno === dataStr);
-    const orarioGiorno = speciale ? `${speciale.dalle}-${speciale.alle}` : salone.orari[chiavi[giorno]];
+    const orarioGiorno = speciale ? (speciale.orario || `${speciale.dalle}-${speciale.alle}`) : salone.orari[chiavi[giorno]];
     if (!orarioGiorno || orarioGiorno === "Chiuso") return [];
     const fasce = orarioGiorno.trim().split(" ");
     const slots = [];
@@ -4441,7 +4441,7 @@ useEffect(() => {
                 {/* APERTURE STRAORDINARIE — date singole in cui il salone apre anche se di solito è chiuso */}
                 <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "20px 0 16px" }} />
                 <h4 className="text-xs tracking-widest mb-1" style={{ color: T.textSoft, letterSpacing: "0.15em" }}>APERTURE STRAORDINARIE</h4>
-                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Apri un giorno in cui di solito sei chiuso, o cambia gli orari di una data precisa. Vale solo per le date che aggiungi e si disattiva da solo dopo quel giorno.</p>
+                <p className="text-xs mb-4" style={{ color: T.textMuted }}>Apri un giorno in cui di solito sei chiuso, o cambia gli orari di una data precisa. Scrivi gli orari come nella tabella sopra (es. 08:00-12:00 15:00-20:00 se chiudi a pranzo). Vale solo per le date che aggiungi e si disattiva da solo dopo quel giorno.</p>
                 {(() => {
                   const dOggi = new Date();
                   const oggiStr = `${dOggi.getFullYear()}-${String(dOggi.getMonth() + 1).padStart(2, "0")}-${String(dOggi.getDate()).padStart(2, "0")}`;
@@ -4460,7 +4460,7 @@ useEffect(() => {
                           {attive.map((a) => (
                             <div key={a.id} className="flex items-center gap-3 p-3 mb-2" style={{ backgroundColor: T.bg, border: `0.5px solid ${T.border}` }}>
                               <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: T.accent }} />
-                              <div className="flex-1 text-sm">{fmtGiorno(a.giorno)} · {a.dalle} – {a.alle}</div>
+                              <div className="flex-1 text-sm">{fmtGiorno(a.giorno)} · {a.orario || `${a.dalle}-${a.alle}`}</div>
                               <button onClick={async () => {
                                 const nuove = (salone.apertureStraordinarie || []).filter(x => x.id !== a.id);
                                 if (salone.dbId) {
@@ -4482,25 +4482,26 @@ useEffect(() => {
                             className="p-2 border outline-none text-sm"
                             style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
                         </div>
-                        <div>
-                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Dalle</div>
-                          <input type="time" value={nuovaA.dalle || ""}
-                            onChange={(e) => setNuovaA({ ...nuovaA, dalle: e.target.value })}
-                            className="p-2 border outline-none text-sm"
-                            style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
-                        </div>
-                        <div>
-                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Alle</div>
-                          <input type="time" value={nuovaA.alle || ""}
-                            onChange={(e) => setNuovaA({ ...nuovaA, alle: e.target.value })}
-                            className="p-2 border outline-none text-sm"
+                        <div className="flex-1" style={{ minWidth: 200 }}>
+                          <div className="text-xs mb-1" style={{ color: T.textMuted }}>Orari</div>
+                          <input type="text" value={nuovaA.orario || ""} placeholder="es. 08:00-12:00 15:00-20:00"
+                            onChange={(e) => setNuovaA({ ...nuovaA, orario: e.target.value })}
+                            className="w-full p-2 border outline-none text-sm"
                             style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
                         </div>
                         <button onClick={async () => {
-                          if (!nuovaA.giorno || !nuovaA.dalle || !nuovaA.alle) { setSalone({ ...salone, _aperturaErr: "Compila giorno, ora di inizio e ora di fine." }); return; }
-                          if (nuovaA.dalle >= nuovaA.alle) { setSalone({ ...salone, _aperturaErr: "L'ora di fine deve essere dopo quella di inizio." }); return; }
+                          if (!nuovaA.giorno || !(nuovaA.orario || "").trim()) { setSalone({ ...salone, _aperturaErr: "Compila il giorno e gli orari." }); return; }
                           if (nuovaA.giorno < oggiStr) { setSalone({ ...salone, _aperturaErr: "Scegli una data da oggi in avanti." }); return; }
-                          const nuove = [...(salone.apertureStraordinarie || []).filter(x => x.giorno !== nuovaA.giorno), { id: Date.now(), giorno: nuovaA.giorno, dalle: nuovaA.dalle, alle: nuovaA.alle }];
+                          const fasce = nuovaA.orario.trim().split(/\s+/);
+                          const fasceOk = fasce.every((f) => {
+                            const m = f.match(/^(\d{1,2}):(\d{2})-(\d{1,2}):(\d{2})$/);
+                            if (!m) return false;
+                            const [hI, mI, hF, mF] = m.slice(1).map(Number);
+                            return hI < 24 && hF < 24 && mI < 60 && mF < 60 && hI * 60 + mI < hF * 60 + mF;
+                          });
+                          if (!fasceOk) { setSalone({ ...salone, _aperturaErr: "Orari non validi. Usa il formato 09:00-13:00, oppure 08:00-12:00 15:00-20:00 con la pausa pranzo." }); return; }
+                          const orarioPulito = fasce.map((f) => f.replace(/\b(\d):/g, "0$1:")).join(" ");
+                          const nuove = [...(salone.apertureStraordinarie || []).filter(x => x.giorno !== nuovaA.giorno), { id: Date.now(), giorno: nuovaA.giorno, orario: orarioPulito }];
                           if (salone.dbId) {
                             const { error } = await supabase.from("saloni").update({ aperture_straordinarie: nuove }).eq("id", salone.dbId);
                             if (error) { setSalone({ ...salone, _aperturaErr: "Non è stato possibile salvare la data. Riprova." }); return; }
