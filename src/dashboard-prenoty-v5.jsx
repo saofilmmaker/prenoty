@@ -93,8 +93,7 @@ function normalizzaNome(nome) {
 }
 
 const SALVA_PILLOLA = {
-  display: "block", width: "auto", margin: "12px auto 0", padding: "11px 28px", borderRadius: 999,
-  boxShadow: "inset 0 2px 2px rgba(255,255,255,.4), inset 0 -2px 4px rgba(0,0,0,.15), 0 6px 14px rgba(108,92,231,.3)",
+  display: "block", width: "auto", margin: "12px auto 0", padding: "11px 28px", borderRadius: 8,
 };
 
 function SalvaBottone({ onClick, label = "SALVA", T }) {
