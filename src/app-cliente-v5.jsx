@@ -2,7 +2,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Helmet } from "react-helmet-async";
 import { useParams } from "react-router-dom";
-import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone } from "lucide-react";
+import { Scissors, Calendar, X, Clock, User, Check, CreditCard, ArrowLeft, ArrowRight, Sparkles, MapPin, Phone, Star, Mail, Camera, Globe, ChevronDown, Image as ImageIcon, Heart, Flower2, Share2, Smartphone, CalendarPlus } from "lucide-react";
 import WhatsAppAssistenza from "./whatsapp-assistenza";
 import { supabase } from "./supabase";
 
@@ -772,6 +772,50 @@ export default function AppCliente() {
                       <div className="text-sm font-medium" style={{ color: "#4a3200" }}>Chiusi dal {fmtD(dal)} al {fmtD(al)}</div>
                       {salone.ferieMessaggio && <div className="text-xs mt-1" style={{ color: "#5a4200" }}>{salone.ferieMessaggio}</div>}
                       <div className="text-xs mt-2" style={{ color: "#7a5c00" }}>Le prenotazioni riaprono il {fmtD(new Date(al.getTime() + 86400000))}</div>
+                    </div>
+                  );
+                })()}
+
+                {/* Banner aperture speciali — solo date future, escluse quelle dentro le ferie */}
+                {(() => {
+                  const dOggi = new Date();
+                  const oggiStr = `${dOggi.getFullYear()}-${String(dOggi.getMonth()+1).padStart(2,"0")}-${String(dOggi.getDate()).padStart(2,"0")}`;
+                  const speciali = (salone.apertureStraordinarie || [])
+                    .filter(a => a.giorno >= oggiStr && !isGiornoInFerie(new Date(a.giorno + "T00:00:00")))
+                    .sort((a, b) => a.giorno.localeCompare(b.giorno));
+                  if (speciali.length === 0) return null;
+                  const gs = ["Dom","Lun","Mar","Mer","Gio","Ven","Sab"];
+                  const gsEsteso = ["Domenica","Lunedì","Martedì","Mercoledì","Giovedì","Venerdì","Sabato"];
+                  const ms = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
+                  const orarioDi = (a) => a.orario || `${a.dalle}-${a.alle}`;
+                  return (
+                    <div className="mt-4 mx-auto max-w-md p-4 text-left" style={{ backgroundColor: "#d9f7ee", border: "1px solid #00b894", borderRadius: 8 }}>
+                      <div className="flex items-center gap-2 text-sm font-medium" style={{ color: "#04503f" }}>
+                        <CalendarPlus className="w-4 h-4" />
+                        {speciali.length === 1 ? "Apertura speciale" : "Aperture speciali"}
+                      </div>
+                      {speciali.length === 1 ? (() => {
+                        const d = new Date(speciali[0].giorno + "T00:00:00");
+                        return (
+                          <div className="text-sm mt-2" style={{ color: "#04503f" }}>
+                            <span className="font-medium">{gsEsteso[d.getDay()]} {d.getDate()} {ms[d.getMonth()]}</span>
+                            <span style={{ color: "#0b6b55" }}> · {orarioDi(speciali[0]).replace(/ /g, " · ")}</span>
+                          </div>
+                        );
+                      })() : (
+                        <>
+                          <div className="text-xs mt-1 mb-2" style={{ color: "#0b6b55" }}>Apriamo anche nei giorni di solito chiusi.</div>
+                          {speciali.map((a) => {
+                            const d = new Date(a.giorno + "T00:00:00");
+                            return (
+                              <div key={a.id} className="flex justify-between gap-3 text-sm py-1.5" style={{ borderTop: "1px solid #8fe0cb" }}>
+                                <span className="font-medium" style={{ color: "#04503f" }}>{gs[d.getDay()]} {d.getDate()} {ms[d.getMonth()].slice(0, 3)}</span>
+                                <span style={{ color: "#0b6b55" }}>{orarioDi(a).replace(/ /g, " · ")}</span>
+                              </div>
+                            );
+                          })}
+                        </>
+                      )}
                     </div>
                   );
                 })()}
