@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { MessageCircle, X } from "lucide-react";
 
-export default function WhatsAppAssistenza({ tema = "chiaro", numero = "393489259863", pubblico = false, modalita = "flottante" }) {
+export default function WhatsAppAssistenza({ tema = "chiaro", numero = "393489259863", pubblico = false, modalita = "flottante", stileNav = null }) {
   const [aperto, setAperto] = useState(false);
   const [isMobile, setIsMobile] = useState(window.innerWidth < 768);
 
@@ -82,7 +82,7 @@ export default function WhatsAppAssistenza({ tema = "chiaro", numero = "39348925
         <button
           onClick={() => setAperto(!aperto)}
           title="Assistenza WhatsApp"
-          style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: verdeWA }}
+          style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: verdeWA, ...(stileNav || {}) }}
         >
           <MessageCircle style={{ width: 15, height: 15 }} />
         </button>
