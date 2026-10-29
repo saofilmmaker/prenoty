@@ -3484,7 +3484,8 @@ useEffect(() => {
 
           {/* IMPOSTAZIONI */}
           {sezione === "impostazioni" && (
-            <div className="space-y-6">
+            <div className="space-y-6 imp-tondo">
+              <style>{`.imp-tondo input:not([type=checkbox]):not([type=file]):not([type=radio]), .imp-tondo textarea, .imp-tondo select { border-radius: 8px !important; }`}</style>
 
               {/* IL TUO LINK DI PRENOTAZIONE */}
               {salone.slug && (
@@ -3531,6 +3532,7 @@ useEffect(() => {
                           borderColor: attivo ? T.accent : T.border,
                           borderWidth: attivo ? "2px" : "1px",
                           color: T.text,
+                          borderRadius: 8,
                         }}
                       >
                         <Ic className="w-6 h-6" style={{ color: attivo ? T.accent : T.textSoft }} />
@@ -3629,7 +3631,7 @@ useEffect(() => {
                         }}
                       />
                       {salone.logo ? (
-                        <div className="flex items-center gap-4 p-4 border" style={{ borderColor: T.border, backgroundColor: T.bg }}>
+                        <div className="flex items-center gap-4 p-4 border" style={{ borderColor: T.border, backgroundColor: T.bg, borderRadius: 8 }}>
                           <img src={salone.logo} alt="Logo" className="w-16 h-16 object-contain" />
                           <div className="flex-1">
                             <div className="text-sm">Logo caricato</div>
@@ -3644,7 +3646,7 @@ useEffect(() => {
                           </button>
                         </div>
                       ) : (
-                        <div className="p-6 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted }}>
+                        <div className="p-6 border-2 border-dashed text-center transition hover:opacity-70" style={{ borderColor: T.border, color: T.textMuted, borderRadius: 8 }}>
                           <div className="text-sm">Tocca qui per caricare il logo</div>
                           <div className="text-xs mt-1" style={{ color: T.textMuted }}>PNG, JPG · ottimizzato automaticamente</div>
                         </div>
@@ -4002,7 +4004,7 @@ useEffect(() => {
                 {(salone.chiusureTemporanee || []).length > 0 && (
                   <div className="mb-4">
                     {salone.chiusureTemporanee.map((c) => (
-                      <div key={c.id} className="flex items-center gap-3 p-3 mb-2" style={{ backgroundColor: T.bg, border: `0.5px solid ${T.border}` }}>
+                      <div key={c.id} className="flex items-center gap-3 p-3 mb-2" style={{ backgroundColor: T.bg, border: `0.5px solid ${T.border}`, borderRadius: 8 }}>
                         <div className="w-2 h-2 rounded-full flex-shrink-0" style={{ backgroundColor: T.accent }} />
                         <div className="flex-1">
                           <div className="text-sm">{c.giorno} · {c.dalle} – {c.alle}</div>
