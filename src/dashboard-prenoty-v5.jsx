@@ -92,6 +92,11 @@ function normalizzaNome(nome) {
   return nome.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+const SALVA_PILLOLA = {
+  display: "block", width: "auto", margin: "12px auto 0", padding: "11px 28px", borderRadius: 999,
+  boxShadow: "inset 0 2px 2px rgba(255,255,255,.4), inset 0 -2px 4px rgba(0,0,0,.15), 0 6px 14px rgba(108,92,231,.3)",
+};
+
 function SalvaBottone({ onClick, label = "SALVA", T }) {
   const [stato, setStato] = React.useState("idle");
   const handle = async () => {
@@ -110,8 +115,8 @@ function SalvaBottone({ onClick, label = "SALVA", T }) {
     <button
       onClick={handle}
       disabled={stato === "salvataggio"}
-      className="w-full py-3 text-sm tracking-widest mt-3"
-      style={{ backgroundColor: bg, color: "#fff", border: "none", cursor: stato === "salvataggio" ? "wait" : "pointer", letterSpacing: "0.15em", transition: "background-color 0.3s" }}
+      className="text-sm tracking-widest"
+      style={{ ...SALVA_PILLOLA, backgroundColor: bg, color: "#fff", border: "none", cursor: stato === "salvataggio" ? "wait" : "pointer", letterSpacing: "0.15em", transition: "background-color 0.3s" }}
     >
       {testo}
     </button>
@@ -148,7 +153,7 @@ function CambioPassword({ T }) {
         <input type="password" value={conferma} onChange={e => setConferma(e.target.value)} placeholder="Ripeti la nuova password" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
       </div>
       {msg && <div className="text-sm p-3" style={{ background: msg.tipo === "ok" ? "rgba(93,226,121,0.1)" : "rgba(231,76,60,0.1)", color: msg.tipo === "ok" ? "#27ae60" : "#e74c3c", borderRadius: 8 }}>{msg.testo}</div>}
-      <button onClick={handleCambio} disabled={loading} className="w-full p-3 text-sm font-semibold" style={{ background: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
+      <button onClick={handleCambio} disabled={loading} className="text-sm font-semibold" style={{ ...SALVA_PILLOLA, background: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
         {loading ? "Aggiornamento..." : "Aggiorna password"}
       </button>
     </div>
@@ -3652,8 +3657,9 @@ useEffect(() => {
                   <button
                     onClick={salvaSalone}
                     disabled={salvataggioStato === "salvataggio"}
-                    className="w-full py-3 text-sm tracking-widest mt-2"
+                    className="text-sm tracking-widest"
                     style={{
+                      ...SALVA_PILLOLA,
                       backgroundColor: salvataggioStato === "ok" ? "#27ae60" : T.accent,
                       color: "#fff",
                       border: "none",
@@ -4395,15 +4401,15 @@ useEffect(() => {
                     setTimeout(() => setSalvataggioVetrinaStato(null), 3000);
                   }}
                   disabled={salvataggioVetrinaStato === "salvataggio"}
-                  className="w-full py-3 text-sm tracking-widest"
+                  className="text-sm tracking-widest"
                   style={{
+                    ...SALVA_PILLOLA,
                     backgroundColor: salvataggioVetrinaStato === "ok" ? "#27ae60" : T.accent,
                     color: "#fff",
                     border: "none",
                     cursor: salvataggioVetrinaStato === "salvataggio" ? "wait" : "pointer",
                     letterSpacing: "0.15em",
                     opacity: salvataggioVetrinaStato === "salvataggio" ? 0.7 : 1,
-                    borderRadius: 0,
                   }}
                 >
                   {salvataggioVetrinaStato === "salvataggio" ? "SALVATAGGIO..." : salvataggioVetrinaStato === "ok" ? "✓ SALVATO" : salvataggioVetrinaStato === "errore" ? "ERRORE — RIPROVA" : "SALVA VETRINA"}
