@@ -8,6 +8,13 @@ import { supabase } from "./supabase";
 
 // Effetto liquid glass dei riquadri ferie / aperture speciali (stessa ricetta dei pulsanti della home)
 const GLASS_SHADOW = "inset 0 0 0 1px rgba(255,255,255,.35), inset 1.8px 3px 0 -2px rgba(255,255,255,.95), inset -2px -2px 0 -2px rgba(255,255,255,.8), inset -3px -8px 1px -6px rgba(255,255,255,.6), inset -.3px -1px 4px 0 rgba(0,0,0,.08), inset -1.5px 2.5px 0 -2px rgba(0,0,0,.14), inset 0 3px 4px -2px rgba(0,0,0,.14), 0 1px 5px 0 rgba(0,0,0,.08), 0 6px 16px 0 rgba(0,0,0,.06)";
+// Pulsante "Prenota ora": pillola viola #6c5ce7 con effetto liquid glass
+const BTN_PRENOTA_STYLE = {
+  backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em", borderRadius: 999,
+  textShadow: "0 1px 2px rgba(0,0,0,.28)",
+  backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)",
+  boxShadow: "inset 0 0 0 1px rgba(255,255,255,.18), inset 1.8px 3px 0 -2px rgba(255,255,255,.9), inset -2px -2px 0 -2px rgba(255,255,255,.8), inset -3px -8px 1px -6px rgba(255,255,255,.6), inset -.3px -1px 4px 0 rgba(0,0,0,.14), inset -1.5px 2.5px 0 -2px rgba(0,0,0,.22), inset 0 3px 4px -2px rgba(0,0,0,.22), 0 1px 5px 0 rgba(0,0,0,.12), 0 8px 18px 0 rgba(108,92,231,.25)",
+};
 const CERCHIO_SHADOW = "inset 0 2px 2px rgba(255,255,255,.6), inset 0 -2px 3px rgba(0,0,0,.12)";
 
 // Icona ombrellone (Tabler "beach") — lucide ha solo l'ombrello da pioggia
@@ -847,7 +854,7 @@ export default function AppCliente() {
                 <button
                   onClick={() => setStep(1)}
                   className="mt-8 px-12 py-4 tracking-widest text-sm transition"
-                  style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
+                  style={BTN_PRENOTA_STYLE}
                 >
                   PRENOTA ORA
                 </button>
@@ -1199,7 +1206,7 @@ export default function AppCliente() {
               <button
                 onClick={() => setStep(1)}
                 className="px-12 py-4 tracking-widest text-sm transition"
-                style={{ backgroundColor: "#6c5ce7", color: "#fff", letterSpacing: "0.2em" }}
+                style={BTN_PRENOTA_STYLE}
               >
                 PRENOTA ORA
               </button>
