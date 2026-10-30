@@ -1660,8 +1660,19 @@ useEffect(() => {
   return (
     <div className="min-h-screen flex" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
       {/* SIDEBAR */}
-      <aside className="hidden md:flex flex-col w-56 border-r" style={{ backgroundColor: T.card, borderColor: T.border }}>
-        <div className="p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
+      <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : "")} style={{ backgroundColor: T.card, borderColor: T.border }}>
+        <style>{`.side-viola { background-color: #4a3cb5 !important; border-color: transparent !important; }
+.side-viola .side-logo { background: transparent !important; border-color: rgba(255,255,255,.2) !important; }
+.side-viola .side-nome { color: #fff !important; }
+.side-viola nav button { color: rgba(255,255,255,.85) !important; background-color: transparent !important; transition: background-color .15s; }
+.side-viola nav button:hover { background-color: rgba(255,255,255,.12) !important; }
+.side-viola nav button.side-attivo { background-color: rgba(255,255,255,.2) !important; color: #fff !important; }
+.side-viola .side-foot { border-color: rgba(255,255,255,.2) !important; }
+.side-viola .side-foot > button { color: rgba(255,255,255,.85) !important; transition: background-color .15s; }
+.side-viola .side-foot > button:hover { background-color: rgba(255,255,255,.12) !important; }
+.side-viola .side-foot > button.side-assist { color: #7ff0c9 !important; }
+.side-viola .side-foot a { color: rgba(255,255,255,.75) !important; }`}</style>
+        <div className="side-logo p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
           <div className="flex items-center gap-3">
             {salone.logo ? (
               <img src={salone.logo} alt="Logo" className="w-12 h-12 object-cover rounded-2xl flex-shrink-0" />
@@ -1671,7 +1682,7 @@ useEffect(() => {
               </div>
             )}
             <div>
-              <div className="text-base font-semibold" style={{ color: T.text }}>{salone.nome}</div>
+              <div className="side-nome text-base font-semibold" style={{ color: T.text }}>{salone.nome}</div>
             </div>
           </div>
         </div>
@@ -1684,7 +1695,7 @@ useEffect(() => {
               <button
                 key={m.id}
                 onClick={() => { if (m.id === "report") { setReportLocked(true); setReportPwdInput(""); setReportPwdError(false); } setSezione(m.id); }}
-                className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
+                className={"w-full flex items-center gap-3 px-3 py-2.5 text-sm transition" + (attivo ? " side-attivo" : "")}
                 style={{
                   borderRadius: 10,
                   backgroundColor: attivo ? T.accent : "transparent",
@@ -1699,7 +1710,7 @@ useEffect(() => {
           })}
         </nav>
 
-        <div className="p-3 border-t space-y-1" style={{ borderColor: T.border, position: "relative" }}>
+        <div className="side-foot p-3 border-t space-y-1" style={{ borderColor: T.border, position: "relative" }}>
           {/* POPUP ASSISTENZA */}
           {assistenzaAperta && (
             <div style={{ position: "absolute", bottom: "100%", left: 8, right: 8, marginBottom: 8, background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, boxShadow: "0 8px 32px rgba(0,0,0,0.15)", overflow: "hidden", zIndex: 200 }}>
@@ -1732,7 +1743,7 @@ useEffect(() => {
           )}
           {/* BOTTONE ASSISTENZA WHATSAPP */}
           <button
-            className="w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
+            className="side-assist w-full flex items-center gap-3 px-3 py-2.5 text-sm transition"
             style={{ borderRadius: 10, color: "#25D366", background: assistenzaAperta ? "rgba(37,211,102,0.08)" : "transparent" }}
             onClick={() => setAssistenzaAperta(a => !a)}
           >
