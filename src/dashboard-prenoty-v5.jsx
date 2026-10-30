@@ -1658,10 +1658,10 @@ useEffect(() => {
   ];
 
   return (
-    <div className={"min-h-screen flex" + (tema === "chiaro" ? " root-viola" : "")} style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
-      <style>{`@media (min-width: 768px) { .root-viola { background-color: #4a3cb5 !important; } .root-viola > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #fff; } }`}</style>
+    <div className={"min-h-screen flex" + (tema === "chiaro" ? " root-viola" : " root-scuro")} style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+      <style>{`@media (min-width: 768px) { .root-viola { background-color: #4a3cb5 !important; } .root-viola > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #fff; } .root-scuro { background-color: #1c1a35 !important; } .root-scuro > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #12102a; } .root-scuro .hd-col { background-color: transparent !important; } }`}</style>
       {/* SIDEBAR */}
-      <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : "")} style={{ backgroundColor: T.card, borderColor: T.border }}>
+      <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : " side-scuro")} style={{ backgroundColor: T.card, borderColor: T.border }}>
         <style>{`.side-viola { background-color: #4a3cb5 !important; border-color: transparent !important; }
 .side-viola .side-logo { background: transparent !important; border-color: rgba(255,255,255,.2) !important; border-bottom-width: 0 !important; }
 .side-viola .side-nome { color: #fff !important; }
@@ -1672,7 +1672,12 @@ useEffect(() => {
 .side-viola .side-foot > button { color: rgba(255,255,255,.85) !important; transition: background-color .15s; }
 .side-viola .side-foot > button:hover { background-color: rgba(255,255,255,.12) !important; }
 .side-viola .side-foot > button.side-assist { color: #7ff0c9 !important; }
-.side-viola .side-foot a { color: rgba(255,255,255,.75) !important; }`}</style>
+.side-viola .side-foot a { color: rgba(255,255,255,.75) !important; }
+.side-scuro { border-color: transparent !important; }
+.side-scuro .side-logo { background: transparent !important; border-bottom-width: 0 !important; }
+.side-scuro .side-foot { border-top-width: 0 !important; }
+.side-scuro nav button, .side-scuro .side-foot > button { transition: background-color .15s; }
+.side-scuro nav button:not(.side-attivo):hover, .side-scuro .side-foot > button:hover { background-color: rgba(255,255,255,.1) !important; }`}</style>
         <div className="side-logo p-5 border-b" style={{ borderColor: T.border, background: `linear-gradient(135deg, ${T.accent}18 0%, ${T.card} 100%)` }}>
           <div className="flex items-center gap-3">
             {salone.logo ? (
@@ -1768,7 +1773,7 @@ useEffect(() => {
       </aside>
 
       {/* CONTENT */}
-      <div className={"flex-1 flex flex-col min-w-0" + (tema === "chiaro" ? " cont-viola" : "")}>
+      <div className="flex-1 flex flex-col min-w-0 cont-viola">
         {/* HEADER mobile + notifiche */}
         <header className="hd-col border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; border-bottom-width: 0 !important; padding-bottom: 0.5rem !important; } .hd-col h2 { display: none; } .titolo-col { max-width: 760px; margin: 0.5rem auto 1.25rem auto; font-size: 28px; line-height: 34px; display: block !important; } .main-col { padding-top: 1rem !important; } }`}</style>
