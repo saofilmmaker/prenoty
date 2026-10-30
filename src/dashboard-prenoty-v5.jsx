@@ -1664,9 +1664,9 @@ useEffect(() => {
 .root-viola .hd-col { background-color: #4a3cb5 !important; border-bottom-width: 0 !important; }
 .root-viola .hd-nome { color: #fff !important; }
 .root-viola .hd-col .hd-btn { color: #fff !important; border-color: rgba(255,255,255,.4) !important; }
-.root-viola .tab-mobile { background-color: #4a3cb5 !important; border-bottom-width: 0 !important; }
-.root-viola .tab-mobile > button { color: rgba(255,255,255,.75) !important; border-bottom-color: transparent !important; }
-.root-viola .tab-mobile > button.tab-attivo { color: #fff !important; border-bottom-color: #fff !important; font-weight: 500; }
+.root-viola .tab-mobile { background-color: #4a3cb5 !important; border-bottom-width: 0 !important; padding: 6px 6px 8px !important; gap: 2px; }
+.root-viola .tab-mobile > button { color: rgba(255,255,255,.75) !important; border-bottom-width: 0 !important; border-radius: 12px; }
+.root-viola .tab-mobile > button.tab-attivo { color: #fff !important; background-color: rgba(255,255,255,.2) !important; font-weight: 500; }
 .root-viola .tab-fine { border-left-color: rgba(255,255,255,.3) !important; }
 .root-viola .tab-fine a { color: #7ff0c9 !important; }
 .root-viola .tab-fine button { color: rgba(255,255,255,.85) !important; }
