@@ -1663,7 +1663,7 @@ useEffect(() => {
       {/* SIDEBAR */}
       <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : "")} style={{ backgroundColor: T.card, borderColor: T.border }}>
         <style>{`.side-viola { background-color: #4a3cb5 !important; border-color: transparent !important; }
-.side-viola .side-logo { background: transparent !important; border-color: rgba(255,255,255,.2) !important; }
+.side-viola .side-logo { background: transparent !important; border-color: rgba(255,255,255,.2) !important; border-bottom-width: 0 !important; }
 .side-viola .side-nome { color: #fff !important; }
 .side-viola nav button { color: rgba(255,255,255,.85) !important; background-color: transparent !important; transition: background-color .15s; }
 .side-viola nav button:hover { background-color: rgba(255,255,255,.12) !important; }
