@@ -1659,7 +1659,18 @@ useEffect(() => {
 
   return (
     <div className={"min-h-screen flex" + (tema === "chiaro" ? " root-viola" : " root-scuro")} style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
-      <style>{`@media (min-width: 768px) { .root-viola { background-color: #4a3cb5 !important; } .root-viola > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #fff; } .root-scuro { background-color: #1c1a35 !important; } .root-scuro > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #12102a; } .root-scuro .hd-col { background-color: transparent !important; } }`}</style>
+      <style>{`@media (min-width: 768px) { .root-viola { background-color: #4a3cb5 !important; } .root-viola > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #fff; } .root-scuro { background-color: #1c1a35 !important; } .root-scuro > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #12102a; } .root-scuro .hd-col { background-color: transparent !important; } }
+@media (max-width: 767px) {
+.root-viola .hd-col { background-color: #4a3cb5 !important; border-bottom-width: 0 !important; }
+.root-viola .hd-nome { color: #fff !important; }
+.root-viola .hd-col .hd-btn { color: #fff !important; border-color: rgba(255,255,255,.4) !important; }
+.root-viola .tab-mobile { background-color: #4a3cb5 !important; border-bottom-width: 0 !important; }
+.root-viola .tab-mobile > button { color: rgba(255,255,255,.75) !important; border-bottom-color: transparent !important; }
+.root-viola .tab-mobile > button.tab-attivo { color: #fff !important; border-bottom-color: #fff !important; font-weight: 500; }
+.root-viola .tab-fine { border-left-color: rgba(255,255,255,.3) !important; }
+.root-viola .tab-fine a { color: #7ff0c9 !important; }
+.root-viola .tab-fine button { color: rgba(255,255,255,.85) !important; }
+}`}</style>
       {/* SIDEBAR */}
       <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : " side-scuro")} style={{ backgroundColor: T.card, borderColor: T.border }}>
         <style>{`.side-viola { background-color: #4a3cb5 !important; border-color: transparent !important; }
@@ -1785,7 +1796,7 @@ useEffect(() => {
                 <IconaAttivita className="w-4 h-4" style={{ color: "#fff" }} />
               </div>
             )}
-            <span className="text-sm tracking-wider">{salone.nome.toUpperCase()}</span>
+            <span className="hd-nome text-sm tracking-wider">{salone.nome.toUpperCase()}</span>
           </div>
           <h2 className="hidden md:block text-xl capitalize">{sezione}</h2>
           <div className="flex items-center gap-2 ml-auto">
@@ -1794,7 +1805,7 @@ useEffect(() => {
               onClick={aggiornaDati}
               title="Aggiorna"
               disabled={refreshing}
-              className="flex"
+              className="hd-btn flex"
               style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, alignItems: "center", justifyContent: "center", color: T.textSoft }}
             >
               <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" style={{ animation: refreshing ? "prenoty-spin 0.7s linear infinite" : "none" }}>
@@ -1804,7 +1815,7 @@ useEffect(() => {
             <style>{`@keyframes prenoty-spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}`}</style>
             {/* TOGGLE TEMA — icona luna/sole (mobile + desktop) */}
             <button
-              className=""
+              className="hd-btn"
               onClick={() => setTema(tema === "chiaro" ? "scuro" : "chiaro")}
               title={tema === "chiaro" ? "Tema scuro" : "Tema chiaro"}
               style={{ background: "transparent", border: `1px solid ${T.border}`, borderRadius: "50%", cursor: "pointer", width: 36, height: 36, display: "flex", alignItems: "center", justifyContent: "center", color: T.textSoft }}
@@ -1818,7 +1829,7 @@ useEffect(() => {
             <div className="relative">
               <button
                 onClick={() => setNotificheAperte(!notificheAperte)}
-                className="relative p-2 rounded transition"
+                className="hd-btn relative p-2 rounded transition"
                 style={{ color: T.textSoft }}
                 title="Notifiche"
               >
@@ -1896,7 +1907,7 @@ useEffect(() => {
         </header>
 
         {/* TAB MENU mobile */}
-        <div className="md:hidden border-b overflow-x-auto flex" style={{ backgroundColor: T.card, borderColor: T.border }}>
+        <div className="tab-mobile md:hidden border-b overflow-x-auto flex" style={{ backgroundColor: T.card, borderColor: T.border }}>
           {menuItems.map(m => {
             const Icon = m.icon;
             const attivo = sezione === m.id;
@@ -1904,7 +1915,7 @@ useEffect(() => {
               <button
                 key={m.id}
                 onClick={() => { if (m.id === "report") { setReportLocked(true); setReportPwdInput(""); setReportPwdError(false); } setSezione(m.id); }}
-                className="flex-shrink-0 flex flex-col items-center gap-1 px-4 py-3 text-xs transition"
+                className={"flex-shrink-0 flex flex-col items-center gap-1 px-4 py-3 text-xs transition" + (attivo ? " tab-attivo" : "")}
                 style={{
                   color: attivo ? T.accent : T.textMuted,
                   borderBottom: attivo ? `2px solid ${T.accent}` : "2px solid transparent",
@@ -1916,7 +1927,7 @@ useEffect(() => {
             );
           })}
           {/* Separatore + Supporto + Esci — in fondo, si raggiunge solo scorrendo */}
-          <div className="flex-shrink-0 flex items-center px-2" style={{ borderLeft: `1px solid ${T.border}`, marginLeft: 4, gap: 0 }}>
+          <div className="tab-fine flex-shrink-0 flex items-center px-2" style={{ borderLeft: `1px solid ${T.border}`, marginLeft: 4, gap: 0 }}>
             <a
               href="https://wa.me/393489259863?text=Ciao%2C+ho+bisogno+di+assistenza+con+Prenoty."
               target="_blank"
