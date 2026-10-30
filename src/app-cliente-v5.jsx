@@ -839,22 +839,22 @@ export default function AppCliente() {
                   const ms = ["gennaio","febbraio","marzo","aprile","maggio","giugno","luglio","agosto","settembre","ottobre","novembre","dicembre"];
                   const orarioDi = (a) => (a.orario || `${a.dalle}-${a.alle}`).replace(/ /g, " · ");
                   return (
-                    <div className="mt-4 mx-auto max-w-md p-4 text-left" style={{ background: "linear-gradient(rgba(0,184,148,.20), rgba(0,184,148,.20)), #f4f3ff", border: "none", borderRadius: 16, backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)", boxShadow: GLASS_SHADOW }}>
+                    <div className="mt-4 mx-auto max-w-md p-4 text-left" style={{ background: "linear-gradient(rgba(108,92,231,.16), rgba(108,92,231,.16)), #f4f3ff", border: "none", borderRadius: 16, backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)", boxShadow: GLASS_SHADOW }}>
                       <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: "#00b894", color: "#fff", boxShadow: CERCHIO_SHADOW }}>
+                        <div className="flex items-center justify-center flex-shrink-0" style={{ width: 38, height: 38, borderRadius: "50%", backgroundColor: "#6c5ce7", color: "#fff", boxShadow: CERCHIO_SHADOW }}>
                           <CalendarPlus className="w-5 h-5" />
                         </div>
                         <div>
-                          <div className="text-sm font-medium" style={{ color: "#04503f" }}>{speciali.length === 1 ? "Apertura speciale" : "Aperture speciali"}</div>
-                          {speciali.length > 1 && <div className="text-xs" style={{ color: "#0b6b55" }}>Apriamo anche nei giorni di solito chiusi</div>}
+                          <div className="text-sm font-medium" style={{ color: "#2b2470" }}>{speciali.length === 1 ? "Apertura speciale" : "Aperture speciali"}</div>
+                          {speciali.length > 1 && <div className="text-xs" style={{ color: "#3d3494" }}>Apriamo anche nei giorni di solito chiusi</div>}
                         </div>
                       </div>
                       {speciali.map((a, i) => {
                         const d = new Date(a.giorno + "T00:00:00");
                         return (
-                          <div key={a.id} className="flex justify-between gap-3 text-sm" style={{ padding: i === speciali.length - 1 ? "7px 0 0" : "7px 0", borderTop: "1px dashed rgba(4,80,63,.25)" }}>
-                            <span className="font-medium" style={{ color: "#04503f" }}>{gsEsteso[d.getDay()]} {d.getDate()} {ms[d.getMonth()]}</span>
-                            <span className="text-right" style={{ color: "#0b6b55" }}>{orarioDi(a)}</span>
+                          <div key={a.id} className="flex justify-between gap-3 text-sm" style={{ padding: i === speciali.length - 1 ? "7px 0 0" : "7px 0", borderTop: "1px dashed rgba(43,36,112,.25)" }}>
+                            <span className="font-medium" style={{ color: "#2b2470" }}>{gsEsteso[d.getDay()]} {d.getDate()} {ms[d.getMonth()]}</span>
+                            <span className="text-right" style={{ color: "#3d3494" }}>{orarioDi(a)}</span>
                           </div>
                         );
                       })}
