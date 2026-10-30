@@ -691,9 +691,9 @@ export default function AppCliente() {
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={metaImage} />
     </Helmet>
-    <div className="min-h-screen" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+    <div className="min-h-screen" style={{ backgroundColor: tema === "chiaro" ? "#f3f3f6" : T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
       {/* HEADER */}
-      <header className="sticky top-0 z-10" style={{ ...vetroCard, borderRadius: 0, backgroundColor: tema === "chiaro" ? "rgba(255,255,255,.72)" : "rgba(28,26,53,.72)" }}>
+      <header className="sticky top-0 z-10" style={{ ...vetroCard, borderRadius: 0, backgroundColor: tema === "chiaro" ? "rgba(243,243,246,.72)" : "rgba(28,26,53,.72)", ...(tema === "chiaro" ? { boxShadow: "none" } : {}) }}>
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
 
           {/* Aggiungi home — solo mobile */}
