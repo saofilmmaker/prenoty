@@ -1658,7 +1658,8 @@ useEffect(() => {
   ];
 
   return (
-    <div className="min-h-screen flex" style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+    <div className={"min-h-screen flex" + (tema === "chiaro" ? " root-viola" : "")} style={{ backgroundColor: T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+      <style>{`@media (min-width: 768px) { .root-viola { background-color: #4a3cb5 !important; } .root-viola > .cont-viola { margin: 8px 8px 8px 0; border-radius: 16px; overflow: hidden; background-color: #fff; } }`}</style>
       {/* SIDEBAR */}
       <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : "")} style={{ backgroundColor: T.card, borderColor: T.border }}>
         <style>{`.side-viola { background-color: #4a3cb5 !important; border-color: transparent !important; }
@@ -1767,7 +1768,7 @@ useEffect(() => {
       </aside>
 
       {/* CONTENT */}
-      <div className="flex-1 flex flex-col min-w-0">
+      <div className={"flex-1 flex flex-col min-w-0" + (tema === "chiaro" ? " cont-viola" : "")}>
         {/* HEADER mobile + notifiche */}
         <header className="hd-col border-b px-4 md:px-8 py-4 flex items-center justify-between" style={{ backgroundColor: T.card, borderColor: T.border, paddingTop: "max(1rem, env(safe-area-inset-top))" }}>
           <style>{`@media (min-width: 1024px) { .hd-col { padding-left: max(2rem, calc((100% - 760px) / 2)) !important; padding-right: max(2rem, calc((100% - 760px) / 2)) !important; border-bottom-width: 0 !important; padding-bottom: 0.5rem !important; } .hd-col h2 { display: none; } .titolo-col { max-width: 760px; margin: 0.5rem auto 1.25rem auto; font-size: 28px; line-height: 34px; display: block !important; } .main-col { padding-top: 1rem !important; } }`}</style>
