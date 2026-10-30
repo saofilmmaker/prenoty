@@ -1668,7 +1668,7 @@ useEffect(() => {
 .side-viola nav button { color: rgba(255,255,255,.85) !important; background-color: transparent !important; transition: background-color .15s; }
 .side-viola nav button:hover { background-color: rgba(255,255,255,.12) !important; }
 .side-viola nav button.side-attivo { background-color: rgba(255,255,255,.2) !important; color: #fff !important; }
-.side-viola .side-foot { border-color: rgba(255,255,255,.2) !important; }
+.side-viola .side-foot { border-color: rgba(255,255,255,.2) !important; border-top-width: 0 !important; }
 .side-viola .side-foot > button { color: rgba(255,255,255,.85) !important; transition: background-color .15s; }
 .side-viola .side-foot > button:hover { background-color: rgba(255,255,255,.12) !important; }
 .side-viola .side-foot > button.side-assist { color: #7ff0c9 !important; }
