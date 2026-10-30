@@ -1671,6 +1671,9 @@ useEffect(() => {
 .root-viola .tab-fine a { color: #7ff0c9 !important; }
 .root-viola .tab-fine button { color: rgba(255,255,255,.85) !important; }
 .root-scuro .hd-col { border-bottom-width: 0 !important; }
+.root-scuro .tab-mobile { border-bottom-width: 0 !important; padding: 6px 6px 8px !important; gap: 2px; }
+.root-scuro .tab-mobile > button { color: rgba(240,238,255,.6) !important; border-bottom-width: 0 !important; border-radius: 12px; }
+.root-scuro .tab-mobile > button.tab-attivo { color: #f0eeff !important; background-color: rgba(255,255,255,.12) !important; font-weight: 500; }
 }`}</style>
       {/* SIDEBAR */}
       <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : " side-scuro")} style={{ backgroundColor: T.card, borderColor: T.border }}>
