@@ -1670,6 +1670,7 @@ useEffect(() => {
 .root-viola .tab-fine { border-left-color: rgba(255,255,255,.3) !important; }
 .root-viola .tab-fine a { color: #7ff0c9 !important; }
 .root-viola .tab-fine button { color: rgba(255,255,255,.85) !important; }
+.root-scuro .hd-col { border-bottom-width: 0 !important; }
 }`}</style>
       {/* SIDEBAR */}
       <aside className={"hidden md:flex flex-col w-56 border-r" + (tema === "chiaro" ? " side-viola" : " side-scuro")} style={{ backgroundColor: T.card, borderColor: T.border }}>
