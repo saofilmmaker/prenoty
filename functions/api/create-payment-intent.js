@@ -41,7 +41,19 @@ export async function onRequestPost(context) {
     }
 
     const saloni = await supabaseRes.json();
-    const mp = saloni?.[0]?.metodi_pagamento;
+    const mp = { ...(saloni?.[0]?.metodi_pagamento || {}) };
+
+    // La chiave segreta sta nella tabella protetta "saloni_segreti"; se non c'è, si usa il vecchio campo
+    try {
+      const segRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/saloni_segreti?salone_id=eq.${encodeURIComponent(salone_id)}&select=stripe_sk`,
+        { headers: { "apikey": env.SUPABASE_SERVICE_KEY, "Authorization": `Bearer ${env.SUPABASE_SERVICE_KEY}` } }
+      );
+      if (segRes.ok) {
+        const seg = await segRes.json();
+        if (seg?.[0]?.stripe_sk) mp.stripe_sk = seg[0].stripe_sk;
+      }
+    } catch (_) { /* usa il vecchio campo */ }
 
     if (!mp?.stripe || !mp?.stripe_sk || !mp?.stripe_pk) {
       return new Response(JSON.stringify({ error: "Stripe non configurato per questo salone" }), {

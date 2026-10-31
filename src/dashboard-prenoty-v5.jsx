@@ -92,6 +92,17 @@ function normalizzaNome(nome) {
   return nome.trim().toLowerCase().replace(/\s+/g, " ");
 }
 
+// Segreti del salone (chiave Stripe, password Report): tabella protetta, leggibile solo dal titolare.
+// Compatibilità: se la tabella non c'è ancora nel database, si usano i vecchi campi di "saloni".
+async function leggiSegreti(saloneId) {
+  const { data, error } = await supabase.from("saloni_segreti").select("stripe_sk, report_password").eq("salone_id", saloneId).maybeSingle();
+  return error ? null : (data || {});
+}
+async function salvaSegreti(saloneId, campi) {
+  const { error } = await supabase.from("saloni_segreti").upsert({ salone_id: saloneId, ...campi, updated_at: new Date().toISOString() }, { onConflict: "salone_id" });
+  return !error;
+}
+
 const SALVA_PILLOLA = {
   display: "block", width: "auto", margin: "12px auto 0", padding: "11px 28px", borderRadius: 8,
 };
@@ -434,6 +445,12 @@ useEffect(() => {
         .eq("user_id", userId)
         .maybeSingle();
 
+      // Segreti dalla tabella protetta (se esiste), altrimenti dai vecchi campi
+      let segreti = null;
+      if (saloneDb) segreti = await leggiSegreti(saloneDb.id);
+      const reportPasswordDb = segreti?.report_password || saloneDb?.report_password || "";
+      const stripeSkDb = segreti?.stripe_sk || saloneDb?.metodi_pagamento?.stripe_sk || "";
+
       if (saloneDb) {
         setSalone(prev => ({
           ...prev,
@@ -456,7 +473,7 @@ useEffect(() => {
           mostraGalleria: saloneDb.mostra_galleria ?? true,
           mostraSocial: saloneDb.mostra_social ?? true,
           mostraStatistiche: saloneDb.mostra_statistiche ?? true,
-          reportPassword: saloneDb.report_password || "",
+          reportPassword: reportPasswordDb,
           statoAbbonamento: saloneDb.stato_abbonamento || "",
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           limiteSovrapposizione: saloneDb.limite_sovrapposizione ?? 3,
@@ -484,7 +501,7 @@ useEffect(() => {
             inSalone: saloneDb.metodi_pagamento.inSalone ?? true,
             stripe: saloneDb.metodi_pagamento.stripe ?? false,
             stripe_pk: saloneDb.metodi_pagamento.stripe_pk || "",
-            stripe_sk: saloneDb.metodi_pagamento.stripe_sk || "",
+            stripe_sk: stripeSkDb,
           }));
         }
         if (saloneDb.tipo && CONFIG_ATTIVITA[saloneDb.tipo]) {
@@ -3792,7 +3809,7 @@ useEffect(() => {
                           if (!pwdImpostazInput) return alert("Inserisci una password.");
                           if (pwdImpostazInput !== pwdImpostazConfirm) return alert("Le password non corrispondono.");
                           setSalone(s => ({ ...s, reportPassword: pwdImpostazInput }));
-                          if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
+                          if (salone.dbId && !(await salvaSegreti(salone.dbId, { report_password: pwdImpostazInput }))) await supabase.from("saloni").update({ report_password: pwdImpostazInput }).eq("id", salone.dbId);
                           setPwdImpostazMode(""); setPwdImpostazInput(""); setPwdImpostazConfirm("");
                         }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>SALVA PASSWORD</button>
                         <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
@@ -3828,7 +3845,7 @@ useEffect(() => {
                               if (!pwdImpostazConfirm) return alert("Inserisci la nuova password.");
                               if (pwdImpostazConfirm !== pwdImpostazConfirm2) return alert("Le nuove password non corrispondono.");
                               setSalone(s => ({ ...s, reportPassword: pwdImpostazConfirm }));
-                              if (salone.dbId) await supabase.from("saloni").update({ report_password: pwdImpostazConfirm }).eq("id", salone.dbId);
+                              if (salone.dbId && !(await salvaSegreti(salone.dbId, { report_password: pwdImpostazConfirm }))) await supabase.from("saloni").update({ report_password: pwdImpostazConfirm }).eq("id", salone.dbId);
                               setPwdImpostazMode(""); setPwdImpostazInput(""); setPwdImpostazConfirm(""); setPwdImpostazConfirm2("");
                             }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: T.accent, color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>AGGIORNA</button>
                             <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
@@ -3845,7 +3862,7 @@ useEffect(() => {
                             <button onClick={async () => {
                               if (pwdImpostazInput !== salone.reportPassword) return alert("Password errata.");
                               setSalone(s => ({ ...s, reportPassword: "" }));
-                              if (salone.dbId) await supabase.from("saloni").update({ report_password: null }).eq("id", salone.dbId);
+                              if (salone.dbId) { await salvaSegreti(salone.dbId, { report_password: null }); await supabase.from("saloni").update({ report_password: null }).eq("id", salone.dbId); }
                               setPwdImpostazMode(""); setPwdImpostazInput("");
                             }} className="px-4 py-2 text-xs font-bold tracking-widest rounded-lg" style={{ backgroundColor: "#e74c3c", color: "#fff", border: "none", cursor: "pointer", fontFamily: "inherit" }}>DISATTIVA</button>
                             <button onClick={() => setPwdImpostazMode("")} className="px-4 py-2 text-xs tracking-widest rounded-lg" style={{ background: "transparent", border: `1px solid ${T.border}`, color: T.textMuted, cursor: "pointer", fontFamily: "inherit" }}>Annulla</button>
@@ -4731,7 +4748,10 @@ useEffect(() => {
                     if (metodiPagamento.stripe && (!metodiPagamento.stripe_pk.startsWith("pk_") || !metodiPagamento.stripe_sk.startsWith("sk_"))) {
                       throw new Error("Le chiavi Stripe non sembrano valide — controlla che inizino con pk_ e sk_");
                     }
-                    await supabase.from("saloni").update({ metodi_pagamento: metodiPagamento }).eq("id", salone.dbId);
+                    // La chiave segreta va nella tabella protetta; il resto resta pubblico (serve alla pagina clienti)
+                    const { stripe_sk: chiaveSegreta, ...metodiPubblici } = metodiPagamento;
+                    const segretiOk = await salvaSegreti(salone.dbId, { stripe_sk: chiaveSegreta || null });
+                    await supabase.from("saloni").update({ metodi_pagamento: segretiOk ? metodiPubblici : metodiPagamento }).eq("id", salone.dbId);
                   }}
                   label="SALVA METODI"
                   T={T}
