@@ -145,11 +145,11 @@ function CambioPassword({ T }) {
     <div className="space-y-3">
       <div>
         <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>NUOVA PASSWORD</label>
-        <input type="password" value={nuova} onChange={e => setNuova(e.target.value)} placeholder="Minimo 8 caratteri" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+        <input type="password" autoComplete="new-password" value={nuova} onChange={e => setNuova(e.target.value)} placeholder="Minimo 8 caratteri" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
       </div>
       <div>
         <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>CONFERMA PASSWORD</label>
-        <input type="password" value={conferma} onChange={e => setConferma(e.target.value)} placeholder="Ripeti la nuova password" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
+        <input type="password" autoComplete="new-password" value={conferma} onChange={e => setConferma(e.target.value)} placeholder="Ripeti la nuova password" className="w-full mt-1 p-3 border outline-none" style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }} />
       </div>
       {msg && <div className="text-sm p-3" style={{ background: msg.tipo === "ok" ? "rgba(93,226,121,0.1)" : "rgba(231,76,60,0.1)", color: msg.tipo === "ok" ? "#27ae60" : "#e74c3c", borderRadius: 8 }}>{msg.testo}</div>}
       <button onClick={handleCambio} disabled={loading} className="text-sm font-semibold" style={{ ...SALVA_PILLOLA, background: T.accent, color: "#fff", border: "none", cursor: "pointer" }}>
@@ -3301,6 +3301,7 @@ useEffect(() => {
                 </div>
                 <input
                   type="password"
+                  autoComplete="new-password"
                   value={reportPwdInput}
                   onChange={e => { setReportPwdInput(e.target.value); setReportPwdError(false); }}
                   onKeyDown={e => { if (e.key === "Enter") { if (reportPwdInput === salone.reportPassword) { setReportLocked(false); setReportPwdInput(""); } else { setReportPwdError(true); } } }}
@@ -3783,8 +3784,8 @@ useEffect(() => {
                     <div className="mt-4 flex flex-col gap-3">
                       <div className="text-xs" style={{ color: T.textMuted }}>Scegli una password per proteggere il Report</div>
                       <div className="flex gap-2">
-                        <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
-                        <input type="password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Conferma..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                        <input type="password" autoComplete="new-password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                        <input type="password" autoComplete="new-password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Conferma..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
                       </div>
                       <div className="flex gap-2">
                         <button onClick={async () => {
@@ -3816,10 +3817,10 @@ useEffect(() => {
                       {pwdImpostazMode === "change" && (
                         <div className="flex flex-col gap-3 mt-1">
                           <div className="text-xs" style={{ color: T.textMuted }}>Inserisci la password attuale e poi quella nuova</div>
-                          <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                          <input type="password" autoComplete="new-password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
                           <div className="flex gap-2">
-                            <input type="password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
-                            <input type="password" value={pwdImpostazConfirm2} onChange={e => setPwdImpostazConfirm2(e.target.value)} placeholder="Conferma nuova..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                            <input type="password" autoComplete="new-password" value={pwdImpostazConfirm} onChange={e => setPwdImpostazConfirm(e.target.value)} placeholder="Nuova password..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                            <input type="password" autoComplete="new-password" value={pwdImpostazConfirm2} onChange={e => setPwdImpostazConfirm2(e.target.value)} placeholder="Conferma nuova..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
                           </div>
                           <div className="flex gap-2">
                             <button onClick={async () => {
@@ -3840,7 +3841,7 @@ useEffect(() => {
                         <div className="flex flex-col gap-3 mt-1">
                           <div className="text-xs" style={{ color: T.textMuted }}>Inserisci la password attuale per disattivare la protezione</div>
                           <div className="flex gap-2">
-                            <input type="password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
+                            <input type="password" autoComplete="new-password" value={pwdImpostazInput} onChange={e => setPwdImpostazInput(e.target.value)} placeholder="Password attuale..." className="flex-1 border rounded-lg px-3 py-2 text-sm outline-none" style={{ borderColor: T.border, backgroundColor: T.bg, color: T.text, fontFamily: "inherit" }} />
                             <button onClick={async () => {
                               if (pwdImpostazInput !== salone.reportPassword) return alert("Password errata.");
                               setSalone(s => ({ ...s, reportPassword: "" }));
@@ -4700,14 +4701,17 @@ useEffect(() => {
                       <div>
                         <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>CHIAVE SEGRETA (sk_live_... o sk_test_...) *</label>
                         <input
-                          type="password"
+                          type="text"
+                          name="prenoty-stripe-secret"
                           value={metodiPagamento.stripe_sk}
                           onChange={(e) => setMetodiPagamento({ ...metodiPagamento, stripe_sk: e.target.value.trim() })}
                           className="w-full mt-2 p-3 border outline-none font-mono text-xs"
-                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
+                          style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text, WebkitTextSecurity: "disc" }}
                           placeholder="sk_live_xxxxxxxxxxxxxxxxxxxxxx"
                           spellCheck={false}
                           autoComplete="off"
+                          data-lpignore="true"
+                          data-1p-ignore="true"
                         />
                         <div className="text-xs mt-1" style={{ color: T.textMuted }}>Tenuta al sicuro sui nostri server — non viene mai mostrata ai clienti</div>
                       </div>
