@@ -469,12 +469,19 @@ export default function AppCliente() {
   const caricaOrariOccupati = async (dataScelta, staffOverride) => {
     if (!salone.id) return;
     const dataStr = `${dataScelta.getFullYear()}-${String(dataScelta.getMonth()+1).padStart(2,"0")}-${String(dataScelta.getDate()).padStart(2,"0")}`;
-    const { data: prenotazioniDb } = await supabase
-      .from("prenotazioni")
-      .select("ora, servizio_id, durata_totale, pausa_totale, staff_id")
-      .eq("salone_id", salone.id)
-      .eq("data", dataStr)
-      .neq("stato", "annullata");
+    // Solo gli orari occupati (nessun dato dei clienti): funzione protetta lato database
+    let { data: prenotazioniDb, error: errOccupati } = await supabase
+      .rpc("orari_occupati", { p_salone_id: salone.id, p_data: dataStr });
+    // Compatibilità: se la funzione non è ancora stata creata nel database, usa la lettura di prima
+    if (errOccupati && errOccupati.code === "PGRST202") {
+      const vecchia = await supabase
+        .from("prenotazioni")
+        .select("ora, servizio_id, durata_totale, pausa_totale, staff_id")
+        .eq("salone_id", salone.id)
+        .eq("data", dataStr)
+        .neq("stato", "annullata");
+      prenotazioniDb = vecchia.data;
+    }
 
     if (!prenotazioniDb) return;
 
