@@ -46,6 +46,75 @@ function Ico({d,size=20,color="#6c5ce7"}){
   return <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke={color} strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">{d}</svg>;
 }
 
+const FEAT_GLASS_ARROW = {
+  position:"absolute",top:"50%",transform:"translateY(-60%)",width:44,height:44,borderRadius:"50%",
+  display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",border:"none",padding:0,zIndex:2,
+  background:"rgba(255,255,255,.62)",backdropFilter:"blur(8px) saturate(150%)",WebkitBackdropFilter:"blur(8px) saturate(150%)",
+  boxShadow:"inset 0 0 0 1px rgba(255,255,255,.75), inset 1.5px 2.5px 0 -2px #fff, inset -1.5px -1.5px 0 -2px rgba(255,255,255,.9), inset 0 -3px 5px -3px rgba(108,92,231,.14), 0 1px 4px rgba(108,92,231,.10), 0 6px 16px rgba(108,92,231,.18)",
+  transition:"opacity .2s",
+};
+
+function FeatCarousel(){
+  const rail=useRef(null);
+  const[canL,setCanL]=useState(false);
+  const[canR,setCanR]=useState(true);
+  const upd=()=>{const el=rail.current;if(!el)return;setCanL(el.scrollLeft>8);setCanR(el.scrollLeft+el.clientWidth<el.scrollWidth-8);};
+  useEffect(()=>{upd();window.addEventListener("resize",upd);return()=>window.removeEventListener("resize",upd);},[]);
+  const go=d=>rail.current&&rail.current.scrollBy({left:d*286,behavior:"smooth"});
+  const row={background:"#fff",borderRadius:8,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
+  const ok={fontSize:11,fontWeight:600,color:"#00805f",background:"rgba(0,184,148,0.14)",borderRadius:99,padding:"2px 8px"};
+  const cards=[
+    {n:"01",t:"Prenotazioni 24/7",d:"I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
+     ic:<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>,
+     v:<><div style={{...row,marginTop:0}}><span>Valentina R.</span><span style={ok}>Confermata</span></div><div style={row}><span>Marco B.</span><span style={ok}>Confermata</span></div><div style={row}><span>Sara E.</span><span style={ok}>Confermata</span></div></>},
+    {n:"02",t:"Promemoria automatici",d:"Email automatiche prima di ogni appuntamento. Zero no-show, zero dimenticanze.",bg:"rgba(0,184,148,0.14)",c:"#00b894",
+     ic:<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>,
+     v:<><div style={{...row,marginTop:0}}><span>Il tuo appuntamento è domani!</span></div><div style={row}><span>Ora</span><b style={{color:"#6c5ce7"}}>09:00</b></div><div style={row}><span>Salone</span><b>Sao Salone</b></div></>},
+    {n:"03",t:"Dashboard in tempo reale",d:"Vedi chi arriva, a che ora e quanto incassi oggi.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
+     ic:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
+     v:<div style={{display:"flex",gap:6}}>{[["7","Oggi","#13112a"],["€135","Incasso","#13112a"],["€225","Mese","#00b894"]].map(([v,l,c])=>(<div key={l} style={{...row,marginTop:0,flex:1,flexDirection:"column",gap:2,padding:"10px 4px"}}><b style={{fontSize:16,color:c}}>{v}</b><span style={{fontSize:10,color:"#7a748a"}}>{l}</span></div>))}</div>},
+    {n:"04",t:"Il tuo link unico",d:"Ogni attività ha la sua pagina personale. Condividila sui social o in bio.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
+     ic:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
+     v:<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7"}}><span>prenoty.com/sao-salone</span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} style={{fontSize:11,color:"#7a748a",background:"#fff",borderRadius:8,padding:"4px 9px"}}>{x}</span>))}</div></>},
+    {n:"05",t:"Personalizza tutto",d:"Servizi, durata, prezzi e orari. Configuri tutto in pochi minuti.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
+     ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
+     v:<><div style={{...row,marginTop:0}}><span>Servizio</span><b style={{color:"#6c5ce7"}}>Taglio + Piega</b></div><div style={row}><span>Durata</span><b>60 min</b></div><div style={row}><span>Prezzo</span><b style={{color:"#00b894"}}>€45</b></div></>},
+  ];
+  return(
+    <div style={{maxWidth:1000,margin:"0 auto"}}>
+      <div style={{position:"relative"}}>
+        <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,left:8,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+        </button>
+        <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",padding:"4px 4px 24px",scrollbarWidth:"none"}}>
+          {cards.map(({n,t,d,bg,c,ic,v})=>(
+            <div key={n} style={{flex:"0 0 272px",scrollSnapAlign:"start",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:360,display:"flex",flexDirection:"column",boxSizing:"border-box",boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
+              <span style={{fontFamily:"ui-monospace,Menlo,monospace",fontSize:12,fontWeight:700,color:"#6c5ce7"}}>{n}</span>
+              <div style={{background:bg,borderRadius:14,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",margin:"14px 0 16px"}}>
+                <Ico d={ic} size={22} color={c}/>
+              </div>
+              <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
+              <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
+              <div style={{marginTop:"auto",background:"#f3f3f6",borderRadius:14,padding:10}}>{v}</div>
+            </div>
+          ))}
+        </div>
+        <button aria-label="Avanti" onClick={()=>go(1)} style={{...FEAT_GLASS_ARROW,right:8,opacity:canR?1:0,pointerEvents:canR?"auto":"none"}}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+        </button>
+      </div>
+      <div style={{marginTop:8,background:"#6c5ce7",borderRadius:16,padding:"14px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
+        <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
+          <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:26,width:"auto"}}/>
+          <span style={{fontSize:15,fontWeight:600,color:"rgba(255,255,255,0.95)"}}>Semplice, veloce, senza commissioni.</span>
+        </div>
+        <a href="/registrazione" style={{background:"#fff",color:"#6c5ce7",borderRadius:99,padding:"10px 22px",fontSize:14,fontWeight:700,textDecoration:"none",whiteSpace:"nowrap"}}>Inizia gratis</a>
+      </div>
+    </div>
+  );
+}
+
+
 function IPhone(){
   return(
     <div style={{position:"relative",width:280,height:502,flexShrink:0}}>
@@ -688,6 +757,7 @@ export default function Home(){
           .sec-pad{padding:56px 24px!important;}
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
+        .feat-rail::-webkit-scrollbar{display:none;}
         .feat-booking-row{flex-wrap:wrap!important;gap:6px!important;}.feat-booking-row .booking-time{display:none!important;}.feat-booking-row .booking-badge{margin-left:auto;}
         .feat-molto-altro{font-size:16px;color:#7a748a;margin:10px 0 0;text-align:right;font-style:italic;}
         @media(max-width:600px){
@@ -1124,7 +1194,8 @@ export default function Home(){
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700,textAlign:"center"}}>Perché scegliere Prenoty?</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:48,lineHeight:1.15,textAlign:"center"}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
         </FadeIn>
-        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,maxWidth:1000,margin:"0 auto",gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
+        {!isMobile && <FeatCarousel/>}
+        {isMobile && <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,maxWidth:1000,margin:"0 auto",gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
 
           {/* Prenotazioni 24/7 — card principale con mini lista */}
           <FadeIn delay={0} style={{gridArea:"preno",height:"100%"}}>
@@ -1335,7 +1406,7 @@ export default function Home(){
             </div>
           </FadeIn>
 
-        </div>
+        </div>}
       </section>
 
       <section id="come-funziona" style={{padding:"100px 56px",background:"#13112a",overflow:"hidden",position:"relative"}}>
