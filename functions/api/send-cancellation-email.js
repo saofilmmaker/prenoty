@@ -9,10 +9,53 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
+// Protegge il testo che finisce dentro la pagina dell'email (niente link o codice inseriti da altri)
+const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+// Testo semplice per l'oggetto dell'email: niente a capo o caratteri di controllo
+const txt = (v) => String(v ?? "").replace(/[\u0000-\u001f]+/g, " ").trim().slice(0, 120);
+const risposta = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", ...CORS } });
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
-    const { emailCliente, emailTitolare, nomeCliente, telefonoCliente, nomeSalone, servizi, data, ora, slugSalone } = await request.json();
+    const body = await request.json();
+
+    // Questa email la può mandare solo il titolare collegato, per il proprio salone
+    const token = (request.headers.get("Authorization") || "").replace(/^Bearer\s+/i, "").trim();
+    if (!token) return risposta(401, { error: "Accesso richiesto" });
+    const saloneId = String(body.salone_id || "");
+    if (!UUID_RE.test(saloneId)) return risposta(400, { error: "Salone non valido" });
+
+    const sb = { "apikey": env.SUPABASE_SERVICE_KEY, "Authorization": `Bearer ${env.SUPABASE_SERVICE_KEY}` };
+    const userRes = await fetch(`${env.SUPABASE_URL}/auth/v1/user`, {
+      headers: { "apikey": env.SUPABASE_SERVICE_KEY, "Authorization": `Bearer ${token}` },
+    });
+    if (!userRes.ok) return risposta(401, { error: "Accesso non valido" });
+    const utente = await userRes.json();
+    if (!utente?.id || !UUID_RE.test(utente.id)) return risposta(401, { error: "Accesso non valido" });
+
+    const salRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/saloni?id=eq.${saloneId}&user_id=eq.${utente.id}&select=nome,slug,email`,
+      { headers: sb }
+    );
+    const sal = salRes.ok ? (await salRes.json())?.[0] : null;
+    if (!sal) return risposta(403, { error: "Non autorizzato per questo salone" });
+
+    // Dati per l'email: salone e indirizzo del titolare dal database, testo protetto
+    const emailCliente = body.emailCliente && EMAIL_RE.test(String(body.emailCliente).trim()) && String(body.emailCliente).length <= 254 ? String(body.emailCliente).trim() : null;
+    const emailTitolare = sal.email && EMAIL_RE.test(sal.email) ? sal.email : null;
+    const nomeCliente = esc(body.nomeCliente);
+    const nomeClienteTxt = txt(body.nomeCliente);
+    const telefonoCliente = esc(body.telefonoCliente);
+    const nomeSalone = esc(sal.nome);
+    const nomeSaloneTxt = txt(sal.nome);
+    const servizi = esc(body.servizi);
+    const data = String(body.data || "").slice(0, 10);
+    const ora = String(body.ora || "").slice(0, 5);
+    const slugSalone = sal.slug ? encodeURIComponent(sal.slug) : "";
+    if (!/^\d{4}-\d{2}-\d{2}$/.test(data)) return risposta(400, { error: "Data non valida" });
 
     if (!emailCliente && !emailTitolare) {
       return new Response(JSON.stringify({ error: "Nessun destinatario" }), {
@@ -121,7 +164,7 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           from: "Prenoty <noreply@prenoty.com>",
           to: [emailCliente],
-          subject: `Appuntamento annullato — ${nomeSalone} · ${ora} del ${dataCapitalized}`,
+          subject: `Appuntamento annullato — ${nomeSaloneTxt} · ${ora} del ${dataCapitalized}`,
           html,
         }),
       });
@@ -216,7 +259,7 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           from: "Prenoty <noreply@prenoty.com>",
           to: [emailTitolare],
-          subject: `Appuntamento annullato — ${nomeCliente} · ${ora} del ${dataCapitalized}`,
+          subject: `Appuntamento annullato — ${nomeClienteTxt} · ${ora} del ${dataCapitalized}`,
           html: htmlTitolare,
         }),
       });

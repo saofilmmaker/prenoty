@@ -1548,10 +1548,13 @@ useEffect(() => {
     setDettaglio(null);
     // Invia email di cancellazione al cliente E notifica al titolare (fire-and-forget)
     if (pren?.email || salone.email) {
+      (async () => {
+      const { data: { session: sessioneMail } } = await supabase.auth.getSession();
       fetch("/api/send-cancellation-email", {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        headers: { "Content-Type": "application/json", "Authorization": `Bearer ${sessioneMail?.access_token || ""}` },
         body: JSON.stringify({
+          salone_id: salone.dbId,
           emailCliente: pren?.email || null,
           emailTitolare: salone.email || null,
           nomeCliente: pren.cliente,
@@ -1563,6 +1566,7 @@ useEffect(() => {
           slugSalone: salone.slug,
         }),
       }).catch(() => {});
+      })();
     }
     // Elimina da Supabase (permanente)
     const { error } = await supabase.from("prenotazioni").delete().eq("id", id);
