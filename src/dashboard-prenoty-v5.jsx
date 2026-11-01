@@ -4841,7 +4841,7 @@ useEffect(() => {
       {/* MODAL DETTAGLIO */}
       {dettaglio && (
         <div className="fixed inset-0 bg-black/50 z-20 flex items-end md:items-center justify-center p-0 md:p-6">
-          <div className="w-full md:max-w-lg md:border flex flex-col" style={{ backgroundColor: T.bg, borderColor: T.border, maxHeight: "92dvh", overflowY: "auto", WebkitOverflowScrolling: "touch" }} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full md:max-w-lg md:border md:rounded-2xl flex flex-col" style={{ backgroundColor: T.bg, borderColor: T.border, boxShadow: "0 8px 28px rgba(60,50,140,.2)", maxHeight: "92dvh", overflowY: "auto", WebkitOverflowScrolling: "touch" }} onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -4896,7 +4896,7 @@ useEffect(() => {
                     {detEditServizi.map((nome, i) => {
                       const s = servizi.find(sv => sv.nome?.trim().toLowerCase() === nome.toLowerCase());
                       return (
-                        <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded" style={{ background: T.card, border: `1px solid ${T.border}` }}>
+                        <div key={i} className="flex items-center justify-between py-1.5 px-2 rounded-lg" style={{ background: T.card, border: `1px solid ${T.border}` }}>
                           <span className="text-sm">{nome}</span>
                           <div className="flex items-center gap-3">
                             <span className="text-sm" style={{ color: T.textMuted }}>€{s?.prezzo ?? 0}</span>
@@ -4909,7 +4909,7 @@ useEffect(() => {
                   <div>
                     <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>AGGIUNGI SERVIZIO</div>
                     <select
-                      className="w-full text-sm px-3 py-2 rounded"
+                      className="w-full text-sm px-3 py-2 rounded-lg"
                       style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
                       value=""
                       onChange={e => { if (e.target.value) setDetEditServizi(prev => [...prev, e.target.value]); }}
@@ -4926,7 +4926,7 @@ useEffect(() => {
                       <input
                         type="number"
                         min="0"
-                        className="text-sm px-3 py-2 rounded"
+                        className="text-sm px-3 py-2 rounded-lg"
                         style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, width: 80, flexShrink: 0 }}
                         value={detEditPrezzoExtra}
                         onChange={e => setDetEditPrezzoExtra(e.target.value)}
@@ -4934,7 +4934,7 @@ useEffect(() => {
                       />
                       <input
                         type="text"
-                        className="flex-1 text-sm px-3 py-2 rounded"
+                        className="flex-1 text-sm px-3 py-2 rounded-lg"
                         style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text }}
                         value={detEditDescExtra}
                         onChange={e => setDetEditDescExtra(e.target.value)}
@@ -4946,7 +4946,7 @@ useEffect(() => {
                   <div>
                     <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>NOTE INTERNE</div>
                     <textarea
-                      className="w-full text-sm px-3 py-2 rounded resize-none"
+                      className="w-full text-sm px-3 py-2 rounded-lg resize-none"
                       style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, minHeight: 56 }}
                       value={detEditNote}
                       onChange={e => setDetEditNote(e.target.value)}
@@ -4991,7 +4991,7 @@ useEffect(() => {
                 </div>
               )}
               {dettaglio.extraDescrizione && (
-                <div className="px-3 py-2 rounded text-sm flex justify-between items-center" style={{ background: T.accentBg || "rgba(99,91,255,0.08)", color: T.accent }}>
+                <div className="px-3 py-2 rounded-lg text-sm flex justify-between items-center" style={{ background: T.accentBg || "rgba(99,91,255,0.08)", color: T.accent }}>
                   <span><span className="font-medium">Extra:</span> {dettaglio.extraDescrizione}</span>
                   {dettaglio.extraImporto > 0 && <span className="font-medium">+€{dettaglio.extraImporto}</span>}
                 </div>
@@ -5047,22 +5047,22 @@ useEffect(() => {
             <div className="p-6 border-t flex gap-3" style={{ backgroundColor: T.card, borderColor: T.border }}>
               {detEditMode ? (
                 <>
-                  <button onClick={() => setDetEditMode(false)} className="flex-1 py-3 border tracking-widest text-sm transition" style={{ borderColor: T.borderStrong, color: T.textMuted, letterSpacing: "0.15em" }}>
+                  <button onClick={() => setDetEditMode(false)} className="flex-1 py-3 border rounded-lg tracking-widest text-sm transition" style={{ borderColor: T.borderStrong, color: T.textMuted, letterSpacing: "0.15em" }}>
                     ANNULLA
                   </button>
-                  <button onClick={salvaModifica} disabled={detEditSaving} className="flex-1 py-3 tracking-widest text-sm text-white transition" style={{ backgroundColor: T.accent, letterSpacing: "0.15em", opacity: detEditSaving ? 0.6 : 1 }}>
+                  <button onClick={salvaModifica} disabled={detEditSaving} className="flex-1 py-3 rounded-lg tracking-widest text-sm text-white transition" style={{ backgroundColor: T.accent, letterSpacing: "0.15em", opacity: detEditSaving ? 0.6 : 1 }}>
                     {detEditSaving ? "SALVO..." : "SALVA"}
                   </button>
                 </>
               ) : (
                 <>
-                  <a href={`tel:${dettaglio.tel}`} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
+                  <a href={`tel:${dettaglio.tel}`} className="flex-1 py-3 border rounded-lg tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
                     <Phone className="w-4 h-4" /> CHIAMA
                   </a>
-                  <button onClick={apriModifica} className="flex-1 py-3 border tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
+                  <button onClick={apriModifica} className="flex-1 py-3 border rounded-lg tracking-widest text-sm transition flex items-center justify-center gap-2" style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.15em" }}>
                     <Scissors className="w-4 h-4" /> MODIFICA
                   </button>
-                  <button onClick={() => cancella(dettaglio.id)} className="flex-1 py-3 tracking-widest text-sm text-white transition flex items-center justify-center gap-2" style={{ backgroundColor: T.danger, letterSpacing: "0.15em" }}>
+                  <button onClick={() => cancella(dettaglio.id)} className="flex-1 py-3 rounded-lg tracking-widest text-sm text-white transition flex items-center justify-center gap-2" style={{ backgroundColor: "#e5484d", letterSpacing: "0.15em" }}>
                     <XCircle className="w-4 h-4" /> ANNULLA
                   </button>
                 </>
