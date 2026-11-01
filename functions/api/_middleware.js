@@ -33,6 +33,7 @@ const RATE_LIMITS = {
   '/api/send-welcome-email':      { limit: 3,   windowSec: 3600 },
   '/api/create-payment-intent':   { limit: 10,  windowSec: 60   },
   '/api/create-checkout-session': { limit: 5,   windowSec: 60   },
+  '/api/prenota':                 { limit: 10,  windowSec: 600  },
   '/api/event-id':                { limit: 200, windowSec: 60   },
 };
 

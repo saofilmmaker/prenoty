@@ -552,7 +552,9 @@ export default function AppCliente() {
     const durataTot = serviziScelti.reduce((s, x) => s + x.durata, 0);
     const pausaTot = serviziScelti.reduce((s, x) => s + (x.pausa || 0), 0);
     const nomiServizi = serviziScelti.map(x => x.nome).join(", ");
-    const { error } = await supabase.from("prenotazioni").insert({
+    // La prenotazione passa da una funzione del sito che controlla i dati e legge prezzi e durate dal database.
+    // Se la funzione non è raggiungibile (errore del server), si usa la strada di prima: la prenotazione non si perde.
+    const corpoPrenotazione = {
       salone_id: salone.id,
       servizio_id: serviziScelti[0]?.id || null,
       staff_id: staffScelto?.id || null,
@@ -569,7 +571,22 @@ export default function AppCliente() {
       note: note || null,
       metodo_pagamento: paga || "salone",
       codice_bonifico: paga === "bonifico" ? codiceBonifico : null,
-    });
+    };
+    let error = null;
+    try {
+      const rPren = await fetch("/api/prenota", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ ...corpoPrenotazione, servizi_ids: serviziScelti.map(x => x.id) }),
+      });
+      if (rPren.status >= 500) throw new Error("server");
+      if (!rPren.ok) {
+        const j = await rPren.json().catch(() => ({}));
+        error = { message: j.error || "Prenotazione non riuscita", mostra: true };
+      }
+    } catch (_) {
+      ({ error } = await supabase.from("prenotazioni").insert(corpoPrenotazione));
+    }
     if (!error) {
       // Invia email di conferma al cliente (fire-and-forget, non blocca il flusso)
       if (email) {
@@ -624,7 +641,7 @@ export default function AppCliente() {
       }
       setStep(7);
     } else {
-      alert("Errore durante la prenotazione. Riprova.");
+      alert(error?.mostra ? error.message : "Errore durante la prenotazione. Riprova.");
     }
     setInvioInCorso(false);
   };
