@@ -54,6 +54,29 @@ const FEAT_GLASS_ARROW = {
   transition:"opacity .2s",
 };
 
+function FeatCountUp({to,pre="",run}){
+  const[val,setVal]=useState(0);
+  useEffect(()=>{
+    if(!run)return;
+    let raf;const t0=performance.now();
+    const f=t=>{const p=Math.min(1,(t-t0)/1200);setVal(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)raf=requestAnimationFrame(f);};
+    raf=requestAnimationFrame(f);
+    return()=>cancelAnimationFrame(raf);
+  },[run,to]);
+  return <>{pre}{val}</>;
+}
+
+function FeatTyped({text,run,onDone}){
+  const[n,setN]=useState(0);
+  useEffect(()=>{
+    if(!run)return;
+    let i=0;
+    const iv=setInterval(()=>{i+=1;setN(i);if(i>=text.length){clearInterval(iv);onDone&&onDone();}},55);
+    return()=>clearInterval(iv);
+  },[run]);
+  return <>{text.slice(0,n)}<span className="fc-caret"/></>;
+}
+
 function FeatCarousel(){
   const[inRef,inView]=useInView(0.05);
   const rail=useRef(null);
@@ -62,24 +85,38 @@ function FeatCarousel(){
   const upd=()=>{const el=rail.current;if(!el)return;setCanL(el.scrollLeft>8);setCanR(el.scrollLeft+el.clientWidth<el.scrollWidth-8);};
   useEffect(()=>{upd();window.addEventListener("resize",upd);return()=>window.removeEventListener("resize",upd);},[]);
   const go=d=>rail.current&&rail.current.scrollBy({left:d*286,behavior:"smooth"});
+  const[played,setPlayed]=useState([false,false,false,false,false]);
+  const[urlDone,setUrlDone]=useState(false);
+  useEffect(()=>{
+    const root=rail.current;if(!root)return;
+    const io=new IntersectionObserver(es=>es.forEach(e=>{
+      if(e.isIntersecting){
+        const i=+e.target.dataset.fc;
+        setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+        io.unobserve(e.target);
+      }
+    }),{root,threshold:0.7});
+    root.querySelectorAll("[data-fc]").forEach(el=>io.observe(el));
+    return()=>io.disconnect();
+  },[]);
   const row={background:"#fff",borderRadius:8,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
   const ok={fontSize:11,fontWeight:600,color:"#00805f",background:"rgba(0,184,148,0.14)",borderRadius:99,padding:"2px 8px"};
   const cards=[
     {n:"01",t:"Prenotazioni 24/7",d:"I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>,
-     v:<><div style={{...row,marginTop:0}}><span>Valentina R.</span><span style={ok}>Confermata</span></div><div style={row}><span>Marco B.</span><span style={ok}>Confermata</span></div><div style={row}><span>Sara E.</span><span style={ok}>Confermata</span></div></>},
+     v:on=>(<><div style={{...row,marginTop:0}}><span>Valentina R.</span><span style={ok}>Confermata</span></div><div style={row}><span>Marco B.</span><span style={ok}>Confermata</span></div><div className={"fc-newrow"+(on?" on":"")} style={{...row}}><span><b>Giulia M.</b> · 15:30</span><span className="fc-pop" style={ok}>Confermata</span></div></>)},
     {n:"02",t:"Promemoria automatici",d:"Email automatiche prima di ogni appuntamento. Zero no-show, zero dimenticanze.",bg:"rgba(0,184,148,0.14)",c:"#00b894",
      ic:<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>,
-     v:<><div style={{...row,marginTop:0}}><span>Il tuo appuntamento è domani!</span></div><div style={row}><span>Ora</span><b style={{color:"#6c5ce7"}}>09:00</b></div><div style={row}><span>Salone</span><b>Sao Salone</b></div></>},
+     v:on=>(<><div className={"fc-notif"+(on?" on":"")} style={{...row,marginTop:0}}><span style={{display:"flex",alignItems:"center",gap:6}}><span className="fc-bell" style={{display:"inline-flex"}}><Ico d={<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>} size={14} color="#00b894"/></span>Il tuo appuntamento è domani!</span></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:".7s"}}><span>Ora</span><b style={{color:"#6c5ce7"}}>09:00</b></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:".9s"}}><span>Salone</span><b>Sao Salone</b></div></>)},
     {n:"03",t:"Dashboard in tempo reale",d:"Vedi chi arriva, a che ora e quanto incassi oggi.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
-     v:<div style={{display:"flex",gap:6}}>{[["7","Oggi","#13112a"],["€135","Incasso","#13112a"],["€225","Mese","#00b894"]].map(([v,l,c])=>(<div key={l} style={{...row,marginTop:0,flex:1,flexDirection:"column",gap:2,padding:"10px 4px"}}><b style={{fontSize:16,color:c}}>{v}</b><span style={{fontSize:10,color:"#7a748a"}}>{l}</span></div>))}</div>},
+     v:on=>(<div style={{display:"flex",gap:6}}>{[[7,"","Oggi","#13112a"],[135,"€","Incasso","#13112a"],[225,"€","Mese","#00b894"]].map(([v,pre,l,c])=>(<div key={l} style={{...row,marginTop:0,flex:1,flexDirection:"column",gap:2,padding:"10px 4px"}}><b style={{fontSize:16,color:c}}><FeatCountUp to={v} pre={pre} run={on}/></b><span style={{fontSize:10,color:"#7a748a"}}>{l}</span></div>))}</div>)},
     {n:"04",t:"Il tuo link unico",d:"Ogni attività ha la sua pagina personale. Condividila sui social o in bio.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
-     v:<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7"}}><span>prenoty.com/sao-salone</span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} style={{fontSize:11,color:"#7a748a",background:"#fff",borderRadius:8,padding:"4px 9px"}}>{x}</span>))}</div></>},
+     v:on=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",borderRadius:8,padding:"4px 9px"}}>{x}</span>))}</div></>)},
     {n:"05",t:"Personalizza tutto",d:"Servizi, durata, prezzi e orari. Configuri tutto in pochi minuti.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
-     v:<><div style={{...row,marginTop:0}}><span>Servizio</span><b style={{color:"#6c5ce7"}}>Taglio + Piega</b></div><div style={row}><span>Durata</span><b>60 min</b></div><div style={row}><span>Prezzo</span><b style={{color:"#00b894"}}>€45</b></div></>},
+     v:on=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(0.4+k*0.5)+"s"}}/></div>))}</>)},
   ];
   return(
     <div ref={inRef} style={{maxWidth:1000,margin:"0 auto"}}>
@@ -90,14 +127,16 @@ function FeatCarousel(){
         <div style={{width:856,maxWidth:"100%",boxSizing:"border-box",overflow:"hidden",padding:"6px 6px 26px",margin:"-6px -6px -26px"}}>
         <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",scrollbarWidth:"none"}}>
           {cards.map(({n,t,d,bg,c,ic,v},i)=>(
-            <div key={n} style={{opacity:inView?1:0,transform:inView?"translateY(0)":"translateY(50px)",transition:`opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`,flex:"0 0 272px",scrollSnapAlign:"start",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:360,display:"flex",flexDirection:"column",boxSizing:"border-box",boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
+            <div key={n} data-fc={i} style={{opacity:inView?1:0,transform:inView?"translateY(0)":"translateY(50px)",transition:`opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`,flex:"0 0 272px",scrollSnapAlign:"start",height:360}}>
+            <div className="fc-card" style={{background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:"100%",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
               <span style={{fontFamily:"ui-monospace,Menlo,monospace",fontSize:12,fontWeight:700,color:"#6c5ce7"}}>{n}</span>
-              <div style={{background:bg,borderRadius:14,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",margin:"14px 0 16px"}}>
+              <div className="fc-ic" style={{background:bg,borderRadius:14,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",margin:"14px 0 16px"}}>
                 <Ico d={ic} size={22} color={c}/>
               </div>
               <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
               <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
-              <div style={{marginTop:"auto",background:"#f3f3f6",borderRadius:14,padding:10}}>{v}</div>
+              <div style={{marginTop:"auto",background:"#f3f3f6",borderRadius:14,padding:10,overflow:"hidden"}}>{v(played[i])}</div>
+            </div>
             </div>
           ))}
         </div>
@@ -760,6 +799,29 @@ export default function Home(){
           .sec-pad{padding:56px 24px!important;}
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
+        .fc-card{box-shadow:0 4px 12px rgba(108,92,231,0.14);transition:transform .25s ease,box-shadow .25s ease;}
+        .fc-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(108,92,231,0.22);}
+        .fc-ic{transition:background .25s ease;}
+        .fc-card:hover .fc-ic{background:#6c5ce7!important;}
+        .fc-ic svg{transition:stroke .25s ease;}
+        .fc-card:hover .fc-ic svg{stroke:#fff!important;}
+        .fc-newrow{max-height:0;opacity:0;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;transform:translateY(-8px);overflow:hidden;transition:all .5s ease .9s;}
+        .fc-newrow.on{max-height:40px;opacity:1;margin-top:6px!important;padding-top:7px!important;padding-bottom:7px!important;transform:none;}
+        .fc-pop{transform:scale(.6);transition:transform .4s cubic-bezier(.3,1.6,.5,1) 1.5s;}
+        .fc-newrow.on .fc-pop{transform:scale(1);}
+        .fc-notif{opacity:0;transform:translateY(-14px);transition:opacity .5s ease .5s,transform .5s ease .5s;}
+        .fc-notif.on{opacity:1;transform:none;}
+        .fc-notif.on .fc-bell{animation:fc-ring 1s ease 1.1s;}
+        @keyframes fc-ring{0%,100%{transform:rotate(0)}20%{transform:rotate(18deg)}40%{transform:rotate(-14deg)}60%{transform:rotate(9deg)}80%{transform:rotate(-5deg)}}
+        .fc-caret{display:inline-block;width:1px;height:12px;background:#6c5ce7;margin-left:1px;vertical-align:-2px;animation:fc-bl 1s steps(1) infinite;}
+        @keyframes fc-bl{50%{opacity:0}}
+        .fc-chip{opacity:0;transform:translateY(4px);transition:opacity .4s ease,transform .4s ease;}
+        .fc-chip.on{opacity:1;transform:none;}
+        .fc-tg{width:30px;height:16px;border-radius:99px;background:#d9d6e8;position:relative;flex-shrink:0;transition:background .3s ease;}
+        .fc-tg:after{content:"";position:absolute;left:2px;top:2px;width:12px;height:12px;border-radius:50%;background:#fff;transition:transform .3s ease;transition-delay:inherit;}
+        .fc-tg.on{background:#00b894;}
+        .fc-tg.on:after{transform:translateX(14px);}
+        @media(prefers-reduced-motion:reduce){.fc-newrow,.fc-notif,.fc-chip,.fc-pop,.fc-tg,.fc-tg:after{transition:none!important;}.fc-bell,.fc-caret{animation:none!important;}}
         .feat-rail::-webkit-scrollbar{display:none;}
         .feat-booking-row{flex-wrap:wrap!important;gap:6px!important;}.feat-booking-row .booking-time{display:none!important;}.feat-booking-row .booking-badge{margin-left:auto;}
         .feat-molto-altro{font-size:16px;color:#7a748a;margin:10px 0 0;text-align:right;font-style:italic;}
