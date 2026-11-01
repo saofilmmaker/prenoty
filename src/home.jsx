@@ -520,7 +520,7 @@ export default function Home(){
       <style>{`
         *{box-sizing:border-box;}
         html,body{
-          background:#f4f3ff!important;
+          background:#f3f3f6!important;
           overscroll-behavior-x:none;
           -webkit-overflow-scrolling:touch;
         }
@@ -892,7 +892,7 @@ export default function Home(){
         }
       `}</style>
 
-      <nav className="nav-gradient-border" style={{position:"sticky",top:0,zIndex:100,background:"#f4f3ff"}}>
+      <nav className="nav-gradient-border" style={{position:"sticky",top:0,zIndex:100,background:"#f3f3f6"}}>
         <div className="nav-wrap" style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"12px 56px",position:"relative"}}>
 
           {/* Logo */}
@@ -936,7 +936,7 @@ export default function Home(){
         </div>
 
         {/* Dropdown mobile — solo quando menuOpen */}
-        <div className="mobile-menu" style={{display: menuOpen ? "flex" : "none",flexDirection:"column",gap:4,padding:"12px 24px 20px",background:"#f4f3ff",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
+        <div className="mobile-menu" style={{display: menuOpen ? "flex" : "none",flexDirection:"column",gap:4,padding:"12px 24px 20px",background:"#f3f3f6",borderTop:"1px solid rgba(108,92,231,0.1)"}}>
           {/* Chi siamo e Prezzi — testo semplice */}
           <button onClick={()=>{setChiSiamoOpen(true);setMenuOpen(false);}}
             style={{background:"none",border:"none",cursor:"pointer",textAlign:"left",padding:"14px 4px",fontSize:16,fontWeight:500,color:"#13112a",width:"100%"}}>
@@ -1091,7 +1091,7 @@ export default function Home(){
 
       {/* ── Sezione Desktop Mockup ── */}
       <GradDivider/>
-      <section className="sec-pad desktop-section" style={{padding:"80px 56px 80px 0px",background:"#f4f3ff",overflow:"hidden"}}>
+      <section className="sec-pad desktop-section" style={{padding:"80px 56px 80px 0px",background:"#f3f3f6",overflow:"hidden"}}>
         <FadeIn>
           <div className="desktop-row" style={{display:"flex",alignItems:"center",gap:32,maxWidth:1400,margin:"0 auto"}}>
             <div className="desktop-text" style={{flex:1,maxWidth:"none"}}>
@@ -1427,7 +1427,7 @@ export default function Home(){
 
       {/* ── Sezione Prezzo ── */}
       <GradDivider/>
-      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff",textAlign:"center"}}>
+      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
@@ -1523,7 +1523,7 @@ export default function Home(){
       </section>
 
       {/* ── Sezione FAQ ── */}
-      <section className="sec-pad" style={{padding:"80px 56px",background:"#f4f3ff"}}>
+      <section className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
         <FadeIn>
           <div style={{textAlign:"center",marginBottom:48}}>
             <span style={{fontSize:15,fontWeight:700,color:"#6c5ce7",letterSpacing:1,textTransform:"uppercase"}}>Domande frequenti</span>
