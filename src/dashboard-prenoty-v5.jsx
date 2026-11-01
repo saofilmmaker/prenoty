@@ -365,6 +365,7 @@ export default function DashboardPrenoty() {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({
+              salone_id: salone.dbId,
               emailCliente: nuovoApp.email.trim(),
               emailTitolare: salone.email || null,
               nomeCliente: nuovoApp.nome.trim(),

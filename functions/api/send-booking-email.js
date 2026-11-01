@@ -9,16 +9,76 @@ const CORS = {
   "Access-Control-Allow-Headers": "Content-Type",
 };
 
+const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
+const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
+// Protegge il testo che finisce dentro la pagina dell'email (niente link o codice inseriti da altri)
+const esc = (v) => String(v ?? "").replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;").replace(/'/g, "&#39;");
+// Testo semplice per l'oggetto dell'email: niente a capo o caratteri di controllo
+const txt = (v) => String(v ?? "").replace(/[\u0000-\u001f]+/g, " ").trim().slice(0, 120);
+const risposta = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", ...CORS } });
+
 export async function onRequestPost(context) {
   const { request, env } = context;
+  let chiaveInvio = null;
   try {
-    const { emailCliente, emailTitolare, nomeCliente, telefonoCliente, nomeSalone, servizi, data, ora, staff, prezzo, slugSalone, metodoPagamento, iban, intestatario, codiceBonifico } = await request.json();
+    // La pagina indica SOLO quale prenotazione: tutto il resto viene letto dal database,
+    // l'email parte solo se la prenotazione esiste davvero ed è recente.
+    const body = await request.json();
+    const emailIn = String(body.emailCliente || "").trim();
+    const saloneId = String(body.salone_id || "");
+    const dataIn = String(body.data || "");
+    const oraIn = String(body.ora || "").slice(0, 5);
 
-    if (!emailCliente) {
-      return new Response(JSON.stringify({ error: "emailCliente obbligatoria" }), {
-        status: 400, headers: { "Content-Type": "application/json", ...CORS },
-      });
+    if (!EMAIL_RE.test(emailIn) || emailIn.length > 254) return risposta(400, { error: "emailCliente non valida" });
+    if (!UUID_RE.test(saloneId) || !/^\d{4}-\d{2}-\d{2}$/.test(dataIn) || !/^\d{2}:\d{2}$/.test(oraIn)) {
+      return risposta(400, { error: "Dati prenotazione non validi" });
     }
+
+    const sb = { "apikey": env.SUPABASE_SERVICE_KEY, "Authorization": `Bearer ${env.SUPABASE_SERVICE_KEY}` };
+    const da = new Date(Date.now() - 30 * 60 * 1000).toISOString();
+    const prenRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/prenotazioni?salone_id=eq.${saloneId}&email_cliente=eq.${encodeURIComponent(emailIn)}&data=eq.${dataIn}&ora=eq.${oraIn}&created_at=gte.${encodeURIComponent(da)}&order=created_at.desc&limit=1&select=*`,
+      { headers: sb }
+    );
+    if (!prenRes.ok) return risposta(500, { error: "Errore verifica prenotazione" });
+    const pren = (await prenRes.json())?.[0];
+    if (!pren) return risposta(403, { error: "Prenotazione non trovata" });
+
+    // Una sola conferma per prenotazione (evita ripetizioni)
+    if (env.RATE_LIMIT_KV) {
+      chiaveInvio = `mail-conf:${pren.id}`;
+      if (await env.RATE_LIMIT_KV.get(chiaveInvio)) return risposta(200, { ok: true, giaInviata: true });
+      await env.RATE_LIMIT_KV.put(chiaveInvio, "1", { expirationTtl: 900 });
+    }
+
+    const salRes = await fetch(
+      `${env.SUPABASE_URL}/rest/v1/saloni?id=eq.${saloneId}&select=nome,slug,email,staff,metodi_pagamento`,
+      { headers: sb }
+    );
+    const sal = salRes.ok ? (await salRes.json())?.[0] : null;
+    if (!sal) return risposta(500, { error: "Salone non trovato" });
+    const mp = sal.metodi_pagamento || {};
+    const bonifico = pren.metodo_pagamento === "bonifico";
+
+    // Dati per l'email: dal database, con il testo protetto
+    const emailCliente = pren.email_cliente;
+    const emailTitolare = sal.email && EMAIL_RE.test(sal.email) ? sal.email : null;
+    const nomeCliente = esc(pren.nome_cliente);
+    const telefonoCliente = esc(pren.telefono_cliente);
+    const nomeSalone = esc(sal.nome);
+    const nomeSaloneTxt = txt(sal.nome);
+    const nomeClienteTxt = txt(pren.nome_cliente);
+    const servizi = esc(pren.nomi_servizi);
+    const data = dataIn;
+    const ora = oraIn;
+    const staffTrovato = (sal.staff || []).find((x) => x.id === pren.staff_id);
+    const staff = staffTrovato ? esc(staffTrovato.nome) : null;
+    const prezzo = Number(pren.prezzo) || 0;
+    const slugSalone = sal.slug ? encodeURIComponent(sal.slug) : "";
+    const metodoPagamento = pren.metodo_pagamento;
+    const iban = bonifico ? esc(mp.iban) : "";
+    const intestatario = bonifico ? esc(mp.intestatario) : "";
+    const codiceBonifico = bonifico ? esc(pren.codice_bonifico) : "";
 
     // Formatta data leggibile
     const dataObj = new Date(data + "T00:00:00");
@@ -177,7 +237,7 @@ export async function onRequestPost(context) {
       body: JSON.stringify({
         from: "Prenoty <noreply@prenoty.com>",
         to: [emailCliente],
-        subject: `✓ Appuntamento confermato — ${nomeSalone} · ${ora} del ${dataCapitalized}`,
+        subject: `✓ Appuntamento confermato — ${nomeSaloneTxt} · ${ora} del ${dataCapitalized}`,
         html,
       }),
     });
@@ -185,6 +245,7 @@ export async function onRequestPost(context) {
     if (!resendRes.ok) {
       const err = await resendRes.text();
       console.error("Resend error:", err);
+      if (chiaveInvio) await env.RATE_LIMIT_KV.delete(chiaveInvio);
       return new Response(JSON.stringify({ error: err }), {
         status: 500, headers: { "Content-Type": "application/json", ...CORS },
       });
@@ -303,7 +364,7 @@ export async function onRequestPost(context) {
         body: JSON.stringify({
           from: "Prenoty <noreply@prenoty.com>",
           to: [emailTitolare],
-          subject: `🔔 Nuova prenotazione — ${nomeCliente} · ${ora} del ${dataCapitalized}`,
+          subject: `🔔 Nuova prenotazione — ${nomeClienteTxt} · ${ora} del ${dataCapitalized}`,
           html: htmlTitolare,
         }),
       });

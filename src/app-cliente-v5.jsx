@@ -578,6 +578,7 @@ export default function AppCliente() {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
+            salone_id: salone.id,
             emailCliente: email,
             emailTitolare: salone.email || null,
             nomeCliente: nome,
