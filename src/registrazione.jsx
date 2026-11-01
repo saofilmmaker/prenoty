@@ -71,8 +71,8 @@ export default function Registrazione() {
       <style>{`
         .reg-wrap{display:flex;align-items:center;gap:56px;max-width:820px;width:100%}
         .reg-benefit{flex:1;display:flex;flex-direction:column;gap:28px}
-        .reg-form{width:340px;flex-shrink:0;background:#f4f3ff;padding:40px;border-radius:20px;border:0.5px solid #e0dcff}
-        .reg-input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
+        .reg-form{width:340px;flex-shrink:0;background:#f3f3f6;padding:40px;border-radius:16px;border:1px solid #e0dcff;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+        .reg-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
         .reg-input::placeholder{color:#9b96c8}
         .reg-input:-webkit-autofill,.reg-input:-webkit-autofill:hover,.reg-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 30px #fff inset!important;-webkit-text-fill-color:#1e1b3a!important;border:1px solid #e0dcff!important}
         @media(max-width:720px){
@@ -126,7 +126,7 @@ export default function Registrazione() {
                 </div>
                 <h3 style={{ color:"#4a3cb5", fontWeight:700, marginBottom:8 }}>Benvenuto!</h3>
                 <p style={{ color:"#9b96c8", fontSize:13, marginBottom:20 }}>Account creato. Accedi per personalizzare {tipoAttivita === "generico" ? "la tua attività" : "il tuo salone"}.</p>
-                <a href="/login" style={{ display:"block", background:"#6c5ce7", color:"#fff", padding:"12px", borderRadius:10, textDecoration:"none", fontWeight:600, fontSize:14 }}>Vai alla dashboard →</a>
+                <a href="/login" style={{ display:"block", background:"#6c5ce7", color:"#fff", padding:"12px", borderRadius:999, textDecoration:"none", fontWeight:600, fontSize:14 }}>Vai alla dashboard →</a>
               </div>
             ) : (
               <>
@@ -144,9 +144,9 @@ export default function Registrazione() {
                           style={{
                             display:"flex", alignItems:"center", gap:7,
                             padding:"9px 12px",
-                            borderRadius:8,
+                            borderRadius:12,
                             border: attivo ? "2px solid #6c5ce7" : "1px solid #e0dcff",
-                            background: attivo ? "rgba(108,92,231,0.08)" : "#fff",
+                            background: attivo ? "rgba(108,92,231,0.12)" : "#fff",
                             color: attivo ? "#4a3cb5" : "#9b96c8",
                             fontWeight: attivo ? 700 : 500,
                             fontSize:13,
@@ -220,7 +220,7 @@ export default function Registrazione() {
                 </div>
                 {errore && <div style={{ background:"rgba(231,76,60,0.08)", color:"#e74c3c", padding:"10px 14px", borderRadius:8, fontSize:13, marginBottom:14 }}>{errore}</div>}
                 <button onClick={handleRegistrazione} disabled={loading}
-                  style={{ width:"100%", padding:"12px", background:"#6c5ce7", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:"pointer", marginBottom:14 }}>
+                  style={{ width:"100%", padding:"12px", background:"#6c5ce7", color:"#fff", border:"none", borderRadius:999, fontSize:14, fontWeight:600, cursor:"pointer", marginBottom:14 }}>
                   {loading ? "Creazione account..." : "Registrati gratis"}
                 </button>
                 <p style={{ textAlign:"center", fontSize:12, color:"#9b96c8" }}>

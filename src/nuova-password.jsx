@@ -44,7 +44,7 @@ export default function NuovaPassword() {
   return (
     <div style={{ minHeight: "100vh", backgroundColor: "#1a1730" }}>
       <style>{`
-        .np-input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
+        .np-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
         .np-input::placeholder{color:#9b96c8}
       `}</style>
 
@@ -57,7 +57,7 @@ export default function NuovaPassword() {
 
       {/* CONTENUTO */}
       <div style={{ display: "flex", alignItems: "center", justifyContent: "center", padding: "0 24px 48px", minHeight: "calc(100vh - 78px)" }}>
-        <div style={{ width: 340, background: "#f4f3ff", padding: 40, borderRadius: 20, border: "0.5px solid #e0dcff" }}>
+        <div style={{ width: 340, background: "#f3f3f6", padding: 40, borderRadius: 16, border: "1px solid #e0dcff", boxShadow: "0 12px 30px rgba(0,0,0,.35)" }}>
           <img src="/Prenoty_Viola.png" alt="Prenoty" style={{ height: 28, objectFit: "contain", display: "block", margin: "0 auto 20px" }} />
 
           {linkScaduto ? (
@@ -74,7 +74,7 @@ export default function NuovaPassword() {
               <p style={{ color: "#9b96c8", fontSize: 13, lineHeight: 1.6, marginBottom: 24 }}>
                 Il link per reimpostare la password è scaduto o già usato.<br />Richiedine uno nuovo.
               </p>
-              <a href="/recupera-password" style={{ display: "block", background: "#6c5ce7", color: "#fff", padding: "12px", borderRadius: 10, textDecoration: "none", fontWeight: 600, fontSize: 14, textAlign: "center" }}>
+              <a href="/recupera-password" style={{ display: "block", background: "#6c5ce7", color: "#fff", padding: "12px", borderRadius: 999, textDecoration: "none", fontWeight: 600, fontSize: 14, textAlign: "center" }}>
                 Richiedi nuovo link
               </a>
             </div>
@@ -133,7 +133,7 @@ export default function NuovaPassword() {
               <button
                 onClick={handleSalva}
                 disabled={loading}
-                style={{ width: "100%", padding: "12px", background: "#6c5ce7", color: "#fff", border: "none", borderRadius: 10, fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}
+                style={{ width: "100%", padding: "12px", background: "#6c5ce7", color: "#fff", border: "none", borderRadius: 999, fontSize: 14, fontWeight: 600, cursor: "pointer", marginBottom: 14 }}
               >
                 {loading ? "Salvataggio..." : "Salva nuova password"}
               </button>
