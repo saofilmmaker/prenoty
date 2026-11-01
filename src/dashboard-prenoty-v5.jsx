@@ -1885,7 +1885,8 @@ useEffect(() => {
                     style={{
                       background: T.card,
                       border: `1px solid ${T.border}`,
-                      boxShadow: "0 8px 24px rgba(0,0,0,0.15)",
+                      borderRadius: 16,
+                      boxShadow: "0 8px 28px rgba(60,50,140,.2)",
                       zIndex: 51,
                     }}
                   >
@@ -1902,9 +1903,9 @@ useEffect(() => {
                         {listaNotifiche.map((n, i) => {
                           const Icona = n.icon;
                           const isPren = n.tipo === "prenotazione";
-                          const colore  = isPren ? "#6c5ce7" : "#5de279";
-                          const coloreSoft = isPren ? "rgba(108,92,231,0.12)" : "rgba(93,226,121,0.12)";
-                          const coloreBordo = isPren ? "rgba(108,92,231,0.3)" : "rgba(93,226,121,0.3)";
+                          const colore  = isPren ? "#6c5ce7" : "#00b894";
+                          const coloreSoft = isPren ? "rgba(108,92,231,0.12)" : "rgba(0,184,148,0.12)";
+                          const coloreBordo = isPren ? "rgba(108,92,231,0.3)" : "rgba(0,184,148,0.3)";
                           return (
                             <button
                               key={i}
@@ -1917,7 +1918,7 @@ useEffect(() => {
                               }}
                             >
                               <div className="flex items-start gap-3">
-                                <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+                                <div className="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
                                   style={{ backgroundColor: coloreSoft, border: `1px solid ${coloreBordo}` }}>
                                   <Icona className="w-4 h-4" style={{ color: colore }} />
                                 </div>
