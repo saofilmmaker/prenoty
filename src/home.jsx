@@ -77,7 +77,7 @@ function FeatTyped({text,run,onDone}){
   return <>{text.slice(0,n)}<span className="fc-caret"/></>;
 }
 
-function FeatCarousel(){
+function FeatCarousel({stacked=false}){
   const[inRef,inView]=useInView(0.05);
   const[rowRef,rowOn]=useInView(0.6);
   const rail=useRef(null);
@@ -88,7 +88,25 @@ function FeatCarousel(){
   const go=d=>rail.current&&rail.current.scrollBy({left:d*286,behavior:"smooth"});
   const[played,setPlayed]=useState([false,false,false,false,false]);
   const[urlDone,setUrlDone]=useState(false);
+  const[seen,setSeen]=useState([false,false,false,false,false]);
   useEffect(()=>{
+    if(stacked){
+      const scope=inRef.current;if(!scope)return;
+      const els=[...scope.querySelectorAll("[data-fc]")];
+      const check=()=>{
+        const vh=window.innerHeight;
+        els.forEach((el,i)=>{
+          const r=el.getBoundingClientRect();
+          const vis=Math.min(r.bottom,vh)-Math.max(r.top,0);
+          if(vis>r.height*0.15)setSeen(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+          if(vis>Math.min(r.height*0.5,vh*0.4))setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+        });
+      };
+      check();
+      window.addEventListener("scroll",check,{passive:true});
+      window.addEventListener("resize",check);
+      return()=>{window.removeEventListener("scroll",check);window.removeEventListener("resize",check);};
+    }
     if(!rowOn)return;
     const root=rail.current;if(!root)return;
     const io=new IntersectionObserver(es=>es.forEach(e=>{
@@ -100,7 +118,7 @@ function FeatCarousel(){
     }),{root,threshold:0.7});
     root.querySelectorAll("[data-fc]").forEach(el=>io.observe(el));
     return()=>io.disconnect();
-  },[rowOn]);
+  },[rowOn,stacked]);
   const row={background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
   const ok={fontSize:11,fontWeight:600,color:"#00805f",background:"rgba(0,184,148,0.14)",borderRadius:99,padding:"2px 8px"};
   const cards=[
@@ -120,6 +138,32 @@ function FeatCarousel(){
      ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
      v:on=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(0.4+k*0.5)+"s"}}/></div>))}</>)},
   ];
+  if(stacked){
+    return(
+      <div ref={inRef} style={{maxWidth:520,margin:"0 auto"}}>
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          {cards.map(({n,t,d,bg,c,ic,v},i)=>(
+            <div key={n} data-fc={i} style={{opacity:seen[i]?1:0,transform:seen[i]?"translateY(0)":"translateY(50px)",transition:"opacity .5s ease, transform .5s ease"}}>
+              <div className="fc-card" style={{background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
+                <span style={{fontFamily:"ui-monospace,Menlo,monospace",fontSize:12,fontWeight:700,color:"#6c5ce7"}}>{n}</span>
+                <div className="fc-ic" style={{background:bg,borderRadius:14,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",margin:"14px 0 16px"}}>
+                  <Ico d={ic} size={22} color={c}/>
+                </div>
+                <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
+                <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
+                <div style={{marginTop:18}}>{v(played[i])}</div>
+              </div>
+            </div>
+          ))}
+        </div>
+        <div style={{marginTop:20,background:"#6c5ce7",borderRadius:16,padding:"18px 20px",display:"flex",flexDirection:"column",alignItems:"center",gap:12,textAlign:"center",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
+          <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:26,width:"auto"}}/>
+          <span style={{fontSize:15,fontWeight:600,color:"rgba(255,255,255,0.95)"}}>Semplice, veloce, senza commissioni.</span>
+          <a href="/registrazione" style={{background:"#fff",color:"#6c5ce7",borderRadius:99,padding:"10px 22px",fontSize:14,fontWeight:700,textDecoration:"none",whiteSpace:"nowrap"}}>Inizia gratis</a>
+        </div>
+      </div>
+    );
+  }
   return(
     <div ref={inRef} style={{maxWidth:1000,margin:"0 auto"}}>
       <div ref={rowRef} style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
@@ -1262,218 +1306,7 @@ export default function Home(){
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:48,lineHeight:1.15,textAlign:"center"}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
         </FadeIn>
         {!isMobile && <FeatCarousel/>}
-        {isMobile && <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,maxWidth:1000,margin:"0 auto",gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
-
-          {/* Prenotazioni 24/7 — card principale con mini lista */}
-          <FadeIn delay={0} style={{gridArea:"preno",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#fff",borderRadius:16,padding:"28px",height:"100%",boxSizing:"border-box"}}>
-                <span style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:11,fontWeight:600,color:"#00b894",background:"rgba(0,184,148,0.1)",borderRadius:20,padding:"4px 12px",marginBottom:22}}>
-                  <span style={{width:6,height:6,borderRadius:"50%",background:"#00b894",flexShrink:0,display:"inline-block"}}/>Funziona mentre dormi
-                </span>
-                <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:22}}>
-                  <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",flexShrink:0}}>
-                    <Ico d={<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>} size={22}/>
-                  </div>
-                  <div>
-                    <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",marginBottom:5}}>Prenotazioni 24/7</h3>
-                    <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:0}}>I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.</p>
-                  </div>
-                </div>
-                <div style={{display:"flex",flexDirection:"column",gap:8}}>
-                  {[
-                    {dot:"#00b894",name:"Valentina R.",serv:"Taglio",time:"Oggi 09:00",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
-                    {dot:"#00b894",name:"Marco B.",serv:"Barba",time:"Domani 11:30",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
-                    {dot:"#00b894",name:"Sara E.",serv:"Colore",time:"Ven 14:00",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
-                  ].map(({dot,name,serv,time,badge,bc,tc})=>(
-                    <div key={name} className="feat-booking-row" style={{background:"#f3f3f6",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:10,overflow:"hidden"}}>
-                      <span style={{width:7,height:7,borderRadius:"50%",background:dot,flexShrink:0,display:"inline-block"}}/>
-                      <span style={{flex:1,fontSize:13,fontWeight:500,color:"#1e1b3a",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{name} <span style={{color:"#7a748a",fontWeight:400}}>— {serv}</span></span>
-                      <span className="booking-time" style={{fontSize:11,color:"#7a748a",marginRight:6,whiteSpace:"nowrap",flexShrink:0}}>{time}</span>
-                      <span className="booking-badge" style={{fontSize:11,fontWeight:600,color:tc,background:bc,borderRadius:6,padding:"3px 8px",whiteSpace:"nowrap",flexShrink:0}}>{badge}</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Dashboard in tempo reale — con stats */}
-          <FadeIn delay={0.07} style={{gridArea:"dash",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>} size={20}/>
-                </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Dashboard in tempo reale</h3>
-                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 20px"}}>Vedi chi arriva, a che ora e quanto incassi oggi.</p>
-                <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
-                  {[{v:"7",l:"Oggi"},{v:"€135",l:"Incasso"}].map(({v,l})=>(
-                    <div key={l} style={{background:"#f3f3f6",borderRadius:10,padding:"12px",textAlign:"center"}}>
-                      <div style={{fontSize:22,fontWeight:800,color:"#13112a",letterSpacing:-0.5}}>{v}</div>
-                      <div style={{fontSize:11,color:"#7a748a",marginTop:3}}>{l}</div>
-                    </div>
-                  ))}
-                </div>
-                <div style={{background:"rgba(0,184,148,0.07)",border:"1px solid rgba(0,184,148,0.18)",borderRadius:10,padding:"12px",textAlign:"center"}}>
-                  <div style={{fontSize:20,fontWeight:800,color:"#00b894",letterSpacing:-0.5}}>€225</div>
-                  <div style={{fontSize:11,color:"#7a748a",marginTop:3}}>Questo mese</div>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Il tuo link unico — con URL preview */}
-          <FadeIn delay={0.14} style={{gridArea:"link",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>} size={20}/>
-                </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Il tuo link unico</h3>
-                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 16px"}}>Ogni attività ha la sua pagina personale. Condividila sui social o in bio.</p>
-                <div style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.22)",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#6c5ce7",marginBottom:10,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>prenoty.com/sao-salone</div>
-                <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
-                  {["Instagram","WhatsApp","Bio"].map(c=>(
-                    <span key={c} style={{fontSize:11,fontWeight:500,color:"#7a748a",background:"#f3f3f6",border:"1px solid #e0dcff",borderRadius:6,padding:"4px 10px"}}>{c}</span>
-                  ))}
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Promemoria automatici — con mini notifiche dark */}
-          <FadeIn delay={0.21} style={{gridArea:"prom",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(0,184,148,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} size={20} color="#00b894"/>
-                </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Promemoria automatici</h3>
-                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 18px"}}>I clienti ricevono email automatiche. Zero no-show, zero dimentichi.</p>
-                {/* Notifica 1: Conferma */}
-                <div style={{borderRadius:12,overflow:"hidden",marginBottom:10,background:"#f3f3f6",border:"1px solid #e0dcff"}}>
-                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e0dcff"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <div style={{width:26,height:26,borderRadius:"50%",background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <span style={{fontSize:12,fontWeight:800,color:"#13112a"}}>P</span>
-                      </div>
-                      <span style={{fontWeight:700,color:"#13112a",fontSize:13}}>Prenoty</span>
-                    </div>
-                    <span style={{fontSize:11,fontWeight:600,color:"#00b894",background:"rgba(0,184,148,0.1)",border:"1px solid rgba(0,184,148,0.28)",borderRadius:20,padding:"3px 10px"}}>✓ Confermato</span>
-                  </div>
-                  <div style={{padding:"12px 14px"}}>
-                    <p style={{fontSize:13,fontWeight:700,color:"#13112a",margin:"0 0 10px"}}>Appuntamento confermato!</p>
-                    {[["Salone","Sao Salone"],["Servizio","Taglio + Barba"],["Quando","Sab 16 maggio"],["Ora","09:00",true]].map(([l,v,purple])=>(
-                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid #e0dcff",alignItems:"center"}}>
-                        <span style={{fontSize:11,color:"#7a748a",width:52,flexShrink:0}}>{l}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#1e1b3a"}}>{v}</span>
-                      </div>
-                    ))}
-                    <div style={{marginTop:10,background:"rgba(0,184,148,0.08)",border:"1px solid rgba(0,184,148,0.22)",borderRadius:8,padding:"6px 12px",display:"inline-flex",alignItems:"center",gap:6}}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00b894" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                      <span style={{fontSize:11,color:"#00b894",fontWeight:500}}>Riceverai un promemoria 24h prima</span>
-                    </div>
-                  </div>
-                </div>
-                {/* Notifica 2: Promemoria */}
-                <div style={{borderRadius:12,overflow:"hidden",background:"#f3f3f6",border:"1px solid #e0dcff"}}>
-                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e0dcff"}}>
-                    <div style={{display:"flex",alignItems:"center",gap:8}}>
-                      <div style={{width:26,height:26,borderRadius:"50%",background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <span style={{fontSize:12,fontWeight:800,color:"#13112a"}}>P</span>
-                      </div>
-                      <span style={{fontWeight:700,color:"#13112a",fontSize:13}}>Prenoty</span>
-                    </div>
-                    <span style={{fontSize:11,fontWeight:600,color:"#6c5ce7",background:"rgba(108,92,231,0.15)",border:"1px solid rgba(108,92,231,0.3)",borderRadius:20,padding:"3px 10px"}}>Promemoria</span>
-                  </div>
-                  <div style={{padding:"12px 14px"}}>
-                    <p style={{fontSize:13,fontWeight:700,color:"#13112a",margin:"0 0 10px"}}>Il tuo appuntamento è domani!</p>
-                    {[["Salone","Sao Salone"],["Ora","09:00",true]].map(([l,v,purple])=>(
-                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid #e0dcff",alignItems:"center"}}>
-                        <span style={{fontSize:11,color:"#7a748a",width:52,flexShrink:0}}>{l}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#1e1b3a"}}>{v}</span>
-                      </div>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Personalizza tutto */}
-          <FadeIn delay={0.28} style={{gridArea:"pers",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(108,92,231,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>} size={20} color="#6c5ce7"/>
-                </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Personalizza tutto</h3>
-                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 18px"}}>Servizi, durata, prezzi, orari. Configuri tutto in pochi minuti.</p>
-                <div style={{background:"#f3f3f6",border:"1px solid #e0dcff",borderRadius:12,overflow:"hidden"}}>
-                  {[
-                    {l:"Servizio", v:"Taglio + Piega", style:{color:"#6c5ce7",fontWeight:700}},
-                    {l:"Durata",   v:"60 min",         style:{color:"#1e1b3a",fontWeight:700}},
-                    {l:"Prezzo",   v:"€45",            style:{color:"#00b894",fontWeight:700}},
-                  ].map(({l,v,style:vs},i,arr)=>(
-                    <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid #e0dcff":"none"}}>
-                      <span style={{fontSize:12,color:"#7a748a"}}>{l}</span>
-                      <span style={{fontSize:13,...vs}}>{v}</span>
-                    </div>
-                  ))}
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderTop:"1px solid #e0dcff"}}>
-                    <span style={{fontSize:12,color:"#7a748a"}}>Disponibilità</span>
-                    <span style={{fontSize:12,fontWeight:600,color:"#1e1b3a",background:"rgba(108,92,231,0.12)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:20,padding:"3px 12px"}}>Lun – Sab</span>
-                  </div>
-                </div>
-                {/* Toggles notifiche */}
-                <div style={{marginTop:16}}>
-                  {[
-                    {icon:<><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-8.97 5.7a1.94 1.94 0 0 1-2.06 0L2 7"/></>,    label:"Email cancellazione"},
-                    {icon:<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,                                         label:"Promemoria 24h"},
-                    {icon:<><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></>,            label:"Nuova prenotazione"},
-                  ].map(({icon,label},i)=>(
-                    <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<2?"1px solid #e0dcff":"none"}}>
-                      <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        <Ico d={icon} size={14} color="#6c5ce7"/>
-                        <span style={{fontSize:12,color:"#7a748a"}}>{label}</span>
-                      </div>
-                      <div style={{width:32,height:17,borderRadius:9,background:"rgba(0,184,148,0.2)",border:"1px solid rgba(0,184,148,0.35)",display:"flex",alignItems:"center",justifyContent:"flex-end",padding:"0 2px",boxSizing:"border-box"}}>
-                        <div style={{width:12,height:12,borderRadius:"50%",background:"#00b894"}}/>
-                      </div>
-                    </div>
-                  ))}
-                  <p className="feat-molto-altro">e molto altro...</p>
-                </div>
-              </div>
-            </div>
-          </FadeIn>
-
-          {/* Primo mese gratis — card viola hero */}
-          <FadeIn delay={0.35} style={{gridArea:"primo",height:"100%"}}>
-            <div style={{borderRadius:17,padding:0,background:"transparent",boxShadow:"0 10px 22px rgba(108,92,231,0.28)",height:"100%",boxSizing:"border-box"}}>
-            <div style={{borderRadius:16,background:"#6c5ce7",height:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 32px",textAlign:"center"}}>
-              {/* logo */}
-              <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{width:280,height:"auto",marginBottom:22}}/>
-              {/* tagline */}
-              <p style={{fontSize:26,fontWeight:700,color:"rgba(255,255,255,0.95)",margin:"0 0 28px",lineHeight:1.3}}>Semplice, veloce, senza commissioni.</p>
-              {/* icona + testo */}
-              <div style={{marginBottom:16}}>
-                <div style={{background:"rgba(93,226,121,0.2)",border:"1px solid rgba(93,226,121,0.35)",borderRadius:14,padding:"12px",display:"inline-flex",marginBottom:10}}>
-                  <Ico d={<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>} size={24} color="#5de279"/>
-                </div>
-                <p style={{fontSize:15,fontWeight:700,color:"#5de279",margin:"0 0 4px"}}>Primo mese gratis</p>
-                <p style={{fontSize:13,color:"rgba(255,255,255,0.72)",margin:"0 0 20px",lineHeight:1.5}}>Nessuna carta richiesta.<br/>Provi, e solo se ti piace decidi di continuare.</p>
-              </div>
-              <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
-                <span className="btn-glass-lens"/>
-                <span className="btn-glass-text">Inizia gratis</span>
-              </a>
-            </div>
-            </div>
-          </FadeIn>
-
-        </div>}
+        {isMobile && <FeatCarousel stacked/>}
       </section>
 
       <section id="come-funziona" style={{padding:"100px 56px",background:"#13112a",overflow:"hidden",position:"relative"}}>
