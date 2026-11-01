@@ -135,6 +135,34 @@ export async function onRequestPost(context) {
       console.error("Errore inserimento prenotazione:", await ins.text());
       return risposta(500, { error: "Errore salvataggio prenotazione" });
     }
+
+    // 5) Scheda cliente in anagrafica (se qualcosa va storto la prenotazione resta valida)
+    try {
+      const telGrezzo = pulisci(b.telefono_grezzo, 30);
+      const candidati = [...new Set([telefono, telGrezzo].filter((v) => v && /^[0-9+()\-\s.]+$/.test(v)))];
+      const lista = candidati.map((v) => `"${v}"`).join(",");
+      const cRes = await fetch(
+        `${env.SUPABASE_URL}/rest/v1/clienti?salone_id=eq.${saloneId}&telefono=in.(${encodeURIComponent(lista)})&select=id,visite&limit=1`,
+        { headers: sb }
+      );
+      const esistente = cRes.ok ? (await cRes.json())?.[0] : null;
+      if (esistente) {
+        await fetch(`${env.SUPABASE_URL}/rest/v1/clienti?id=eq.${esistente.id}`, {
+          method: "PATCH",
+          headers: { ...sb, "Content-Type": "application/json", "Prefer": "return=minimal" },
+          body: JSON.stringify({ visite: (esistente.visite || 0) + 1, ultima_visita: data, nome, ...(email ? { email } : {}) }),
+        });
+      } else if (cRes.ok) {
+        await fetch(`${env.SUPABASE_URL}/rest/v1/clienti`, {
+          method: "POST",
+          headers: { ...sb, "Content-Type": "application/json", "Prefer": "return=minimal" },
+          body: JSON.stringify({ salone_id: saloneId, nome, telefono, email, visite: 1, ultima_visita: data }),
+        });
+      }
+    } catch (e) {
+      console.error("Errore scheda cliente:", e.message);
+    }
+
     return risposta(200, { ok: true });
   } catch (err) {
     return risposta(500, { error: err.message });

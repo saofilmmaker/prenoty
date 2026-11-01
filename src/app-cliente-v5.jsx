@@ -582,16 +582,19 @@ export default function AppCliente() {
       codice_bonifico: paga === "bonifico" ? codiceBonifico : null,
     };
     let error = null;
+    let viaFunzione = false; // se vero, anche la scheda cliente è già stata aggiornata dal server
     try {
       const rPren = await fetch("/api/prenota", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...corpoPrenotazione, servizi_ids: serviziScelti.map(x => x.id) }),
+        body: JSON.stringify({ ...corpoPrenotazione, servizi_ids: serviziScelti.map(x => x.id), telefono_grezzo: telefono }),
       });
       if (rPren.status >= 500) throw new Error("server");
       if (!rPren.ok) {
         const j = await rPren.json().catch(() => ({}));
         error = { message: j.error || "Prenotazione non riuscita", mostra: true };
+      } else {
+        viaFunzione = true;
       }
     } catch (_) {
       ({ error } = await supabase.from("prenotazioni").insert(corpoPrenotazione));
@@ -624,29 +627,31 @@ export default function AppCliente() {
         }).catch(() => {}); // ignora errori email, la prenotazione è già salvata
       }
 
-      // Salva/aggiorna cliente in anagrafica automaticamente
-      const { data: esistente } = await supabase
-        .from("clienti")
-        .select("id, visite")
-        .eq("salone_id", salone.id)
-        .eq("telefono", telefono)
-        .single();
-      if (esistente) {
-        await supabase.from("clienti").update({
-          visite: (esistente.visite || 0) + 1,
-          ultima_visita: dataStr,
-          nome: nome,
-          email: email || undefined,
-        }).eq("id", esistente.id);
-      } else {
-        await supabase.from("clienti").insert({
-          salone_id: salone.id,
-          nome,
-          telefono,
-          email: email || null,
-          visite: 1,
-          ultima_visita: dataStr,
-        });
+      // Salva/aggiorna cliente in anagrafica: lo fa già il server; qui resta solo la strada di prima, se la funzione non ha risposto
+      if (!viaFunzione) {
+        const { data: esistente } = await supabase
+          .from("clienti")
+          .select("id, visite")
+          .eq("salone_id", salone.id)
+          .eq("telefono", telefono)
+          .single();
+        if (esistente) {
+          await supabase.from("clienti").update({
+            visite: (esistente.visite || 0) + 1,
+            ultima_visita: dataStr,
+            nome: nome,
+            email: email || undefined,
+          }).eq("id", esistente.id);
+        } else {
+          await supabase.from("clienti").insert({
+            salone_id: salone.id,
+            nome,
+            telefono,
+            email: email || null,
+            visite: 1,
+            ultima_visita: dataStr,
+          });
+        }
       }
       setStep(7);
     } else {
