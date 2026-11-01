@@ -37,8 +37,10 @@ export async function onRequestPost(context) {
     if (!UUID_RE.test(saloneId) || ids.length === 0 || ids.length > 20 || !ids.every((i) => UUID_RE.test(i))) {
       return risposta(400, { error: "Dati prenotazione non validi" });
     }
-    if (!nome || telefono.length < 3 || !/^[0-9+()\-\s.]+$/.test(telefono)) {
-      return risposta(400, { error: "Nome e telefono obbligatori" });
+    if (!nome) return risposta(400, { error: "Inserisci il tuo nome." });
+    const cifre = telefono.replace(/\D/g, "");
+    if (!/^[0-9+()\-\s.]+$/.test(telefono) || cifre.length < 6 || cifre.length > 15) {
+      return risposta(400, { error: "Inserisci un numero di telefono valido (solo numeri)." });
     }
     if (email && !EMAIL_RE.test(email)) return risposta(400, { error: "Email non valida" });
     if (!/^\d{4}-\d{2}-\d{2}$/.test(data) || !/^\d{2}:\d{2}$/.test(ora)) return risposta(400, { error: "Data o ora non valide" });
