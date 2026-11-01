@@ -79,6 +79,7 @@ function FeatTyped({text,run,onDone}){
 
 function FeatCarousel(){
   const[inRef,inView]=useInView(0.05);
+  const[rowRef,rowOn]=useInView(0.6);
   const rail=useRef(null);
   const[canL,setCanL]=useState(false);
   const[canR,setCanR]=useState(true);
@@ -88,6 +89,7 @@ function FeatCarousel(){
   const[played,setPlayed]=useState([false,false,false,false,false]);
   const[urlDone,setUrlDone]=useState(false);
   useEffect(()=>{
+    if(!rowOn)return;
     const root=rail.current;if(!root)return;
     const io=new IntersectionObserver(es=>es.forEach(e=>{
       if(e.isIntersecting){
@@ -98,7 +100,7 @@ function FeatCarousel(){
     }),{root,threshold:0.7});
     root.querySelectorAll("[data-fc]").forEach(el=>io.observe(el));
     return()=>io.disconnect();
-  },[]);
+  },[rowOn]);
   const row={background:"#fff",borderRadius:8,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
   const ok={fontSize:11,fontWeight:600,color:"#00805f",background:"rgba(0,184,148,0.14)",borderRadius:99,padding:"2px 8px"};
   const cards=[
@@ -120,7 +122,7 @@ function FeatCarousel(){
   ];
   return(
     <div ref={inRef} style={{maxWidth:1000,margin:"0 auto"}}>
-      <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
+      <div ref={rowRef} style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
         <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
