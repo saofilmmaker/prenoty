@@ -5095,7 +5095,7 @@ useEffect(() => {
           <div
             onClick={(e) => e.stopPropagation()}
             className="w-full h-full md:h-auto md:max-w-md md:max-h-[90vh] md:rounded-2xl flex flex-col"
-            style={{ background: T.card, border: `1px solid ${T.border}`, color: T.text, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
+            style={{ background: T.card, border: `1px solid ${T.border}`, boxShadow: "0 8px 28px rgba(60,50,140,.2)", color: T.text, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
           >
             {/* Header — sempre visibile */}
             <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: T.border, background: T.card, paddingTop: "max(16px, env(safe-area-inset-top))" }}>
@@ -5116,7 +5116,7 @@ useEffect(() => {
                   value={nuovoApp.nome}
                   onChange={e => setNuovoApp({ ...nuovoApp, nome: e.target.value })}
                   placeholder="Es. Maria Bianchi"
-                  className="w-full p-3 rounded-xl outline-none"
+                  className="w-full p-3 rounded-lg outline-none"
                   style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
                 />
               </div>
@@ -5128,7 +5128,7 @@ useEffect(() => {
                   value={nuovoApp.tel}
                   onChange={e => setNuovoApp({ ...nuovoApp, tel: e.target.value })}
                   placeholder="Es. 333 123 4567"
-                  className="w-full p-3 rounded-xl outline-none"
+                  className="w-full p-3 rounded-lg outline-none"
                   style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
                 />
                 <div className="text-[11px] mt-1.5" style={{ color: T.textMuted }}>Serve per collegare l'appuntamento alla scheda cliente</div>
@@ -5141,14 +5141,14 @@ useEffect(() => {
                   value={nuovoApp.email}
                   onChange={e => setNuovoApp({ ...nuovoApp, email: e.target.value })}
                   placeholder="Facoltativo"
-                  className="w-full p-3 rounded-xl outline-none"
+                  className="w-full p-3 rounded-lg outline-none"
                   style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
                 />
               </div>
               {/* Servizi — selezione multipla */}
               <div className="mb-4">
                 <label className="block text-[11px] tracking-widest uppercase font-bold mb-2" style={{ color: T.textMuted }}>Servizi * <span style={{ textTransform: "none", letterSpacing: 0, fontWeight: 400 }}>(puoi sceglierne più di uno)</span></label>
-                <div className="rounded-xl overflow-hidden" style={{ border: `1px solid ${T.border}`, maxHeight: 200, overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
+                <div className="rounded-lg overflow-hidden" style={{ border: `1px solid ${T.border}`, maxHeight: 200, overflowY: "auto", WebkitOverflowScrolling: "touch", overscrollBehavior: "contain" }}>
                   {servizi.map(s => {
                     const sel = nuovoApp.serviziIds.includes(s.id);
                     return (
@@ -5190,7 +5190,7 @@ useEffect(() => {
                     type="date"
                     value={nuovoApp.data}
                     onChange={e => setNuovoApp({ ...nuovoApp, data: e.target.value, ora: "" })}
-                    className="w-full p-3 rounded-xl outline-none"
+                    className="w-full p-3 rounded-lg outline-none"
                     style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16, textAlign: "left", WebkitAppearance: "none", appearance: "none", minHeight: 48 }}
                   />
                 </div>
@@ -5200,7 +5200,7 @@ useEffect(() => {
                     const slots = getSlotsApp();
                     if (slots.length === 0) {
                       return (
-                        <div className="w-full p-3 rounded-xl text-sm flex items-center" style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.textMuted, minHeight: 48 }}>
+                        <div className="w-full p-3 rounded-lg text-sm flex items-center" style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.textMuted, minHeight: 48 }}>
                           Chiuso questo giorno
                         </div>
                       );
@@ -5209,7 +5209,7 @@ useEffect(() => {
                       <select
                         value={nuovoApp.ora}
                         onChange={e => setNuovoApp({ ...nuovoApp, ora: e.target.value })}
-                        className="w-full p-3 rounded-xl outline-none"
+                        className="w-full p-3 rounded-lg outline-none"
                         style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16, minHeight: 48 }}
                       >
                         <option value="">Scegli orario</option>
@@ -5230,7 +5230,7 @@ useEffect(() => {
                   <select
                     value={nuovoApp.staffId}
                     onChange={e => setNuovoApp({ ...nuovoApp, staffId: e.target.value })}
-                    className="w-full p-3 rounded-xl outline-none"
+                    className="w-full p-3 rounded-lg outline-none"
                     style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
                   >
                     <option value="">Chiunque</option>
@@ -5248,13 +5248,13 @@ useEffect(() => {
                   onChange={e => setNuovoApp({ ...nuovoApp, note: e.target.value })}
                   rows={2}
                   placeholder="Es. cliente abituale, preferenze..."
-                  className="w-full p-3 rounded-xl outline-none resize-none"
+                  className="w-full p-3 rounded-lg outline-none resize-none"
                   style={{ background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontSize: 16 }}
                 />
               </div>
 
               {erroreApp && (
-                <div className="text-xs p-3 rounded-xl mb-2" style={{ background: "#fee2e2", color: "#b91c1c" }}>{erroreApp}</div>
+                <div className="text-xs p-3 rounded-lg mb-2" style={{ background: "#fee2e2", color: "#b91c1c" }}>{erroreApp}</div>
               )}
             </div>
             </div>
@@ -5264,8 +5264,8 @@ useEffect(() => {
               <button
                 onClick={salvaAppManuale}
                 disabled={salvandoApp}
-                className="w-full py-4 rounded-xl font-bold tracking-widest"
-                style={{ background: T.accent, color: "#fff", letterSpacing: "0.08em", opacity: salvandoApp ? 0.7 : 1 }}
+                className="font-bold tracking-widest"
+                style={{ ...SALVA_PILLOLA, margin: "0 auto", minWidth: 220, background: T.accent, color: "#fff", letterSpacing: "0.08em", opacity: salvandoApp ? 0.7 : 1 }}
               >
                 {salvandoApp ? "SALVO..." : "SALVA APPUNTAMENTO"}
               </button>
