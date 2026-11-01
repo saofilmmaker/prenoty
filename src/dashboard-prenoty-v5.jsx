@@ -5095,7 +5095,7 @@ useEffect(() => {
           <div
             onClick={(e) => e.stopPropagation()}
             className="w-full h-full md:h-auto md:max-w-md md:max-h-[90vh] md:rounded-2xl flex flex-col"
-            style={{ background: T.card, border: `1px solid ${T.border}`, boxShadow: "0 8px 28px rgba(60,50,140,.2)", color: T.text, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
+            style={{ background: T.card, border: `1px solid ${T.border}`, boxShadow: "0 8px 28px rgba(60,50,140,.2)", overflow: "hidden", color: T.text, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif" }}
           >
             {/* Header — sempre visibile */}
             <div className="flex-shrink-0 flex items-center justify-between px-5 py-4 border-b" style={{ borderColor: T.border, background: T.card, paddingTop: "max(16px, env(safe-area-inset-top))" }}>
