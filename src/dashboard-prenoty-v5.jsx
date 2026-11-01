@@ -4841,7 +4841,7 @@ useEffect(() => {
       {/* MODAL DETTAGLIO */}
       {dettaglio && (
         <div className="fixed inset-0 bg-black/50 z-20 flex items-end md:items-center justify-center p-0 md:p-6">
-          <div className="w-full md:max-w-lg md:border md:rounded-2xl flex flex-col" style={{ backgroundColor: T.bg, borderColor: T.border, boxShadow: "0 8px 28px rgba(60,50,140,.2)", maxHeight: "92dvh", overflowY: "auto", WebkitOverflowScrolling: "touch" }} onClick={(e) => e.stopPropagation()}>
+          <div className="w-full md:max-w-lg md:border md:rounded-2xl flex flex-col" style={{ backgroundColor: tema === "chiaro" ? "#f3f3f6" : T.bg, borderColor: T.border, boxShadow: "0 8px 28px rgba(60,50,140,.2)", maxHeight: "92dvh", overflowY: "auto", WebkitOverflowScrolling: "touch" }} onClick={(e) => e.stopPropagation()}>
             <div className="p-6 border-b" style={{ backgroundColor: T.card, borderColor: T.border }}>
               <div className="flex items-start justify-between mb-4">
                 <div>
@@ -4856,7 +4856,7 @@ useEffect(() => {
               </div>
             </div>
 
-            <div className="p-6 space-y-4">
+            <div className="m-4 p-5 space-y-4" style={{ background: T.card, border: `1px solid ${tema === "chiaro" ? "#e6e4ef" : T.border}`, borderRadius: 12 }}>
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <div className="text-xs tracking-widest mb-1" style={{ color: T.textMuted }}>DATA</div>
