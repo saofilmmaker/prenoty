@@ -688,7 +688,7 @@ export default function Home(){
           .sec-pad{padding:56px 24px!important;}
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
-        .feat-molto-altro{font-size:16px;color:rgba(155,150,200,0.85);margin:10px 0 0;text-align:right;font-style:italic;}
+        .feat-molto-altro{font-size:16px;color:#7a748a;margin:10px 0 0;text-align:right;font-style:italic;}
         @media(max-width:600px){
           .feat-molto-altro{font-size:14px!important;}
           .feat-grid{grid-template-columns:minmax(0,1fr)!important;grid-template-areas:"preno" "dash" "link" "prom" "pers" "primo"!important;}
@@ -1118,39 +1118,39 @@ export default function Home(){
       </section>
 
       <GradDivider/>
-      <section id="perche-prenoty" className="sec-pad" style={{padding:"80px 56px",background:"#13112a"}}>
+      <section id="perche-prenoty" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Perché scegliere Prenoty?</p>
-          <h2 style={{fontSize:40,fontWeight:800,color:"#fff",letterSpacing:-1,marginBottom:48,lineHeight:1.15}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
+          <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:48,lineHeight:1.15}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
         </FadeIn>
-        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,gridTemplateAreas:'"preno preno link link dash dash" "prom prom primo primo pers pers"'}}>
+        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
 
           {/* Prenotazioni 24/7 — card principale con mini lista */}
           <FadeIn delay={0} style={{gridArea:"preno",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"28px",height:"100%",boxSizing:"border-box"}}>
-                <span style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:11,fontWeight:600,color:"#5de279",background:"rgba(93,226,121,0.1)",borderRadius:20,padding:"4px 12px",marginBottom:22}}>
-                  <span style={{width:6,height:6,borderRadius:"50%",background:"#5de279",flexShrink:0,display:"inline-block"}}/>Funziona mentre dormi
+            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
+              <div style={{background:"#fff",borderRadius:16,padding:"28px",height:"100%",boxSizing:"border-box"}}>
+                <span style={{display:"inline-flex",alignItems:"center",gap:6,fontSize:11,fontWeight:600,color:"#00b894",background:"rgba(0,184,148,0.1)",borderRadius:20,padding:"4px 12px",marginBottom:22}}>
+                  <span style={{width:6,height:6,borderRadius:"50%",background:"#00b894",flexShrink:0,display:"inline-block"}}/>Funziona mentre dormi
                 </span>
                 <div style={{display:"flex",alignItems:"flex-start",gap:14,marginBottom:22}}>
                   <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",flexShrink:0}}>
                     <Ico d={<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>} size={22}/>
                   </div>
                   <div>
-                    <h3 style={{fontSize:17,fontWeight:700,color:"#fff",marginBottom:5}}>Prenotazioni 24/7</h3>
-                    <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:0}}>I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.</p>
+                    <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",marginBottom:5}}>Prenotazioni 24/7</h3>
+                    <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:0}}>I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.</p>
                   </div>
                 </div>
                 <div style={{display:"flex",flexDirection:"column",gap:8}}>
                   {[
-                    {dot:"#5de279",name:"Valentina R.",serv:"Taglio",time:"Oggi 09:00",badge:"Confermata",bc:"rgba(93,226,121,0.12)",tc:"#5de279"},
-                    {dot:"#f59e0b",name:"Marco B.",serv:"Barba",time:"Domani 11:30",badge:"In attesa",bc:"rgba(245,158,11,0.12)",tc:"#f59e0b"},
-                    {dot:"#5de279",name:"Sara E.",serv:"Colore",time:"Ven 14:00",badge:"Confermata",bc:"rgba(93,226,121,0.12)",tc:"#5de279"},
+                    {dot:"#00b894",name:"Valentina R.",serv:"Taglio",time:"Oggi 09:00",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
+                    {dot:"#00b894",name:"Marco B.",serv:"Barba",time:"Domani 11:30",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
+                    {dot:"#00b894",name:"Sara E.",serv:"Colore",time:"Ven 14:00",badge:"Confermata",bc:"rgba(0,184,148,0.12)",tc:"#00b894"},
                   ].map(({dot,name,serv,time,badge,bc,tc})=>(
-                    <div key={name} className="feat-booking-row" style={{background:"rgba(255,255,255,0.04)",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:10,overflow:"hidden"}}>
+                    <div key={name} className="feat-booking-row" style={{background:"#f3f3f6",borderRadius:10,padding:"10px 14px",display:"flex",alignItems:"center",gap:10,overflow:"hidden"}}>
                       <span style={{width:7,height:7,borderRadius:"50%",background:dot,flexShrink:0,display:"inline-block"}}/>
-                      <span style={{flex:1,fontSize:13,fontWeight:500,color:"#e8e5ff",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{name} <span style={{color:"#9b96c8",fontWeight:400}}>— {serv}</span></span>
-                      <span className="booking-time" style={{fontSize:11,color:"#9b96c8",marginRight:6,whiteSpace:"nowrap",flexShrink:0}}>{time}</span>
+                      <span style={{flex:1,fontSize:13,fontWeight:500,color:"#1e1b3a",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",minWidth:0}}>{name} <span style={{color:"#7a748a",fontWeight:400}}>— {serv}</span></span>
+                      <span className="booking-time" style={{fontSize:11,color:"#7a748a",marginRight:6,whiteSpace:"nowrap",flexShrink:0}}>{time}</span>
                       <span className="booking-badge" style={{fontSize:11,fontWeight:600,color:tc,background:bc,borderRadius:6,padding:"3px 8px",whiteSpace:"nowrap",flexShrink:0}}>{badge}</span>
                     </div>
                   ))}
@@ -1161,24 +1161,24 @@ export default function Home(){
 
           {/* Dashboard in tempo reale — con stats */}
           <FadeIn delay={0.07} style={{gridArea:"dash",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
+            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
+              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
                 <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
                   <Ico d={<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>} size={20}/>
                 </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:6}}>Dashboard in tempo reale</h3>
-                <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:"0 0 20px"}}>Vedi chi arriva, a che ora e quanto incassi oggi.</p>
+                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Dashboard in tempo reale</h3>
+                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 20px"}}>Vedi chi arriva, a che ora e quanto incassi oggi.</p>
                 <div style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:8,marginBottom:8}}>
                   {[{v:"7",l:"Oggi"},{v:"€135",l:"Incasso"}].map(({v,l})=>(
-                    <div key={l} style={{background:"rgba(255,255,255,0.05)",borderRadius:10,padding:"12px",textAlign:"center"}}>
-                      <div style={{fontSize:22,fontWeight:800,color:"#fff",letterSpacing:-0.5}}>{v}</div>
-                      <div style={{fontSize:11,color:"#9b96c8",marginTop:3}}>{l}</div>
+                    <div key={l} style={{background:"#f3f3f6",borderRadius:10,padding:"12px",textAlign:"center"}}>
+                      <div style={{fontSize:22,fontWeight:800,color:"#13112a",letterSpacing:-0.5}}>{v}</div>
+                      <div style={{fontSize:11,color:"#7a748a",marginTop:3}}>{l}</div>
                     </div>
                   ))}
                 </div>
-                <div style={{background:"rgba(93,226,121,0.07)",border:"1px solid rgba(93,226,121,0.18)",borderRadius:10,padding:"12px",textAlign:"center"}}>
-                  <div style={{fontSize:20,fontWeight:800,color:"#5de279",letterSpacing:-0.5}}>€225</div>
-                  <div style={{fontSize:11,color:"#9b96c8",marginTop:3}}>Questo mese</div>
+                <div style={{background:"rgba(0,184,148,0.07)",border:"1px solid rgba(0,184,148,0.18)",borderRadius:10,padding:"12px",textAlign:"center"}}>
+                  <div style={{fontSize:20,fontWeight:800,color:"#00b894",letterSpacing:-0.5}}>€225</div>
+                  <div style={{fontSize:11,color:"#7a748a",marginTop:3}}>Questo mese</div>
                 </div>
               </div>
             </div>
@@ -1186,17 +1186,17 @@ export default function Home(){
 
           {/* Il tuo link unico — con URL preview */}
           <FadeIn delay={0.14} style={{gridArea:"link",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
+            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
+              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
                 <div style={{background:"rgba(108,92,231,0.15)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
                   <Ico d={<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>} size={20}/>
                 </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:6}}>Il tuo link unico</h3>
-                <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:"0 0 16px"}}>Ogni attività ha la sua pagina personale. Condividila sui social o in bio.</p>
-                <div style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.22)",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#a89ff0",marginBottom:10,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>prenoty.com/sao-salone</div>
+                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Il tuo link unico</h3>
+                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 16px"}}>Ogni attività ha la sua pagina personale. Condividila sui social o in bio.</p>
+                <div style={{background:"rgba(108,92,231,0.1)",border:"1px solid rgba(108,92,231,0.22)",borderRadius:8,padding:"8px 12px",fontSize:12,color:"#6c5ce7",marginBottom:10,fontFamily:"monospace",overflow:"hidden",textOverflow:"ellipsis",whiteSpace:"nowrap"}}>prenoty.com/sao-salone</div>
                 <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
                   {["Instagram","WhatsApp","Bio"].map(c=>(
-                    <span key={c} style={{fontSize:11,fontWeight:500,color:"#9b96c8",background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.09)",borderRadius:6,padding:"4px 10px"}}>{c}</span>
+                    <span key={c} style={{fontSize:11,fontWeight:500,color:"#7a748a",background:"#f3f3f6",border:"1px solid #e0dcff",borderRadius:6,padding:"4px 10px"}}>{c}</span>
                   ))}
                 </div>
               </div>
@@ -1205,55 +1205,55 @@ export default function Home(){
 
           {/* Promemoria automatici — con mini notifiche dark */}
           <FadeIn delay={0.21} style={{gridArea:"prom",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(93,226,121,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} size={20} color="#5de279"/>
+            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
+              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
+                <div style={{background:"rgba(0,184,148,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
+                  <Ico d={<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>} size={20} color="#00b894"/>
                 </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:6}}>Promemoria automatici</h3>
-                <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:"0 0 18px"}}>I clienti ricevono email automatiche. Zero no-show, zero dimentichi.</p>
+                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Promemoria automatici</h3>
+                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 18px"}}>I clienti ricevono email automatiche. Zero no-show, zero dimentichi.</p>
                 {/* Notifica 1: Conferma */}
-                <div style={{borderRadius:12,overflow:"hidden",marginBottom:10,background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)"}}>
-                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{borderRadius:12,overflow:"hidden",marginBottom:10,background:"#f3f3f6",border:"1px solid #e0dcff"}}>
+                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e0dcff"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
                       <div style={{width:26,height:26,borderRadius:"50%",background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <span style={{fontSize:12,fontWeight:800,color:"#fff"}}>P</span>
+                        <span style={{fontSize:12,fontWeight:800,color:"#13112a"}}>P</span>
                       </div>
-                      <span style={{fontWeight:700,color:"#fff",fontSize:13}}>Prenoty</span>
+                      <span style={{fontWeight:700,color:"#13112a",fontSize:13}}>Prenoty</span>
                     </div>
-                    <span style={{fontSize:11,fontWeight:600,color:"#5de279",background:"rgba(93,226,121,0.1)",border:"1px solid rgba(93,226,121,0.28)",borderRadius:20,padding:"3px 10px"}}>✓ Confermato</span>
+                    <span style={{fontSize:11,fontWeight:600,color:"#00b894",background:"rgba(0,184,148,0.1)",border:"1px solid rgba(0,184,148,0.28)",borderRadius:20,padding:"3px 10px"}}>✓ Confermato</span>
                   </div>
                   <div style={{padding:"12px 14px"}}>
-                    <p style={{fontSize:13,fontWeight:700,color:"#fff",margin:"0 0 10px"}}>Appuntamento confermato!</p>
+                    <p style={{fontSize:13,fontWeight:700,color:"#13112a",margin:"0 0 10px"}}>Appuntamento confermato!</p>
                     {[["Salone","Sao Salone"],["Servizio","Taglio + Barba"],["Quando","Sab 16 maggio"],["Ora","09:00",true]].map(([l,v,purple])=>(
-                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.06)",alignItems:"center"}}>
-                        <span style={{fontSize:11,color:"#9b96c8",width:52,flexShrink:0}}>{l}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#e8e5ff"}}>{v}</span>
+                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid #e0dcff",alignItems:"center"}}>
+                        <span style={{fontSize:11,color:"#7a748a",width:52,flexShrink:0}}>{l}</span>
+                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#1e1b3a"}}>{v}</span>
                       </div>
                     ))}
-                    <div style={{marginTop:10,background:"rgba(93,226,121,0.08)",border:"1px solid rgba(93,226,121,0.22)",borderRadius:8,padding:"6px 12px",display:"inline-flex",alignItems:"center",gap:6}}>
-                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
-                      <span style={{fontSize:11,color:"#5de279",fontWeight:500}}>Riceverai un promemoria 24h prima</span>
+                    <div style={{marginTop:10,background:"rgba(0,184,148,0.08)",border:"1px solid rgba(0,184,148,0.22)",borderRadius:8,padding:"6px 12px",display:"inline-flex",alignItems:"center",gap:6}}>
+                      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#00b894" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+                      <span style={{fontSize:11,color:"#00b894",fontWeight:500}}>Riceverai un promemoria 24h prima</span>
                     </div>
                   </div>
                 </div>
                 {/* Notifica 2: Promemoria */}
-                <div style={{borderRadius:12,overflow:"hidden",background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.08)"}}>
-                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
+                <div style={{borderRadius:12,overflow:"hidden",background:"#f3f3f6",border:"1px solid #e0dcff"}}>
+                  <div style={{padding:"10px 14px",display:"flex",justifyContent:"space-between",alignItems:"center",borderBottom:"1px solid #e0dcff"}}>
                     <div style={{display:"flex",alignItems:"center",gap:8}}>
                       <div style={{width:26,height:26,borderRadius:"50%",background:"#6c5ce7",display:"flex",alignItems:"center",justifyContent:"center",flexShrink:0}}>
-                        <span style={{fontSize:12,fontWeight:800,color:"#fff"}}>P</span>
+                        <span style={{fontSize:12,fontWeight:800,color:"#13112a"}}>P</span>
                       </div>
-                      <span style={{fontWeight:700,color:"#fff",fontSize:13}}>Prenoty</span>
+                      <span style={{fontWeight:700,color:"#13112a",fontSize:13}}>Prenoty</span>
                     </div>
-                    <span style={{fontSize:11,fontWeight:600,color:"#a89ff0",background:"rgba(108,92,231,0.15)",border:"1px solid rgba(108,92,231,0.3)",borderRadius:20,padding:"3px 10px"}}>Promemoria</span>
+                    <span style={{fontSize:11,fontWeight:600,color:"#6c5ce7",background:"rgba(108,92,231,0.15)",border:"1px solid rgba(108,92,231,0.3)",borderRadius:20,padding:"3px 10px"}}>Promemoria</span>
                   </div>
                   <div style={{padding:"12px 14px"}}>
-                    <p style={{fontSize:13,fontWeight:700,color:"#fff",margin:"0 0 10px"}}>Il tuo appuntamento è domani!</p>
+                    <p style={{fontSize:13,fontWeight:700,color:"#13112a",margin:"0 0 10px"}}>Il tuo appuntamento è domani!</p>
                     {[["Salone","Sao Salone"],["Ora","09:00",true]].map(([l,v,purple])=>(
-                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid rgba(255,255,255,0.06)",alignItems:"center"}}>
-                        <span style={{fontSize:11,color:"#9b96c8",width:52,flexShrink:0}}>{l}</span>
-                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#e8e5ff"}}>{v}</span>
+                      <div key={l} style={{display:"flex",gap:12,padding:"5px 0",borderBottom:"1px solid #e0dcff",alignItems:"center"}}>
+                        <span style={{fontSize:11,color:"#7a748a",width:52,flexShrink:0}}>{l}</span>
+                        <span style={{fontSize:12,fontWeight:600,color:purple?"#6c5ce7":"#1e1b3a"}}>{v}</span>
                       </div>
                     ))}
                   </div>
@@ -1264,27 +1264,27 @@ export default function Home(){
 
           {/* Personalizza tutto */}
           <FadeIn delay={0.28} style={{gridArea:"pers",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.35) 50%,rgba(108,92,231,0.5) 100%)",height:"100%",boxSizing:"border-box"}}>
-              <div style={{background:"#1a1730",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
-                <div style={{background:"rgba(245,158,11,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
-                  <Ico d={<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>} size={20} color="#f59e0b"/>
+            <div style={{borderRadius:17,padding:"1px",background:"#e0dcff",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",height:"100%",boxSizing:"border-box"}}>
+              <div style={{background:"#fff",borderRadius:16,padding:"24px",height:"100%",boxSizing:"border-box"}}>
+                <div style={{background:"rgba(108,92,231,0.12)",borderRadius:12,padding:"10px",display:"inline-flex",marginBottom:16}}>
+                  <Ico d={<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>} size={20} color="#6c5ce7"/>
                 </div>
-                <h3 style={{fontSize:15,fontWeight:700,color:"#fff",marginBottom:6}}>Personalizza tutto</h3>
-                <p style={{fontSize:13,color:"#9b96c8",lineHeight:1.65,margin:"0 0 18px"}}>Servizi, durata, prezzi, orari. Configuri tutto in pochi minuti.</p>
-                <div style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)",borderRadius:12,overflow:"hidden"}}>
+                <h3 style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:6}}>Personalizza tutto</h3>
+                <p style={{fontSize:13,color:"#7a748a",lineHeight:1.65,margin:"0 0 18px"}}>Servizi, durata, prezzi, orari. Configuri tutto in pochi minuti.</p>
+                <div style={{background:"#f3f3f6",border:"1px solid #e0dcff",borderRadius:12,overflow:"hidden"}}>
                   {[
-                    {l:"Servizio", v:"Taglio + Piega", style:{color:"#a89ff0",fontWeight:700}},
-                    {l:"Durata",   v:"60 min",         style:{color:"#e8e5ff",fontWeight:700}},
-                    {l:"Prezzo",   v:"€45",            style:{color:"#5de279",fontWeight:700}},
+                    {l:"Servizio", v:"Taglio + Piega", style:{color:"#6c5ce7",fontWeight:700}},
+                    {l:"Durata",   v:"60 min",         style:{color:"#1e1b3a",fontWeight:700}},
+                    {l:"Prezzo",   v:"€45",            style:{color:"#00b894",fontWeight:700}},
                   ].map(({l,v,style:vs},i,arr)=>(
-                    <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid rgba(255,255,255,0.07)":"none"}}>
-                      <span style={{fontSize:12,color:"#9b96c8"}}>{l}</span>
+                    <div key={l} style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderBottom:i<arr.length-1?"1px solid #e0dcff":"none"}}>
+                      <span style={{fontSize:12,color:"#7a748a"}}>{l}</span>
                       <span style={{fontSize:13,...vs}}>{v}</span>
                     </div>
                   ))}
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderTop:"1px solid rgba(255,255,255,0.07)"}}>
-                    <span style={{fontSize:12,color:"#9b96c8"}}>Disponibilità</span>
-                    <span style={{fontSize:12,fontWeight:600,color:"#e8e5ff",background:"rgba(108,92,231,0.2)",border:"1px solid rgba(108,92,231,0.35)",borderRadius:20,padding:"3px 12px"}}>Lun – Sab</span>
+                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"10px 14px",borderTop:"1px solid #e0dcff"}}>
+                    <span style={{fontSize:12,color:"#7a748a"}}>Disponibilità</span>
+                    <span style={{fontSize:12,fontWeight:600,color:"#1e1b3a",background:"rgba(108,92,231,0.12)",border:"1px solid rgba(108,92,231,0.25)",borderRadius:20,padding:"3px 12px"}}>Lun – Sab</span>
                   </div>
                 </div>
                 {/* Toggles notifiche */}
@@ -1294,13 +1294,13 @@ export default function Home(){
                     {icon:<><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></>,                                         label:"Promemoria 24h"},
                     {icon:<><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></>,            label:"Nuova prenotazione"},
                   ].map(({icon,label},i)=>(
-                    <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<2?"1px solid rgba(255,255,255,0.06)":"none"}}>
+                    <div key={i} style={{display:"flex",alignItems:"center",justifyContent:"space-between",padding:"8px 0",borderBottom:i<2?"1px solid #e0dcff":"none"}}>
                       <div style={{display:"flex",alignItems:"center",gap:8}}>
-                        <Ico d={icon} size={14} color="#a89ff0"/>
-                        <span style={{fontSize:12,color:"#9b96c8"}}>{label}</span>
+                        <Ico d={icon} size={14} color="#6c5ce7"/>
+                        <span style={{fontSize:12,color:"#7a748a"}}>{label}</span>
                       </div>
-                      <div style={{width:32,height:17,borderRadius:9,background:"rgba(93,226,121,0.2)",border:"1px solid rgba(93,226,121,0.35)",display:"flex",alignItems:"center",justifyContent:"flex-end",padding:"0 2px",boxSizing:"border-box"}}>
-                        <div style={{width:12,height:12,borderRadius:"50%",background:"#5de279"}}/>
+                      <div style={{width:32,height:17,borderRadius:9,background:"rgba(0,184,148,0.2)",border:"1px solid rgba(0,184,148,0.35)",display:"flex",alignItems:"center",justifyContent:"flex-end",padding:"0 2px",boxSizing:"border-box"}}>
+                        <div style={{width:12,height:12,borderRadius:"50%",background:"#00b894"}}/>
                       </div>
                     </div>
                   ))}
@@ -1312,7 +1312,7 @@ export default function Home(){
 
           {/* Primo mese gratis — card viola hero */}
           <FadeIn delay={0.35} style={{gridArea:"primo",height:"100%"}}>
-            <div style={{borderRadius:17,padding:"1.5px",background:"linear-gradient(135deg,rgba(108,92,231,0.7) 0%,rgba(93,226,121,0.5) 50%,rgba(108,92,231,0.7) 100%)",height:"100%",boxSizing:"border-box"}}>
+            <div style={{borderRadius:17,padding:0,background:"transparent",boxShadow:"0 10px 22px rgba(108,92,231,0.28)",height:"100%",boxSizing:"border-box"}}>
             <div style={{borderRadius:16,background:"#6c5ce7",height:"100%",boxSizing:"border-box",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",padding:"40px 32px",textAlign:"center"}}>
               {/* logo */}
               <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{width:280,height:"auto",marginBottom:22}}/>
