@@ -28,8 +28,8 @@ export default function Login() {
       <style>{`
         .login-wrap{display:flex;align-items:center;gap:56px;max-width:820px;width:100%}
         .login-left{flex:1;display:flex;flex-direction:column;align-items:flex-start;gap:28px}
-        .login-form{width:340px;flex-shrink:0;background:#f4f3ff;padding:40px;border-radius:20px;border:0.5px solid #e0dcff}
-        .login-input{width:100%;padding:11px 14px;border-radius:10px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
+        .login-form{width:340px;flex-shrink:0;background:#f3f3f6;padding:40px;border-radius:16px;border:1px solid #e0dcff;box-shadow:0 12px 30px rgba(0,0,0,.35)}
+        .login-input{width:100%;padding:11px 14px;border-radius:8px;border:1px solid #e0dcff;background:#fff;color:#1e1b3a;font-size:14px;margin-top:4px;box-sizing:border-box;outline:none}
         .login-input::placeholder{color:#9b96c8}
         .login-input:-webkit-autofill,.login-input:-webkit-autofill:hover,.login-input:-webkit-autofill:focus{-webkit-box-shadow:0 0 0 30px #fff inset!important;-webkit-text-fill-color:#1e1b3a!important;border:1px solid #e0dcff!important}
         .bullets-desktop{display:flex;flex-direction:column;gap:14px;width:100%;max-width:360px}
@@ -117,7 +117,7 @@ export default function Login() {
             </div>
             {errore && <div style={{ background:"rgba(231,76,60,0.08)", color:"#e74c3c", padding:"10px 14px", borderRadius:8, fontSize:13, marginBottom:14 }}>{errore}</div>}
             <button onClick={handleLogin} disabled={loading}
-              style={{ width:"100%", padding:"12px", background:"#6c5ce7", color:"#fff", border:"none", borderRadius:10, fontSize:14, fontWeight:600, cursor:"pointer", marginBottom:14 }}>
+              style={{ width:"100%", padding:"12px", background:"#6c5ce7", color:"#fff", border:"none", borderRadius:999, fontSize:14, fontWeight:600, cursor:"pointer", marginBottom:14 }}>
               {loading ? "Accesso..." : "Accedi"}
             </button>
             <p style={{ textAlign:"center", fontSize:12, color:"#9b96c8" }}>
