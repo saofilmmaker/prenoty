@@ -55,6 +55,7 @@ const FEAT_GLASS_ARROW = {
 };
 
 function FeatCarousel(){
+  const[inRef,inView]=useInView(0.05);
   const rail=useRef(null);
   const[canL,setCanL]=useState(false);
   const[canR,setCanR]=useState(true);
@@ -81,14 +82,14 @@ function FeatCarousel(){
      v:<><div style={{...row,marginTop:0}}><span>Servizio</span><b style={{color:"#6c5ce7"}}>Taglio + Piega</b></div><div style={row}><span>Durata</span><b>60 min</b></div><div style={row}><span>Prezzo</span><b style={{color:"#00b894"}}>€45</b></div></>},
   ];
   return(
-    <div style={{maxWidth:1000,margin:"0 auto"}}>
+    <div ref={inRef} style={{maxWidth:1000,margin:"0 auto"}}>
       <div style={{position:"relative"}}>
         <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,left:8,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
         <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",padding:"4px 4px 24px",scrollbarWidth:"none"}}>
-          {cards.map(({n,t,d,bg,c,ic,v})=>(
-            <div key={n} style={{flex:"0 0 272px",scrollSnapAlign:"start",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:360,display:"flex",flexDirection:"column",boxSizing:"border-box",boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
+          {cards.map(({n,t,d,bg,c,ic,v},i)=>(
+            <div key={n} style={{opacity:inView?1:0,transform:inView?"translateY(0)":"translateY(50px)",transition:`opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`,flex:"0 0 272px",scrollSnapAlign:"start",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:360,display:"flex",flexDirection:"column",boxSizing:"border-box",boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
               <span style={{fontFamily:"ui-monospace,Menlo,monospace",fontSize:12,fontWeight:700,color:"#6c5ce7"}}>{n}</span>
               <div style={{background:bg,borderRadius:14,width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",margin:"14px 0 16px"}}>
                 <Ico d={ic} size={22} color={c}/>
