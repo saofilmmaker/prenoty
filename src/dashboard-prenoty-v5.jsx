@@ -5389,7 +5389,8 @@ useEffect(() => {
             style={{
               background: T.card,
               border: `1px solid ${T.border}`,
-              borderRadius: 12,
+              borderRadius: 16,
+              boxShadow: "0 8px 28px rgba(60,50,140,.2)",
               padding: "32px 28px",
               maxWidth: 440,
               width: "100%",
@@ -5404,12 +5405,12 @@ useEffect(() => {
               Le prenotazioni esistenti resteranno in agenda ma senza operatore assegnato.<br />
               Potrai sempre aggiungere nuovi operatori dopo (max {MAX_STAFF}).
             </p>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <button
                 onClick={() => setConfermaEliminaStaff(null)}
                 style={{
-                  flex: 1,
-                  padding: "12px",
+                  padding: "11px 24px",
+                  borderRadius: 8,
                   background: "transparent",
                   border: `1px solid ${T.border}`,
                   color: T.textSoft,
@@ -5424,9 +5425,9 @@ useEffect(() => {
               <button
                 onClick={eseguiEliminaStaff}
                 style={{
-                  flex: 1,
-                  padding: "12px",
-                  background: T.danger,
+                  padding: "11px 24px",
+                  borderRadius: 8,
+                  background: "#e5484d",
                   border: "none",
                   color: "#fff",
                   fontFamily: "inherit",
@@ -5462,7 +5463,8 @@ useEffect(() => {
             style={{
               background: T.card,
               border: `1px solid ${T.border}`,
-              borderRadius: 12,
+              borderRadius: 16,
+              boxShadow: "0 8px 28px rgba(60,50,140,.2)",
               padding: "32px 28px",
               maxWidth: 440,
               width: "100%",
@@ -5476,12 +5478,12 @@ useEffect(() => {
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>
               I servizi attuali verranno eliminati. Potrai aggiungere i tuoi servizi per <strong style={{ color: T.text }}>{CONFIG_ATTIVITA[confermaCambioTipo].nome}</strong> dalla sezione Servizi.
             </p>
-            <div style={{ display: "flex", gap: 8 }}>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
               <button
                 onClick={() => setConfermaCambioTipo(null)}
                 style={{
-                  flex: 1,
-                  padding: "12px",
+                  padding: "11px 24px",
+                  borderRadius: 8,
                   background: "transparent",
                   border: `1px solid ${T.border}`,
                   color: T.textSoft,
@@ -5496,8 +5498,8 @@ useEffect(() => {
               <button
                 onClick={eseguiCambioTipo}
                 style={{
-                  flex: 1,
-                  padding: "12px",
+                  padding: "11px 24px",
+                  borderRadius: 8,
                   background: T.accent,
                   border: "none",
                   color: "#fff",
