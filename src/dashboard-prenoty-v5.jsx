@@ -178,7 +178,7 @@ export default function DashboardPrenoty() {
   const T = tema === "chiaro" ? {
     bg: "#f4f3ff", card: "#ffffff", border: "#e0dcff", borderStrong: "#c4bdf8",
     text: "#1e1b3a", textSoft: "#4a4580", textMuted: "#9b96c8",
-    accent: "#6c5ce7", accentSoft: "#ede9ff",
+    accent: "#6c5ce7", accentSoft: "rgba(108,92,231,.12)",
     dark: "#1e1b3a", hover: "#f0edff", danger: "#c0392b", dangerSoft: "#fdecea",
   } : {
     bg: "#12102a", card: "#1c1a35", border: "#2e2a52", borderStrong: "#3f3a6e",
