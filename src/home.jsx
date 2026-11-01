@@ -688,6 +688,7 @@ export default function Home(){
           .sec-pad{padding:56px 24px!important;}
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
+        .feat-booking-row{flex-wrap:wrap!important;gap:6px!important;}.feat-booking-row .booking-time{display:none!important;}.feat-booking-row .booking-badge{margin-left:auto;}
         .feat-molto-altro{font-size:16px;color:#7a748a;margin:10px 0 0;text-align:right;font-style:italic;}
         @media(max-width:600px){
           .feat-molto-altro{font-size:14px!important;}
@@ -1120,10 +1121,10 @@ export default function Home(){
       <GradDivider/>
       <section id="perche-prenoty" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
         <FadeIn>
-          <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Perché scegliere Prenoty?</p>
-          <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:48,lineHeight:1.15}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
+          <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700,textAlign:"center"}}>Perché scegliere Prenoty?</p>
+          <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:48,lineHeight:1.15,textAlign:"center"}}>Tutto quello che ti serve.<br/>Niente di più.</h2>
         </FadeIn>
-        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
+        <div className="feat-grid" style={{display:"grid",gridTemplateColumns:"repeat(6,1fr)",gap:16,maxWidth:1000,margin:"0 auto",gridTemplateAreas:'"preno preno prom prom pers pers" "link link prom prom pers pers" "dash dash primo primo primo primo"'}}>
 
           {/* Prenotazioni 24/7 — card principale con mini lista */}
           <FadeIn delay={0} style={{gridArea:"preno",height:"100%"}}>
