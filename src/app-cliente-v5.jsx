@@ -289,16 +289,25 @@ export default function AppCliente() {
   const [nuovaRecensione, setNuovaRecensione] = useState({ nome: "", stelle: 5, testo: "" });
   const [recensioneInviata, setRecensioneInviata] = useState(false);
 
+  const [erroreRecensione, setErroreRecensione] = useState("");
+
   const inviaRecensione = async () => {
     const testo = nuovaRecensione.testo.trim();
     const nome = nuovaRecensione.nome.trim();
-    if (!testo || !nome) return;
-    const nuova = { id: Date.now(), nome, stelle: nuovaRecensione.stelle, testo, data: new Date().toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" }) };
-    const nuovaLista = [nuova, ...recensioni];
-    setRecensioni(nuovaLista);
-    if (salone.id) {
-      await supabase.from("saloni").update({ recensioni: nuovaLista }).eq("id", salone.id);
+    if (!testo || !nome || !salone.id) return;
+    setErroreRecensione("");
+    const dataTesto = new Date().toLocaleDateString("it-IT", { day: "numeric", month: "long", year: "numeric" });
+    // La recensione passa da una funzione protetta del database, che controlla voto, lunghezza e frequenza
+    const { data: creata, error } = await supabase.rpc("aggiungi_recensione", {
+      p_salone_id: salone.id, p_nome: nome, p_stelle: nuovaRecensione.stelle, p_testo: testo, p_data: dataTesto,
+    });
+    if (error || !creata) {
+      setErroreRecensione(/troppe_recensioni|recensione_duplicata/.test(error?.message || "")
+        ? "Ci sono già troppe recensioni in poco tempo. Riprova tra un po'."
+        : "Non è stato possibile pubblicare la recensione. Riprova tra poco.");
+      return;
     }
+    setRecensioni([creata, ...recensioni]);
     setRecensioneInviata(true);
     setTimeout(() => { setModalRecensioneAperto(false); setRecensioneInviata(false); setNuovaRecensione({ nome: "", stelle: 5, testo: "" }); }, 2000);
   };
@@ -1877,6 +1886,7 @@ export default function AppCliente() {
                 <input
                   type="text"
                   value={nuovaRecensione.nome}
+                  maxLength={60}
                   onChange={(e) => setNuovaRecensione({ ...nuovaRecensione, nome: e.target.value })}
                   placeholder="es. Marco R."
                   style={{ width: "100%", padding: "10px 12px", margin: "6px 0 16px", background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none" }}
@@ -1885,6 +1895,7 @@ export default function AppCliente() {
                 <label style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.15em" }}>LA TUA ESPERIENZA</label>
                 <textarea
                   value={nuovaRecensione.testo}
+                  maxLength={500}
                   onChange={(e) => setNuovaRecensione({ ...nuovaRecensione, testo: e.target.value })}
                   placeholder="Cosa ti è piaciuto? Cosa miglioreresti?"
                   rows={4}
@@ -1893,6 +1904,9 @@ export default function AppCliente() {
                 <div style={{ fontSize: 11, color: T.textMuted, marginBottom: 20 }}>
                   {nuovaRecensione.testo.length} / 500 caratteri
                 </div>
+                {erroreRecensione && (
+                  <div style={{ fontSize: 12, color: "#c0392b", marginBottom: 14 }}>{erroreRecensione}</div>
+                )}
 
                 <div style={{ display: "flex", gap: 8 }}>
                   <button
