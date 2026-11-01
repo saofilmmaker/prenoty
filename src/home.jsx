@@ -1630,8 +1630,8 @@ export default function Home(){
 
       {/* ── Modal Chi Siamo ── */}
       {chiSiamoOpen && (
-        <div onClick={()=>setChiSiamoOpen(false)} style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(30,27,58,0.55)",backdropFilter:"blur(6px)",display:"flex",alignItems:"center",justifyContent:"center",padding:"24px"}}>
-          <div onClick={e=>e.stopPropagation()} style={{background:"#f4f3ff",borderRadius:24,maxWidth:900,width:"100%",maxHeight:"90vh",overflowY:"auto",padding:"48px 52px",position:"relative",boxShadow:"0 32px 80px rgba(30,27,58,0.25)"}}>
+        <div onClick={()=>setChiSiamoOpen(false)} style={{position:"fixed",inset:0,zIndex:1000,background:"rgba(243,243,246,0.94)",display:"flex",alignItems:"center",justifyContent:"center",padding:"24px"}}>
+          <div onClick={e=>e.stopPropagation()} style={{background:"#fff",border:"1px solid #e0dcff",borderRadius:16,maxWidth:900,width:"100%",maxHeight:"90vh",overflowY:"auto",padding:"48px 52px",position:"relative",boxShadow:"0 12px 40px rgba(108,92,231,0.14)"}}>
 
             {/* Chiudi */}
             <button onClick={()=>setChiSiamoOpen(false)} style={{position:"absolute",top:20,right:20,background:"rgba(108,92,231,0.08)",border:"none",borderRadius:"50%",width:36,height:36,cursor:"pointer",display:"flex",alignItems:"center",justifyContent:"center"}}>
@@ -1686,7 +1686,7 @@ export default function Home(){
               {/* Colonna destra */}
               <div style={{flex:"1 1 260px",minWidth:0,display:"flex",flexDirection:"column",gap:12}}>
                 {/* Team card */}
-                <div style={{background:"#fff",borderRadius:18,padding:"28px 24px",textAlign:"center",boxShadow:"0 4px 24px rgba(108,92,231,0.08)",border:"1px solid rgba(108,92,231,0.08)"}}>
+                <div style={{background:"#fff",borderRadius:12,padding:"28px 24px",textAlign:"center",boxShadow:"0 2px 8px rgba(108,92,231,0.08)",border:"1px solid #e0dcff"}}>
                   <img src="/team-photo2.png" alt="Il Team Prenoty" style={{width:96,height:96,borderRadius:"50%",objectFit:"cover",margin:"0 auto 14px",display:"block"}}/>
                   <div style={{fontSize:15,fontWeight:700,color:"#13112a",marginBottom:4}}>Il Team Prenoty</div>
                   <div style={{fontSize:13,color:"#9b96c8",marginBottom:16}}>Genova, Italia</div>
@@ -1699,9 +1699,9 @@ export default function Home(){
                     {v:"2026",c:"#6c5ce7",label:"Anno di fondazione"},
                     {v:"🇮🇹",c:"#1e1b3a",label:"100% italiano"},
                     {v:"24h",c:"#6c5ce7",label:"Risposta supporto"},
-                    {v:"30gg",c:"#5de279",label:"Gratis, senza carta"},
+                    {v:"30gg",c:"#00b894",label:"Gratis, senza carta"},
                   ].map(({v,c,label})=>(
-                    <div key={label} style={{background:"#fff",borderRadius:14,padding:"16px 14px",textAlign:"center",border:"1px solid rgba(108,92,231,0.08)"}}>
+                    <div key={label} style={{background:"#fff",borderRadius:12,padding:"16px 14px",textAlign:"center",border:"1px solid #e0dcff"}}>
                       <div style={{fontSize:22,fontWeight:800,color:c,marginBottom:4}}>{v}</div>
                       <div style={{fontSize:11,color:"#9b96c8"}}>{label}</div>
                     </div>
