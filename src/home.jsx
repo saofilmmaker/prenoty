@@ -47,8 +47,8 @@ function Ico({d,size=20,color="#6c5ce7"}){
 }
 
 const FEAT_GLASS_ARROW = {
-  position:"absolute",top:"50%",transform:"translateY(-60%)",width:44,height:44,borderRadius:"50%",
-  display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",border:"none",padding:0,zIndex:2,
+  flex:"0 0 44px",width:44,height:44,minWidth:44,minHeight:44,aspectRatio:"1 / 1",borderRadius:"50%",
+  display:"flex",alignItems:"center",justifyContent:"center",cursor:"pointer",border:"none",padding:0,
   background:"rgba(255,255,255,.62)",backdropFilter:"blur(8px) saturate(150%)",WebkitBackdropFilter:"blur(8px) saturate(150%)",
   boxShadow:"inset 0 0 0 1px rgba(255,255,255,.75), inset 1.5px 2.5px 0 -2px #fff, inset -1.5px -1.5px 0 -2px rgba(255,255,255,.9), inset 0 -3px 5px -3px rgba(108,92,231,.14), 0 1px 4px rgba(108,92,231,.10), 0 6px 16px rgba(108,92,231,.18)",
   transition:"opacity .2s",
@@ -83,11 +83,12 @@ function FeatCarousel(){
   ];
   return(
     <div ref={inRef} style={{maxWidth:1000,margin:"0 auto"}}>
-      <div style={{position:"relative"}}>
-        <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,left:8,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
+      <div style={{display:"flex",alignItems:"center",justifyContent:"center",gap:14}}>
+        <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",padding:"4px 4px 24px",scrollbarWidth:"none"}}>
+        <div style={{width:856,maxWidth:"100%",boxSizing:"border-box",overflow:"hidden",padding:"6px 6px 26px",margin:"-6px -6px -26px"}}>
+        <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",scrollbarWidth:"none"}}>
           {cards.map(({n,t,d,bg,c,ic,v},i)=>(
             <div key={n} style={{opacity:inView?1:0,transform:inView?"translateY(0)":"translateY(50px)",transition:`opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`,flex:"0 0 272px",scrollSnapAlign:"start",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:360,display:"flex",flexDirection:"column",boxSizing:"border-box",boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
               <span style={{fontFamily:"ui-monospace,Menlo,monospace",fontSize:12,fontWeight:700,color:"#6c5ce7"}}>{n}</span>
@@ -100,11 +101,12 @@ function FeatCarousel(){
             </div>
           ))}
         </div>
-        <button aria-label="Avanti" onClick={()=>go(1)} style={{...FEAT_GLASS_ARROW,right:8,opacity:canR?1:0,pointerEvents:canR?"auto":"none"}}>
+        </div>
+        <button aria-label="Avanti" onClick={()=>go(1)} style={{...FEAT_GLASS_ARROW,opacity:canR?1:0,pointerEvents:canR?"auto":"none"}}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-      <div style={{marginTop:8,background:"#6c5ce7",borderRadius:16,padding:"14px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
+      <div style={{maxWidth:960,margin:"28px auto 0",background:"#6c5ce7",borderRadius:16,padding:"14px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:26,width:"auto"}}/>
           <span style={{fontSize:15,fontWeight:600,color:"rgba(255,255,255,0.95)"}}>Semplice, veloce, senza commissioni.</span>
