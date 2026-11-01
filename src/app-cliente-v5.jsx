@@ -742,7 +742,8 @@ export default function AppCliente() {
       <meta name="twitter:description" content={metaDescription} />
       <meta name="twitter:image" content={metaImage} />
     </Helmet>
-    <div className="min-h-screen" style={{ backgroundColor: tema === "chiaro" ? "#f3f3f6" : T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+    <div className={"min-h-screen" + (step >= 1 && tema === "chiaro" ? " pren-flow" : "")} style={{ backgroundColor: tema === "chiaro" ? "#f3f3f6" : T.bg, fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+      <style>{`@media (min-width:1024px){.pren-flow{background-color:#fff !important}.pren-flow header{background-color:rgba(255,255,255,.72) !important}}`}</style>
       {/* HEADER */}
       <header className="sticky top-0 z-10" style={{ ...vetroCard, borderRadius: 0, backgroundColor: tema === "chiaro" ? "rgba(243,243,246,.72)" : "rgba(28,26,53,.72)", ...(tema === "chiaro" ? { boxShadow: "none" } : {}) }}>
         <div className="max-w-2xl mx-auto px-6 py-4 flex items-center justify-between">
@@ -1307,6 +1308,8 @@ export default function AppCliente() {
                     onClick={() => toggleServizio(s)}
                     className="w-full text-left p-5 border transition"
                     style={{
+                      borderRadius: 16,
+                      boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none",
                       backgroundColor: sel ? T.accentSoft : T.card,
                       borderColor: sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
@@ -1334,7 +1337,7 @@ export default function AppCliente() {
               })}
             </div>
             {serviziScelti.length > 0 && (
-              <div className="mt-6 p-4 border" style={{ backgroundColor: T.card, borderColor: T.accent }}>
+              <div className="mt-6 p-4 border" style={{ backgroundColor: T.card, borderColor: T.accent, borderRadius: 16 }}>
                 <div className="flex justify-between items-center">
                   <div className="text-sm" style={{ color: T.textSoft }}>
                     {serviziScelti.length} {serviziScelti.length === 1 ? "servizio" : "servizi"} · {durataTotale} min
@@ -1360,6 +1363,8 @@ export default function AppCliente() {
                     onClick={() => { setStaffScelto(s); setOra(null); if (data) caricaOrariOccupati(data, s); }}
                     className="w-full flex items-center gap-4 p-4 border transition text-left"
                     style={{
+                      borderRadius: 16,
+                      boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none",
                       backgroundColor: sel ? T.accentSoft : T.card,
                       borderColor: sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
@@ -1408,6 +1413,7 @@ export default function AppCliente() {
                     disabled={inFerie}
                     className="p-3 border text-center transition"
                     style={{
+                      borderRadius: 12,
                       backgroundColor: inFerie ? "#fdecea" : sel ? T.accentSoft : T.card,
                       borderColor: inFerie ? "#e24b4a" : sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
@@ -1454,6 +1460,7 @@ export default function AppCliente() {
                     disabled={occupato}
                     className="py-3 border text-center transition"
                     style={{
+                      borderRadius: 12,
                       backgroundColor: inChiusura ? "#fff8e1" : occupato ? T.bg : sel ? T.accentSoft : T.card,
                       borderColor: inChiusura ? "#f9c74f" : occupato ? T.border : sel ? T.accent : T.border,
                       borderWidth: sel ? "2px" : "1px",
@@ -1479,20 +1486,20 @@ export default function AppCliente() {
             <div className="space-y-4">
               <div>
                 <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>NOME E COGNOME *</label>
-                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text }} placeholder="Mario Rossi" />
+                <input type="text" value={nome} onChange={(e) => setNome(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text, borderRadius: 8 }} placeholder="Mario Rossi" />
               </div>
               <div>
                 <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>TELEFONO *</label>
-                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text }} placeholder="+39 333 1234567" />
+                <input type="tel" value={telefono} onChange={(e) => setTelefono(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text, borderRadius: 8 }} placeholder="+39 333 1234567" />
               </div>
               <div>
                 <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>EMAIL *</label>
-                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text }} placeholder="mario@email.it" />
+                <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className="w-full mt-2 p-4 border outline-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text, borderRadius: 8 }} placeholder="mario@email.it" />
                 <div className="text-xs mt-2" style={{ color: T.textMuted }}>Ti invieremo la conferma e il promemoria qui</div>
               </div>
               <div>
                 <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>NOTE (opzionale)</label>
-                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} className="w-full mt-2 p-4 border outline-none resize-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text }} placeholder="Es. allergie, preferenze particolari..." />
+                <textarea value={note} onChange={(e) => setNote(e.target.value)} rows={3} className="w-full mt-2 p-4 border outline-none resize-none" style={{ backgroundColor: T.card, borderColor: T.border, color: T.text, borderRadius: 8 }} placeholder="Es. allergie, preferenze particolari..." />
               </div>
             </div>
           </div>
@@ -1505,7 +1512,7 @@ export default function AppCliente() {
             <p className="text-sm mb-6" style={{ color: T.textSoft }}>Scegli come pagare</p>
 
             {/* RIEPILOGO */}
-            <div className="p-5 border mb-6" style={{ backgroundColor: T.card, borderColor: T.border }}>
+            <div className="p-5 border mb-6" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none" }}>
               <div className="text-xs tracking-widest mb-3" style={{ color: T.textMuted }}>RIEPILOGO</div>
               {serviziScelti.map(s => (
                 <div key={s.id} className="flex justify-between py-1 text-sm">
@@ -1529,6 +1536,8 @@ export default function AppCliente() {
                   onClick={() => setPaga("carta")}
                   className="w-full p-5 border text-left transition"
                   style={{
+                    borderRadius: 16,
+                    boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none",
                     backgroundColor: paga === "carta" ? T.accentSoft : T.card,
                     borderColor: paga === "carta" ? T.accent : T.border,
                     borderWidth: paga === "carta" ? "2px" : "1px",
@@ -1559,6 +1568,8 @@ export default function AppCliente() {
                   }}
                   className="w-full p-5 border text-left transition"
                   style={{
+                    borderRadius: 16,
+                    boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none",
                     backgroundColor: paga === "bonifico" ? T.accentSoft : T.card,
                     borderColor: paga === "bonifico" ? T.accent : T.border,
                     borderWidth: paga === "bonifico" ? "2px" : "1px",
@@ -1580,6 +1591,8 @@ export default function AppCliente() {
                   onClick={() => setPaga("salone")}
                   className="w-full p-5 border text-left transition"
                   style={{
+                    borderRadius: 16,
+                    boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none",
                     backgroundColor: paga === "salone" ? T.accentSoft : T.card,
                     borderColor: paga === "salone" ? T.accent : T.border,
                     borderWidth: paga === "salone" ? "2px" : "1px",
@@ -1598,7 +1611,7 @@ export default function AppCliente() {
 
             {/* Stripe Payment Element — si mostra dopo aver scelto carta */}
             {paga === "carta" && (
-              <div className="mt-6 border" style={{ borderColor: T.border }}>
+              <div className="mt-6 border overflow-hidden" style={{ borderColor: T.border, borderRadius: 16 }}>
                 <div className="px-5 py-3 text-xs tracking-widest font-semibold" style={{ backgroundColor: "#635bff", color: "#fff", letterSpacing: "0.15em" }}>
                   INSERISCI I DATI DELLA CARTA
                 </div>
@@ -1622,7 +1635,7 @@ export default function AppCliente() {
 
             {/* Blocco bonifico — IBAN + causale visibili subito */}
             {paga === "bonifico" && codiceBonifico && (
-              <div className="mt-4 border rounded-none overflow-hidden" style={{ borderColor: T.accent }}>
+              <div className="mt-4 border rounded-none overflow-hidden" style={{ borderColor: T.accent, borderRadius: 16 }}>
                 {/* Header */}
                 <div className="px-5 py-3 text-xs tracking-widest font-semibold" style={{ backgroundColor: T.accent, color: "#fff", letterSpacing: "0.15em" }}>
                   DATI PER IL BONIFICO
@@ -1647,7 +1660,7 @@ export default function AppCliente() {
                           setTimeout(() => setIbanCopiato(false), 2000);
                         }}
                         className="text-xs px-3 py-1.5 flex-shrink-0 transition"
-                        style={{ backgroundColor: ibanCopiato ? T.accent : T.accentSoft, color: ibanCopiato ? "#fff" : T.accent, border: `1px solid ${T.accent}` }}
+                        style={{ backgroundColor: ibanCopiato ? T.accent : T.accentSoft, color: ibanCopiato ? "#fff" : T.accent, border: `1px solid ${T.accent}`, borderRadius: 8 }}
                       >
                         {ibanCopiato ? "✓ Copiato" : "Copia"}
                       </button>
@@ -1663,7 +1676,7 @@ export default function AppCliente() {
                   )}
 
                   {/* Causale — box evidenziato */}
-                  <div className="p-4 border" style={{ backgroundColor: T.accentSoft, borderColor: T.borderStrong }}>
+                  <div className="p-4 border" style={{ backgroundColor: T.accentSoft, borderColor: T.borderStrong, borderRadius: 8 }}>
                     <div className="text-xs tracking-widest mb-2 font-semibold" style={{ color: T.accent, letterSpacing: "0.15em" }}>SCRIVI QUESTA CAUSALE</div>
                     <div className="font-mono text-base font-bold mb-3" style={{ color: T.text }}>{codiceBonifico}</div>
                     <button
@@ -1673,7 +1686,7 @@ export default function AppCliente() {
                         setTimeout(() => setCausaleCopiata(false), 2000);
                       }}
                       className="w-full py-2.5 text-sm tracking-widest transition"
-                      style={{ backgroundColor: causaleCopiata ? T.accent : T.dark, color: "#fff", letterSpacing: "0.15em" }}
+                      style={{ backgroundColor: causaleCopiata ? T.accent : T.dark, color: "#fff", letterSpacing: "0.15em", borderRadius: 8 }}
                     >
                       {causaleCopiata ? "✓ CAUSALE COPIATA" : "📋 COPIA CAUSALE"}
                     </button>
@@ -1697,7 +1710,7 @@ export default function AppCliente() {
             <h2 className="text-3xl mb-3">Appuntamento confermato</h2>
             <p className="mb-8" style={{ color: T.textSoft }}>Ti abbiamo inviato una email di conferma. Riceverai un promemoria 24h prima dell'appuntamento.</p>
 
-            <div className="border p-6 text-left max-w-sm mx-auto space-y-4" style={{ backgroundColor: T.card, borderColor: T.border }}>
+            <div className="border p-6 text-left max-w-sm mx-auto space-y-4" style={{ backgroundColor: T.card, borderColor: T.border, borderRadius: 16, boxShadow: tema === "chiaro" ? "0 2px 8px rgba(108,92,231,.08)" : "none" }}>
               <div className="flex items-start gap-3">
                 <Scissors className="w-4 h-4 mt-1" style={{ color: T.textMuted }} />
                 <div>
@@ -1738,19 +1751,19 @@ export default function AppCliente() {
       {/* BOTTOM BAR */}
       {step >= 1 && step <= 6 && (
         <div className="fixed bottom-0 left-0 right-0 border-t" style={{ backgroundColor: T.card, borderColor: T.border }}>
-          <div className="max-w-2xl mx-auto px-4 py-4 flex gap-2">
+          <div className="max-w-2xl mx-auto px-4 py-3 flex gap-2 justify-center">
             <button
               onClick={() => setStep(step - 1)}
-              className="flex-1 px-3 py-4 border text-sm transition flex items-center justify-center gap-2 whitespace-nowrap"
-              style={{ borderColor: T.borderStrong, color: T.text, letterSpacing: "0.05em" }}
+              className="px-6 py-3 border text-sm transition flex items-center justify-center gap-2 whitespace-nowrap"
+              style={{ borderColor: T.border, color: T.text, letterSpacing: "0.05em", borderRadius: 999 }}
             >
               <ArrowLeft className="w-4 h-4 flex-shrink-0" /> INDIETRO
             </button>
             <button
               onClick={() => step === 6 ? inviaPrenotazione() : setStep(step + 1)}
               disabled={!puoAvanzare || invioInCorso}
-              className="flex-[2] px-4 py-4 text-sm transition flex items-center justify-center gap-2 disabled:opacity-30 whitespace-nowrap"
-              style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.05em" }}
+              className="px-8 py-3 text-sm transition flex items-center justify-center gap-2 disabled:opacity-30 whitespace-nowrap"
+              style={{ backgroundColor: tema === "chiaro" ? "#6c5ce7" : T.dark, color: tema === "chiaro" ? "#fff" : T.bg, letterSpacing: "0.05em", borderRadius: 999 }}
             >
               {invioInCorso ? "INVIO..." : step === 6 ? "CONFERMA" : "AVANTI"} <ArrowRight className="w-4 h-4 flex-shrink-0" />
             </button>
