@@ -101,7 +101,7 @@ function FeatCarousel(){
     root.querySelectorAll("[data-fc]").forEach(el=>io.observe(el));
     return()=>io.disconnect();
   },[rowOn]);
-  const row={background:"#fff",borderRadius:8,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
+  const row={background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"7px 10px",display:"flex",justifyContent:"space-between",alignItems:"center",fontSize:12,color:"#1e1b3a",marginTop:6};
   const ok={fontSize:11,fontWeight:600,color:"#00805f",background:"rgba(0,184,148,0.14)",borderRadius:99,padding:"2px 8px"};
   const cards=[
     {n:"01",t:"Prenotazioni 24/7",d:"I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
@@ -115,7 +115,7 @@ function FeatCarousel(){
      v:on=>(<div style={{display:"flex",gap:6}}>{[[7,"","Oggi","#6c5ce7","rgba(108,92,231,0.28)"],[135,"€","Incasso","#00b894","rgba(0,184,148,0.25)"],[225,"€","Mese","#e84393","rgba(232,67,147,0.28)"]].map(([v,pre,l,bgc,sh])=>(<div key={l} style={{flex:1,borderRadius:12,background:bgc,boxShadow:"0 6px 12px "+sh,padding:"10px 4px",display:"flex",flexDirection:"column",alignItems:"center",gap:2,color:"#fff"}}><b style={{fontSize:16,color:"#fff"}}><FeatCountUp to={v} pre={pre} run={on}/></b><span style={{fontSize:10,color:"rgba(255,255,255,0.85)"}}>{l}</span></div>))}</div>)},
     {n:"04",t:"Il tuo link unico",d:"Ogni attività ha la sua pagina personale. Condividila sui social o in bio.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
-     v:on=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",borderRadius:8,padding:"4px 9px"}}>{x}</span>))}</div></>)},
+     v:on=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"3px 9px"}}>{x}</span>))}</div></>)},
     {n:"05",t:"Personalizza tutto",d:"Servizi, durata, prezzi e orari. Configuri tutto in pochi minuti.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
      v:on=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(0.4+k*0.5)+"s"}}/></div>))}</>)},
@@ -137,7 +137,7 @@ function FeatCarousel(){
               </div>
               <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
               <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
-              <div style={{marginTop:"auto",background:"#f3f3f6",borderRadius:14,padding:10,overflow:"hidden"}}>{v(played[i])}</div>
+              <div style={{marginTop:"auto"}}>{v(played[i])}</div>
             </div>
             </div>
           ))}
@@ -807,8 +807,8 @@ export default function Home(){
         .fc-card:hover .fc-ic{background:#6c5ce7!important;}
         .fc-ic svg{transition:stroke .25s ease;}
         .fc-card:hover .fc-ic svg{stroke:#fff!important;}
-        .fc-newrow{max-height:0;opacity:0;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;transform:translateY(-8px);overflow:hidden;transition:all .5s ease .9s;}
-        .fc-newrow.on{max-height:40px;opacity:1;margin-top:6px!important;padding-top:7px!important;padding-bottom:7px!important;transform:none;}
+        .fc-newrow{max-height:0;opacity:0;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;border-width:0!important;transform:translateY(-8px);overflow:hidden;transition:all .5s ease .9s;}
+        .fc-newrow.on{max-height:44px;opacity:1;margin-top:6px!important;padding-top:7px!important;padding-bottom:7px!important;border-width:1.5px!important;transform:none;}
         .fc-pop{transform:scale(.6);transition:transform .4s cubic-bezier(.3,1.6,.5,1) 1.5s;}
         .fc-newrow.on .fc-pop{transform:scale(1);}
         .fc-notif{opacity:0;transform:translateY(-14px);transition:opacity .5s ease .5s,transform .5s ease .5s;}
