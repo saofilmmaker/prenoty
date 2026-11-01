@@ -425,7 +425,7 @@ export default function AppCliente() {
     fetch("/api/create-payment-intent", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ salone_id: salone.id, amount: totale }),
+      body: JSON.stringify({ salone_id: salone.id, amount: totale, servizi_ids: serviziScelti.map(x => x.id) }),
     })
       .then(r => r.json())
       .then(data => {
