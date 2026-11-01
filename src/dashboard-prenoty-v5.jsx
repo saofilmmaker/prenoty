@@ -5280,22 +5280,22 @@ useEffect(() => {
           onClick={() => { setModalNuovoCliente(false); setNuovoCliente({ nome: "", tel: "", note: "" }); }}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}
         >
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 8px 28px rgba(60,50,140,.2)", padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>Nuovo cliente</h3>
             <p style={{ fontSize: 13, color: T.textSoft, margin: "0 0 20px" }}>Inserisci i dati del nuovo cliente nell'anagrafica.</p>
 
             <label style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.15em" }}>NOME E COGNOME</label>
-            <input type="text" autoFocus value={nuovoCliente.nome} onChange={(e) => setNuovoCliente({ ...nuovoCliente, nome: e.target.value })} placeholder="Es: Mario Rossi" style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 16, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none" }} />
+            <input type="text" autoFocus value={nuovoCliente.nome} onChange={(e) => setNuovoCliente({ ...nuovoCliente, nome: e.target.value })} placeholder="Es: Mario Rossi" style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 16, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none", borderRadius: 8 }} />
 
             <label style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.15em" }}>TELEFONO</label>
-            <input type="tel" value={nuovoCliente.tel} onChange={(e) => setNuovoCliente({ ...nuovoCliente, tel: e.target.value })} placeholder="Es: +39 333 1234567" style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 16, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none" }} />
+            <input type="tel" value={nuovoCliente.tel} onChange={(e) => setNuovoCliente({ ...nuovoCliente, tel: e.target.value })} placeholder="Es: +39 333 1234567" style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 16, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none", borderRadius: 8 }} />
 
             <label style={{ fontSize: 11, color: T.textMuted, letterSpacing: "0.15em" }}>NOTE (opzionali)</label>
-            <textarea value={nuovoCliente.note} onChange={(e) => setNuovoCliente({ ...nuovoCliente, note: e.target.value })} placeholder="Es: preferenze, allergie, ecc." rows={2} style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 24, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none", resize: "none" }} />
+            <textarea value={nuovoCliente.note} onChange={(e) => setNuovoCliente({ ...nuovoCliente, note: e.target.value })} placeholder="Es: preferenze, allergie, ecc." rows={2} style={{ width: "100%", padding: 12, marginTop: 6, marginBottom: 24, background: T.bg, border: `1px solid ${T.border}`, color: T.text, fontFamily: "inherit", fontSize: 14, outline: "none", resize: "none", borderRadius: 8 }} />
 
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => { setModalNuovoCliente(false); setNuovoCliente({ nome: "", tel: "", note: "" }); }} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
-              <button onClick={aggiungiCliente} disabled={!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()} style={{ flex: 1, padding: 12, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: (!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()) ? 0.4 : 1 }}>AGGIUNGI</button>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={() => { setModalNuovoCliente(false); setNuovoCliente({ nome: "", tel: "", note: "" }); }} style={{ padding: "11px 24px", borderRadius: 8, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
+              <button onClick={aggiungiCliente} disabled={!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()} style={{ padding: "11px 24px", borderRadius: 8, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: (!nuovoCliente.nome.trim() || !nuovoCliente.tel.trim()) ? 0.4 : 1 }}>AGGIUNGI</button>
             </div>
           </div>
         </div>
@@ -5307,7 +5307,7 @@ useEffect(() => {
           onClick={() => { setModalImportaClienti(false); setImportAnteprima(null); }}
           style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}
         >
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 8px 28px rgba(60,50,140,.2)", padding: "32px 28px", maxWidth: 480, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start" }}>
               <div>
                 <h3 style={{ fontSize: 22, fontWeight: 400, margin: "0 0 6px" }}>Importa clienti da CSV</h3>
@@ -5317,7 +5317,7 @@ useEffect(() => {
             </div>
 
             {!importAnteprima ? (
-              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, border: `1.5px dashed ${T.border}`, borderRadius: 10, padding: "32px 16px", cursor: "pointer", background: T.bg }}>
+              <label style={{ display: "flex", flexDirection: "column", alignItems: "center", gap: 8, border: `1.5px dashed ${T.border}`, borderRadius: 12, padding: "32px 16px", cursor: "pointer", background: T.bg }}>
                 <Upload className="w-6 h-6" style={{ color: T.accent }} />
                 <span style={{ fontSize: 13, fontWeight: 600, color: T.accent }}>Scegli file CSV</span>
                 <span style={{ fontSize: 11, color: T.textMuted }}>Colonne accettate: nome, telefono, email, note</span>
@@ -5342,9 +5342,9 @@ useEffect(() => {
                   📋 <strong style={{ color: "#00b894" }}>{importAnteprima.nuovi.length} clienti</strong> pronti da importare
                   {importAnteprima.duplicati > 0 && <> · {importAnteprima.duplicati} già presenti verranno saltati</>}
                 </div>
-                <div style={{ display: "flex", gap: 8 }}>
-                  <button onClick={() => setImportAnteprima(null)} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
-                  <button onClick={confermaImportClienti} disabled={importInCorso || importAnteprima.nuovi.length === 0} style={{ flex: 1, padding: 12, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: importInCorso || importAnteprima.nuovi.length === 0 ? 0.5 : 1 }}>
+                <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+                  <button onClick={() => setImportAnteprima(null)} style={{ padding: "11px 24px", borderRadius: 8, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
+                  <button onClick={confermaImportClienti} disabled={importInCorso || importAnteprima.nuovi.length === 0} style={{ padding: "11px 24px", borderRadius: 8, background: T.accent, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer", opacity: importInCorso || importAnteprima.nuovi.length === 0 ? 0.5 : 1 }}>
                     {importInCorso ? "IMPORTO..." : `IMPORTA ${importAnteprima.nuovi.length} CLIENTI`}
                   </button>
                 </div>
