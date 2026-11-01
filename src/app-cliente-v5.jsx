@@ -15,6 +15,14 @@ const BTN_PRENOTA_STYLE = {
   backdropFilter: "blur(8px) saturate(150%)", WebkitBackdropFilter: "blur(8px) saturate(150%)",
   boxShadow: "inset 0 0 0 1px rgba(255,255,255,.18), inset 1.8px 3px 0 -2px rgba(255,255,255,.9), inset -2px -2px 0 -2px rgba(255,255,255,.8), inset -3px -8px 1px -6px rgba(255,255,255,.6), inset -.3px -1px 4px 0 rgba(0,0,0,.14), inset -1.5px 2.5px 0 -2px rgba(0,0,0,.22), inset 0 3px 4px -2px rgba(0,0,0,.22), 0 1px 5px 0 rgba(0,0,0,.12), 0 8px 18px 0 rgba(108,92,231,.25)",
 };
+const COLONNE_PUBBLICHE_SALONE = [
+  "id", "nome", "slug", "tipo", "indirizzo", "telefono", "email", "descrizione", "logo", "copertina", "copertina_y",
+  "galleria", "social", "orari", "staff", "recensioni", "metodi_pagamento",
+  "mostra_galleria", "mostra_mappa", "mostra_orari", "mostra_recensioni", "mostra_social",
+  "blocco_occupato", "blocco_sovrapposizione", "limite_sovrapposizione", "prenotazione_anticipo",
+  "ferie_attive", "ferie_dal", "ferie_al", "ferie_messaggio", "chiusure_temporanee", "aperture_straordinarie",
+  "stato_abbonamento", "abbonamento_attivo", "piano_speciale", "prova_scade_il",
+].join(",");
 const CERCHIO_SHADOW = "inset 0 2px 2px rgba(255,255,255,.6), inset 0 -2px 3px rgba(0,0,0,.12)";
 
 // Icona ombrellone (Tabler "beach") — lucide ha solo l'ombrello da pioggia
@@ -217,8 +225,9 @@ export default function AppCliente() {
   const { slug } = useParams();
   useEffect(() => {
     const carica = async () => {
+      // Solo le colonne che la pagina pubblica usa davvero (le altre non sono leggibili da chi non ha l'accesso)
       const { data: saloneDb } = await supabase
-        .from("saloni").select("*").eq("slug", slug).single();
+        .from("saloni").select(COLONNE_PUBBLICHE_SALONE).eq("slug", slug).single();
       if (!saloneDb) { setNonTrovato(true); setCaricamento(false); return; }
       setSalone(prev => ({ 
         ...prev, 
