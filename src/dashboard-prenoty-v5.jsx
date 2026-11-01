@@ -1999,7 +1999,7 @@ useEffect(() => {
                 {[
                   { lbl: "OGGI",     val: prenOggi.length,  sub: "appuntamenti",        icon: Calendar,   bg: T.accent,   light: false, onClick: null },
                   { lbl: "OGGI",     val: `€${incassoOggi}`,sub: "incasso previsto",    icon: Euro,       bg: "#00b894",  light: false, onClick: () => setBreakdownIncassoAperto(v => !v), espandibile: true },
-                  { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotazioni confermate",icon: TrendingUp, bg: T.card,   light: true,  onClick: null },
+                  { lbl: "MESE",     val: `€${incassoMese}`,sub: "prenotazioni confermate",icon: TrendingUp, bg: "#e84393", light: false, onClick: null },
                   { lbl: "PAGATO ONLINE", val: `€${pagatiOggi}`, sub: "ricevuto oggi online", icon: CreditCard, bg: filtroCard === "pagati" ? T.accentSoft : T.card, light: true, onClick: () => { setFiltroCard(f => f === "pagati" ? null : "pagati"); setVista("tutti"); } },
                 ].map((s, i) => {
                   const Ic = s.icon;
@@ -2011,8 +2011,8 @@ useEffect(() => {
                       style={{
                         backgroundColor: s.bg,
                         borderRadius: 16,
-                        border: s.light ? `1px solid ${filtroCard === "pagati" && i === 3 ? T.accent : s.pulse ? T.accent : T.border}` : "none",
-                        boxShadow: s.light ? "0 2px 8px rgba(108,92,231,.08)" : "0 4px 16px rgba(108,92,231,0.25)",
+                        border: s.light ? `1px solid ${filtroCard === "pagati" && i === 3 ? T.accent : s.pulse ? T.accent : tema === "chiaro" ? "#cfc8f7" : T.border}` : "none",
+                        boxShadow: s.light ? (tema === "chiaro" ? "0 4px 12px rgba(108,92,231,.14)" : "0 2px 8px rgba(108,92,231,.08)") : i === 2 ? "0 4px 16px rgba(232,67,147,0.28)" : "0 4px 16px rgba(108,92,231,0.25)",
                         cursor: s.onClick ? "pointer" : "default",
                         animation: s.pulse ? "prenoty-glow 1.4s ease-in-out infinite" : "none",
                         transition: "background 0.2s",
