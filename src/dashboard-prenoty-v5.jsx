@@ -277,18 +277,19 @@ export default function DashboardPrenoty() {
     return lista.map((ora) => {
       const [h, m] = ora.split(":").map(Number);
       const slotMin = h * 60 + m;
-      const contaPresenti = (lista) => {
+      const contaPresenti = (lista, conPausa) => {
         let n = 0;
         for (const p of lista) {
           const [ph, pm] = (p.ora || "00:00").slice(0, 5).split(":").map(Number);
           const startMin = ph * 60 + pm;
-          const endMin = startMin + (p.durata || 30);
+          const endMin = startMin + (p.durata || 30) + (conPausa ? (p.pausa || 0) : 0);
           if (startMin <= slotMin && slotMin < endMin) n++;
         }
         return n;
       };
-      if (salone.bloccoOccupato && contaPresenti(prenPerOccupato) >= 1) return { ora, disponibile: false };
-      if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap) >= (salone.limiteSovrapposizione ?? 3)) return { ora, disponibile: false };
+      // Stesse regole della pagina pubblica: "blocco occupati" conta anche la pausa tra un cliente e l'altro
+      if (salone.bloccoOccupato && contaPresenti(prenPerOccupato, true) >= 1) return { ora, disponibile: false };
+      if (salone.bloccoSovrapposizione && contaPresenti(prenPerSovrap, false) >= (salone.limiteSovrapposizione ?? 3)) return { ora, disponibile: false };
       return { ora, disponibile: true };
     });
   };
@@ -588,6 +589,8 @@ useEffect(() => {
           bonificoConfermato: p.bonifico_confermato ?? false,
           codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
+          staff_id: p.staff_id ?? null,
+          pausa: p.pausa_totale || 0,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
           extraDescrizione: p.extra_descrizione || "",
@@ -1397,6 +1400,8 @@ useEffect(() => {
             bonificoConfermato: p.bonifico_confermato ?? false,
             codiceBonifico: p.codice_bonifico || null,
             staffId: p.staff_id || 1,
+            staff_id: p.staff_id ?? null,
+            pausa: p.pausa_totale || 0,
             nuovo: true,
             note: p.note || "",
             extraDescrizione: p.extra_descrizione || "",
@@ -1470,6 +1475,8 @@ useEffect(() => {
           bonificoConfermato: p.bonifico_confermato ?? false,
           codiceBonifico: p.codice_bonifico || null,
           staffId: p.staff_id || 1,
+          staff_id: p.staff_id ?? null,
+          pausa: p.pausa_totale || 0,
           nuovo: !letteSet.has(p.id),
           note: p.note || "",
           extraDescrizione: p.extra_descrizione || "",
