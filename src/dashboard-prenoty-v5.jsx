@@ -5075,12 +5075,12 @@ useEffect(() => {
       {/* MODAL CONFERMA ELIMINA SERVIZIO */}
       {confermaEliminaServizio && (
         <div onClick={() => setConfermaEliminaServizio(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 8px 28px rgba(60,50,140,.2)", padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 12px" }}>Eliminare questo servizio?</h3>
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>Le prenotazioni esistenti restano in agenda. I clienti non potranno più scegliere questo servizio.</p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setConfermaEliminaServizio(null)} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
-              <button onClick={eseguiEliminaServizio} style={{ flex: 1, padding: 12, background: T.danger, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ELIMINA</button>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={() => setConfermaEliminaServizio(null)} style={{ padding: "11px 24px", borderRadius: 8, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
+              <button onClick={eseguiEliminaServizio} style={{ padding: "11px 24px", borderRadius: 8, background: "#e5484d", border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ELIMINA</button>
             </div>
           </div>
         </div>
@@ -5358,12 +5358,12 @@ useEffect(() => {
       {/* MODAL CONFERMA ELIMINA CLIENTE */}
       {confermaEliminaCliente && (
         <div onClick={() => setConfermaEliminaCliente(null)} style={{ position: "fixed", inset: 0, background: "rgba(0,0,0,0.5)", display: "flex", alignItems: "center", justifyContent: "center", zIndex: 10000, padding: 20 }}>
-          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 12, padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
+          <div onClick={(e) => e.stopPropagation()} style={{ background: T.card, border: `1px solid ${T.border}`, borderRadius: 16, boxShadow: "0 8px 28px rgba(60,50,140,.2)", padding: "32px 28px", maxWidth: 440, width: "100%", fontFamily: "'DM Sans', 'Helvetica Neue', sans-serif", color: T.text }}>
             <h3 style={{ fontSize: 20, fontWeight: 400, margin: "0 0 12px" }}>Eliminare questo cliente?</h3>
             <p style={{ fontSize: 14, color: T.textSoft, lineHeight: 1.6, margin: "0 0 24px" }}>Verrà rimosso dall'anagrafica. Le prenotazioni passate restano in agenda per i tuoi report.</p>
-            <div style={{ display: "flex", gap: 8 }}>
-              <button onClick={() => setConfermaEliminaCliente(null)} style={{ flex: 1, padding: 12, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
-              <button onClick={eseguiEliminaCliente} style={{ flex: 1, padding: 12, background: T.danger, border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ELIMINA</button>
+            <div style={{ display: "flex", gap: 8, justifyContent: "center" }}>
+              <button onClick={() => setConfermaEliminaCliente(null)} style={{ padding: "11px 24px", borderRadius: 8, background: "transparent", border: `1px solid ${T.border}`, color: T.textSoft, fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ANNULLA</button>
+              <button onClick={eseguiEliminaCliente} style={{ padding: "11px 24px", borderRadius: 8, background: "#e5484d", border: "none", color: "#fff", fontFamily: "inherit", fontSize: 13, letterSpacing: "0.15em", cursor: "pointer" }}>ELIMINA</button>
             </div>
           </div>
         </div>
