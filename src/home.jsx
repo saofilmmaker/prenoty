@@ -126,8 +126,8 @@ function FeatCarousel(){
         <button aria-label="Indietro" onClick={()=>go(-1)} style={{...FEAT_GLASS_ARROW,opacity:canL?1:0,pointerEvents:canL?"auto":"none"}}>
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
         </button>
-        <div style={{width:856,maxWidth:"100%",boxSizing:"border-box",overflow:"hidden",padding:"6px 6px 26px",margin:"-6px -6px -26px"}}>
-        <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",scrollbarWidth:"none"}}>
+        <div style={{width:872,maxWidth:"100%",boxSizing:"border-box",overflow:"hidden",margin:"-20px 0 -44px"}}>
+        <div ref={rail} onScroll={upd} className="feat-rail" style={{display:"flex",gap:14,overflowX:"auto",scrollSnapType:"x mandatory",scrollbarWidth:"none",padding:"20px 14px 44px",scrollPaddingLeft:14,boxSizing:"border-box"}}>
           {cards.map(({n,t,d,bg,c,ic,v},i)=>(
             <div key={n} data-fc={i} style={{opacity:inView?1:0,transform:inView?"translateY(0)":"translateY(50px)",transition:`opacity .5s ease ${i*0.1}s, transform .5s ease ${i*0.1}s`,flex:"0 0 272px",scrollSnapAlign:"start",height:360}}>
             <div className="fc-card" style={{background:"#fff",border:"1px solid #e0dcff",borderRadius:20,padding:"22px",height:"100%",display:"flex",flexDirection:"column",boxSizing:"border-box"}}>
@@ -802,7 +802,7 @@ export default function Home(){
           .hero-section{padding-top:16px!important;padding-left:20px!important;padding-right:20px!important;}
         }
         .fc-card{box-shadow:0 4px 12px rgba(108,92,231,0.14);transition:transform .25s ease,box-shadow .25s ease;}
-        .fc-card:hover{transform:translateY(-4px);box-shadow:0 12px 24px rgba(108,92,231,0.22);}
+        .fc-card:hover{transform:translateY(-4px);box-shadow:0 10px 20px rgba(108,92,231,0.2);}
         .fc-ic{transition:background .25s ease;}
         .fc-card:hover .fc-ic{background:#6c5ce7!important;}
         .fc-ic svg{transition:stroke .25s ease;}
