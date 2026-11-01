@@ -302,9 +302,12 @@ export default function AppCliente() {
       p_salone_id: salone.id, p_nome: nome, p_stelle: nuovaRecensione.stelle, p_testo: testo, p_data: dataTesto,
     });
     if (error || !creata) {
-      setErroreRecensione(/troppe_recensioni|recensione_duplicata/.test(error?.message || "")
-        ? "Ci sono già troppe recensioni in poco tempo. Riprova tra un po'."
-        : "Non è stato possibile pubblicare la recensione. Riprova tra poco.");
+      const msg = error?.message || "";
+      setErroreRecensione(/recensione_duplicata/.test(msg)
+        ? "Questa recensione è già stata pubblicata."
+        : /troppe_recensioni/.test(msg)
+          ? "Ci sono già troppe recensioni in poco tempo. Riprova tra un po'."
+          : "Non è stato possibile pubblicare la recensione. Riprova tra poco.");
       return;
     }
     setRecensioni([creata, ...recensioni]);
