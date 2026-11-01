@@ -93,19 +93,22 @@ function FeatCarousel({stacked=false}){
     if(stacked){
       const scope=inRef.current;if(!scope)return;
       const els=[...scope.querySelectorAll("[data-fc]")];
+      let armed=false;
+      const arm=()=>{armed=true;};
       const check=()=>{
+        if(!armed)return;
         const vh=window.innerHeight;
         els.forEach((el,i)=>{
           const r=el.getBoundingClientRect();
-          const vis=Math.min(r.bottom,vh)-Math.max(r.top,0);
-          if(vis>r.height*0.15)setSeen(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
-          if(vis>Math.min(r.height*0.5,vh*0.4))setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+          if(r.top<vh*0.88&&r.bottom>vh*0.1)setSeen(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+          if(r.top<vh*0.62&&r.bottom>vh*0.25)setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
         });
       };
-      check();
+      const evs=["touchstart","wheel","keydown","mousedown"];
+      evs.forEach(e=>window.addEventListener(e,arm,{passive:true,once:true}));
       window.addEventListener("scroll",check,{passive:true});
-      window.addEventListener("resize",check);
-      return()=>{window.removeEventListener("scroll",check);window.removeEventListener("resize",check);};
+      const iv=setInterval(check,150);
+      return()=>{clearInterval(iv);evs.forEach(e=>window.removeEventListener(e,arm));window.removeEventListener("scroll",check);};
     }
     if(!rowOn)return;
     const root=rail.current;if(!root)return;
