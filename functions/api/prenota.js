@@ -8,6 +8,7 @@ const CORS = {
   "Access-Control-Allow-Origin": "https://prenoty.com",
   "Access-Control-Allow-Methods": "POST, OPTIONS",
   "Access-Control-Allow-Headers": "Content-Type",
+  "X-Prenoty-Fn": "prenota-v3",
 };
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -137,6 +138,8 @@ export async function onRequestPost(context) {
     }
 
     // 5) Scheda cliente in anagrafica (se qualcosa va storto la prenotazione resta valida)
+    let esitoCliente = "nessuno";
+    const codiceErrore = async (r) => { const t = await r.text().catch(() => ""); try { return JSON.parse(t).code || r.status; } catch (_) { return r.status; } };
     try {
       const telGrezzo = pulisci(b.telefono_grezzo, 30);
       const candidati = [...new Set([telefono, telGrezzo].filter((v) => v && /^[0-9+()\-\s.]+$/.test(v)))];
@@ -145,25 +148,29 @@ export async function onRequestPost(context) {
         `${env.SUPABASE_URL}/rest/v1/clienti?salone_id=eq.${saloneId}&telefono=in.(${encodeURIComponent(lista)})&select=id,visite&limit=1`,
         { headers: sb }
       );
+      if (!cRes.ok) esitoCliente = `errore-ricerca:${await codiceErrore(cRes.clone())}`;
       const esistente = cRes.ok ? (await cRes.json())?.[0] : null;
       if (esistente) {
-        await fetch(`${env.SUPABASE_URL}/rest/v1/clienti?id=eq.${esistente.id}`, {
+        const pRes = await fetch(`${env.SUPABASE_URL}/rest/v1/clienti?id=eq.${esistente.id}`, {
           method: "PATCH",
           headers: { ...sb, "Content-Type": "application/json", "Prefer": "return=minimal" },
           body: JSON.stringify({ visite: (esistente.visite || 0) + 1, ultima_visita: data, nome, ...(email ? { email } : {}) }),
         });
+        esitoCliente = pRes.ok ? "aggiornato" : `errore-aggiornamento:${await codiceErrore(pRes)}`;
       } else if (cRes.ok) {
-        await fetch(`${env.SUPABASE_URL}/rest/v1/clienti`, {
+        const iRes = await fetch(`${env.SUPABASE_URL}/rest/v1/clienti`, {
           method: "POST",
           headers: { ...sb, "Content-Type": "application/json", "Prefer": "return=minimal" },
           body: JSON.stringify({ salone_id: saloneId, nome, telefono, email, visite: 1, ultima_visita: data }),
         });
+        esitoCliente = iRes.ok ? "creato" : `errore-creazione:${await codiceErrore(iRes)}`;
       }
     } catch (e) {
       console.error("Errore scheda cliente:", e.message);
+      esitoCliente = "errore-eccezione";
     }
 
-    return risposta(200, { ok: true });
+    return risposta(200, { ok: true, cliente: esitoCliente });
   } catch (err) {
     return risposta(500, { error: err.message });
   }
