@@ -54,25 +54,25 @@ const FEAT_GLASS_ARROW = {
   transition:"opacity .2s",
 };
 
-function FeatCountUp({to,pre="",run}){
+function FeatCountUp({to,pre="",run,delay=0}){
   const[val,setVal]=useState(0);
   useEffect(()=>{
     if(!run)return;
-    let raf;const t0=performance.now();
-    const f=t=>{const p=Math.min(1,(t-t0)/1200);setVal(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)raf=requestAnimationFrame(f);};
-    raf=requestAnimationFrame(f);
-    return()=>cancelAnimationFrame(raf);
+    let raf,tm;
+    const go=()=>{const t0=performance.now();const f=t=>{const p=Math.min(1,(t-t0)/1200);setVal(Math.round(to*(1-Math.pow(1-p,3))));if(p<1)raf=requestAnimationFrame(f);};raf=requestAnimationFrame(f);};
+    tm=setTimeout(go,delay*1000);
+    return()=>{clearTimeout(tm);cancelAnimationFrame(raf);};
   },[run,to]);
   return <>{pre}{val}</>;
 }
 
-function FeatTyped({text,run,onDone}){
+function FeatTyped({text,run,onDone,delay=0}){
   const[n,setN]=useState(0);
   useEffect(()=>{
     if(!run)return;
-    let i=0;
-    const iv=setInterval(()=>{i+=1;setN(i);if(i>=text.length){clearInterval(iv);onDone&&onDone();}},55);
-    return()=>clearInterval(iv);
+    let i=0,iv;
+    const tm=setTimeout(()=>{iv=setInterval(()=>{i+=1;setN(i);if(i>=text.length){clearInterval(iv);onDone&&onDone();}},55);},delay*1000);
+    return()=>{clearTimeout(tm);clearInterval(iv);};
   },[run]);
   return <>{text.slice(0,n)}<span className="fc-caret"/></>;
 }
@@ -87,6 +87,19 @@ function FeatCarousel({stacked=false}){
   useEffect(()=>{upd();window.addEventListener("resize",upd);return()=>window.removeEventListener("resize",upd);},[]);
   const go=d=>rail.current&&rail.current.scrollBy({left:d*286,behavior:"smooth"});
   const[played,setPlayed]=useState([false,false,false,false,false]);
+  const[bases,setBases]=useState([0,0,0,0,0]);
+  const startedRef=useRef([false,false,false,false,false]);
+  const queueEnd=useRef(-1e9);
+  const triggerPlay=i=>{
+    if(startedRef.current[i])return;
+    startedRef.current[i]=true;
+    const now=performance.now();
+    const start=Math.max(now,queueEnd.current+1000);
+    queueEnd.current=start;
+    const b=(start-now)/1000;
+    setBases(prev=>{const n=[...prev];n[i]=b;return n;});
+    setPlayed(prev=>{const n=[...prev];n[i]=true;return n;});
+  };
   const[urlDone,setUrlDone]=useState(false);
   const[seen,setSeen]=useState([false,false,false,false,false]);
   useEffect(()=>{
@@ -101,7 +114,7 @@ function FeatCarousel({stacked=false}){
         els.forEach((el,i)=>{
           const r=el.getBoundingClientRect();
           if(r.top<vh*0.88&&r.bottom>vh*0.1)setSeen(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
-          if(r.top<vh*0.62&&r.bottom>vh*0.25)setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+          if(r.top<vh*0.62&&r.bottom>vh*0.25)triggerPlay(i);
         });
       };
       const evs=["touchstart","wheel","keydown","mousedown"];
@@ -115,7 +128,7 @@ function FeatCarousel({stacked=false}){
     const io=new IntersectionObserver(es=>es.forEach(e=>{
       if(e.isIntersecting){
         const i=+e.target.dataset.fc;
-        setPlayed(p=>{if(p[i])return p;const n=[...p];n[i]=true;return n;});
+        triggerPlay(i);
         io.unobserve(e.target);
       }
     }),{root,threshold:0.7});
@@ -127,19 +140,19 @@ function FeatCarousel({stacked=false}){
   const cards=[
     {n:"01",t:"Prenotazioni 24/7",d:"I clienti prenotano quando vogliono. Niente telefonate, niente messaggi su WhatsApp.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>,
-     v:on=>(<><div style={{...row,marginTop:0}}><span>Valentina R.</span><span style={ok}>Confermata</span></div><div style={row}><span>Marco B.</span><span style={ok}>Confermata</span></div><div className={"fc-newrow"+(on?" on":"")} style={{...row}}><span>Giulia M.</span><span className="fc-pop" style={ok}>Confermata</span></div></>)},
+     v:(on,b)=>(<div style={{minHeight:122}}>{["Valentina R.","Marco B.","Giulia M."].map((nm,k)=>(<div key={nm} className={"fc-newrow"+(k===0?" fc-first":"")+(on?" on":"")} style={{...row,transitionDelay:(b+0.5+k*0.2)+"s"}}><span>{nm}</span><span className="fc-pop" style={{...ok,transitionDelay:(b+0.9+k*0.2)+"s"}}>Confermata</span></div>))}</div>)},
     {n:"02",t:"Promemoria automatici",d:"Email automatiche prima di ogni appuntamento. Zero no-show, zero dimenticanze.",bg:"rgba(0,184,148,0.14)",c:"#00b894",
      ic:<><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></>,
-     v:on=>(<><div className={"fc-notif"+(on?" on":"")} style={{...row,marginTop:0}}><span style={{display:"flex",alignItems:"center",gap:6}}><span className="fc-bell" style={{display:"inline-flex"}}><Ico d={<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>} size={14} color="#00b894"/></span>Il tuo appuntamento è domani!</span></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:".7s"}}><span>Ora</span><b style={{color:"#6c5ce7"}}>09:00</b></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:".9s"}}><span>Salone</span><b>Sao Salone</b></div></>)},
+     v:(on,b)=>(<><div className={"fc-notif"+(on?" on":"")} style={{...row,marginTop:0,transitionDelay:(b+0.5)+"s"}}><span style={{display:"flex",alignItems:"center",gap:6}}><span className="fc-bell" style={{display:"inline-flex",animationDelay:(b+1.1)+"s"}}><Ico d={<><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></>} size={14} color="#00b894"/></span>Il tuo appuntamento è domani!</span></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:(b+0.7)+"s"}}><span>Ora</span><b style={{color:"#6c5ce7"}}>09:00</b></div><div className={"fc-notif"+(on?" on":"")} style={{...row,transitionDelay:(b+0.9)+"s"}}><span>Salone</span><b>Sao Salone</b></div></>)},
     {n:"03",t:"Dashboard in tempo reale",d:"Vedi chi arriva, a che ora e quanto incassi oggi.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>,
-     v:on=>(<div style={{display:"flex",gap:6}}>{[[7,"","Oggi","#6c5ce7","rgba(108,92,231,0.28)"],[135,"€","Incasso","#00b894","rgba(0,184,148,0.25)"],[225,"€","Mese","#e84393","rgba(232,67,147,0.28)"]].map(([v,pre,l,bgc,sh])=>(<div key={l} style={{flex:1,borderRadius:12,background:bgc,boxShadow:"0 6px 12px "+sh,padding:"10px 4px",display:"flex",flexDirection:"column",alignItems:"center",gap:2,color:"#fff"}}><b style={{fontSize:16,color:"#fff"}}><FeatCountUp to={v} pre={pre} run={on}/></b><span style={{fontSize:10,color:"rgba(255,255,255,0.85)"}}>{l}</span></div>))}</div>)},
+     v:(on,b)=>(<div style={{display:"flex",gap:6}}>{[[7,"","Oggi","#6c5ce7","rgba(108,92,231,0.28)"],[135,"€","Incasso","#00b894","rgba(0,184,148,0.25)"],[225,"€","Mese","#e84393","rgba(232,67,147,0.28)"]].map(([v,pre,l,bgc,sh])=>(<div key={l} style={{flex:1,borderRadius:12,background:bgc,boxShadow:"0 6px 12px "+sh,padding:"10px 4px",display:"flex",flexDirection:"column",alignItems:"center",gap:2,color:"#fff"}}><b style={{fontSize:16,color:"#fff"}}><FeatCountUp to={v} pre={pre} run={on} delay={b}/></b><span style={{fontSize:10,color:"rgba(255,255,255,0.85)"}}>{l}</span></div>))}</div>)},
     {n:"04",t:"Il tuo link unico",d:"Ogni attività ha la sua pagina personale. Condividila sui social o in bio.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>,
-     v:on=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"3px 9px"}}>{x}</span>))}</div></>)},
+     v:(on,b)=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} delay={b} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"3px 9px"}}>{x}</span>))}</div></>)},
     {n:"05",t:"Personalizza tutto",d:"Servizi, durata, prezzi e orari. Configuri tutto in pochi minuti.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
-     v:on=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(0.4+k*0.5)+"s"}}/></div>))}</>)},
+     v:(on,b)=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(b+0.4+k*0.5)+"s"}}/></div>))}</>)},
   ];
   if(stacked){
     return(
@@ -154,7 +167,7 @@ function FeatCarousel({stacked=false}){
                 </div>
                 <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
                 <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
-                <div style={{marginTop:18}}>{v(played[i])}</div>
+                <div style={{marginTop:18}}>{v(played[i],bases[i])}</div>
               </div>
             </div>
           ))}
@@ -184,7 +197,7 @@ function FeatCarousel({stacked=false}){
               </div>
               <h3 style={{fontSize:17,fontWeight:700,color:"#13112a",margin:"0 0 6px"}}>{t}</h3>
               <p style={{fontSize:13,color:"#5f5a78",lineHeight:1.6,margin:0}}>{d}</p>
-              <div style={{marginTop:"auto"}}>{v(played[i])}</div>
+              <div style={{marginTop:"auto"}}>{v(played[i],bases[i])}</div>
             </div>
             </div>
           ))}
@@ -856,6 +869,7 @@ export default function Home(){
         .fc-card:hover .fc-ic svg{stroke:#fff!important;}
         .fc-newrow{max-height:0;opacity:0;margin-top:0!important;padding-top:0!important;padding-bottom:0!important;border-width:0!important;transform:translateY(-8px);overflow:hidden;transition:all .5s ease .9s;}
         .fc-newrow.on{max-height:44px;opacity:1;margin-top:6px!important;padding-top:7px!important;padding-bottom:7px!important;border-width:1.5px!important;transform:none;}
+        .fc-newrow.fc-first.on{margin-top:0!important;}
         .fc-pop{transform:scale(.6);transition:transform .4s cubic-bezier(.3,1.6,.5,1) 1.5s;}
         .fc-newrow.on .fc-pop{transform:scale(1);}
         .fc-notif{opacity:0;transform:translateY(-14px);transition:opacity .5s ease .5s,transform .5s ease .5s;}
