@@ -207,7 +207,7 @@ function FeatCarousel({stacked=false}){
           <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
         </button>
       </div>
-      <div style={{maxWidth:960,margin:"28px auto 0",background:"#6c5ce7",borderRadius:16,padding:"14px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
+      <div style={{maxWidth:844,margin:"28px auto 0",background:"#6c5ce7",borderRadius:16,padding:"14px 22px",display:"flex",alignItems:"center",justifyContent:"space-between",gap:16,flexWrap:"wrap",boxShadow:"0 10px 22px rgba(108,92,231,0.28)"}}>
         <div style={{display:"flex",alignItems:"center",gap:14,flexWrap:"wrap"}}>
           <img src="/Prenoty_Bianco.png" alt="Prenoty" style={{height:26,width:"auto"}}/>
           <span style={{fontSize:15,fontWeight:600,color:"rgba(255,255,255,0.95)"}}>Semplice, veloce, senza commissioni.</span>
