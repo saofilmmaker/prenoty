@@ -77,6 +77,50 @@ function FeatTyped({text,run,onDone,delay=0}){
   return <>{text.slice(0,n)}<span className="fc-caret"/></>;
 }
 
+const REVIEWS=[
+  {nome:"Brilly Capelli d'Arte",ruolo:"Parrucchiere",ini:"BC",foto:"/recensioni/brilly.jpg",testo:"Prenoty ha semplificato la gestione del salone. I clienti prenotano anche a salone chiuso e risparmio un sacco di tempo. Complimenti al team!"},
+  {nome:"Arelis Mitte",ruolo:"Estetista",ini:"AM",foto:"/recensioni/arelis.jpg",testo:"Le clienti prenotano quando vogliono. Comoda e ben organizzata, la consiglio."},
+  {nome:"Levi Music",ruolo:"Produttore musicale",ini:"LM",foto:"/recensioni/levi.jpg",testo:"L'interfaccia mi è piaciuta subito, è davvero intuitiva e semplice da usare."},
+];
+
+function ReviewsSection(){
+  const[mobile,setMobile]=useState(()=>typeof window!=="undefined"&&window.innerWidth<=700);
+  useEffect(()=>{const f=()=>setMobile(window.innerWidth<=700);window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
+  return(
+    <div style={{maxWidth:1040,margin:"0 auto"}}>
+      <style>{`
+        .rv-card{background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:26px;padding:22px;border:1px solid rgba(255,255,255,.9);box-shadow:0 0 6px rgba(74,60,181,.04),0 6px 16px rgba(108,92,231,.14),inset 4px 4px 1px -3px rgba(74,60,181,.6),inset -4px -4px 1px -3px rgba(74,60,181,.55),inset 1px 1px 1px -0.5px rgba(74,60,181,.4),inset -1px -1px 1px -0.5px rgba(74,60,181,.4),inset 0 0 10px 6px rgba(255,255,255,.7),0 0 12px rgba(255,255,255,.6)}
+        .rv-av{width:52px;height:52px;border-radius:50%;background:#6c5ce7;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
+        .rv-av img{width:100%;height:100%;object-fit:cover}
+      `}</style>
+      <FadeIn>
+        <div style={{textAlign:"center",marginBottom:36}}>
+          <div style={{fontSize:12,fontWeight:700,letterSpacing:2.4,color:"#6c5ce7",marginBottom:10}}>DICONO DI NOI</div>
+          <h2 style={{fontSize:mobile?30:40,fontWeight:800,color:"#1e1b3a",letterSpacing:-1,margin:"0 0 8px",lineHeight:1.1}}>Chi usa Prenoty ogni giorno.</h2>
+          <p style={{fontSize:16,color:"#7a748a",margin:0}}>Professionisti veri, recensioni vere.</p>
+        </div>
+      </FadeIn>
+      <div style={{display:"grid",gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)",gap:18,alignItems:"start",maxWidth:mobile?460:"none",margin:"0 auto"}}>
+        {REVIEWS.map((r,i)=>(
+          <FadeIn key={r.nome} delay={i*0.1}>
+            <div className="rv-card" style={{marginTop:!mobile&&i===1?-18:0}}>
+              <div style={{display:"flex",gap:14,alignItems:"center"}}>
+                <div className="rv-av">{r.foto?<img src={r.foto} alt={r.nome}/>:r.ini}</div>
+                <div>
+                  <div style={{fontSize:17,fontWeight:700,color:"#1e1b3a",lineHeight:1.2}}>{r.nome}</div>
+                  <div style={{color:"#f9ca24",letterSpacing:2,fontSize:15,lineHeight:1,margin:"4px 0 3px"}} aria-label="5 stelle su 5">★★★★★</div>
+                  <div style={{fontSize:13,color:"#7a748a"}}>{r.ruolo}</div>
+                </div>
+              </div>
+              <p style={{fontSize:15,lineHeight:1.6,color:"#1e1b3a",margin:"18px 0 0"}}>{r.testo}</p>
+            </div>
+          </FadeIn>
+        ))}
+      </div>
+    </div>
+  );
+}
+
 function ProblemSection(){
   const[ref,on]=useInView(0.3);
   const[mobile,setMobile]=useState(()=>typeof window!=="undefined"&&window.innerWidth<=700);
@@ -1502,13 +1546,19 @@ export default function Home(){
         </div>
       </section>
 
+      {/* ── Recensioni ── */}
+      <GradDivider/>
+      <section id="recensioni" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
+        <ReviewsSection/>
+      </section>
+
       {/* ── Sezione Prezzo ── */}
       <GradDivider/>
       <section id="il-problema" className="sec-pad" style={{padding:"80px 56px 56px",background:"#f3f3f6"}}>
         <ProblemSection/>
       </section>
       <GradDivider/>
-      <section id="prezzi"className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
+      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
