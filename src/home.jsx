@@ -89,7 +89,8 @@ function ReviewsSection(){
   return(
     <div style={{maxWidth:1040,margin:"0 auto"}}>
       <style>{`
-        .rv-card{background:rgba(255,255,255,.5);-webkit-backdrop-filter:blur(10px);backdrop-filter:blur(10px);border-radius:26px;padding:22px;border:1px solid rgba(255,255,255,.9);box-shadow:0 0 6px rgba(74,60,181,.04),0 6px 16px rgba(108,92,231,.14),inset 4px 4px 1px -3px rgba(74,60,181,.6),inset -4px -4px 1px -3px rgba(74,60,181,.55),inset 1px 1px 1px -0.5px rgba(74,60,181,.4),inset -1px -1px 1px -0.5px rgba(74,60,181,.4),inset 0 0 10px 6px rgba(255,255,255,.7),0 0 12px rgba(255,255,255,.6)}
+        .rv-card{background:#fff;border:1px solid #e0dcff;border-radius:20px;padding:22px;box-shadow:0 4px 12px rgba(108,92,231,0.14);transition:transform .25s ease,box-shadow .25s ease}
+        .rv-card:hover{transform:translateY(-4px);box-shadow:0 10px 20px rgba(108,92,231,0.2)}
         .rv-av{width:52px;height:52px;border-radius:50%;background:#6c5ce7;color:#fff;font-size:15px;font-weight:600;display:flex;align-items:center;justify-content:center;flex:none;overflow:hidden}
         .rv-av img{width:100%;height:100%;object-fit:cover}
       `}</style>
@@ -108,8 +109,8 @@ function ReviewsSection(){
                 <div className="rv-av">{r.foto?<img src={r.foto} alt={r.nome}/>:r.ini}</div>
                 <div>
                   <div style={{fontSize:17,fontWeight:700,color:"#1e1b3a",lineHeight:1.2}}>{r.nome}</div>
-                  <div style={{color:"#f9ca24",letterSpacing:2,fontSize:15,lineHeight:1,margin:"4px 0 3px"}} aria-label="5 stelle su 5">★★★★★</div>
-                  <div style={{fontSize:13,color:"#7a748a"}}>{r.ruolo}</div>
+                  <div style={{fontSize:13,color:"#7a748a",margin:"3px 0 5px"}}>{r.ruolo}</div>
+                  <div style={{color:"#f9ca24",letterSpacing:2,fontSize:15,lineHeight:1}} aria-label="5 stelle su 5">★★★★★</div>
                 </div>
               </div>
               <p style={{fontSize:15,lineHeight:1.6,color:"#1e1b3a",margin:"18px 0 0"}}>{r.testo}</p>
