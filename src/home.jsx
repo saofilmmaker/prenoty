@@ -1335,7 +1335,7 @@ export default function Home(){
                       <span className="btn-glass-lens"/>
                       <span className="btn-glass-text">Zero commissioni: scopri quanto risparmi</span>
                     </a>
-                    <div className="hero-trust" style={{display:"flex",alignItems:"center",gap:12,marginTop:16,padding:"10px 16px",width:"fit-content",maxWidth:"100%",boxSizing:"border-box",background:"rgba(255,255,255,.6)",border:"1px solid #e0dcff",borderRadius:18,boxShadow:"inset 3px 3px 1px -3px rgba(74,60,181,.5),inset -3px -3px 1px -3px rgba(74,60,181,.45),0 4px 12px rgba(108,92,231,.08)"}}>
+                    <div className="hero-trust" style={{display:"flex",alignItems:"center",gap:12,marginTop:16,padding:"10px 16px",width:"fit-content",maxWidth:"100%",boxSizing:"border-box",background:"#fff",border:"1px solid #e0dcff",borderRadius:20,boxShadow:"0 4px 12px rgba(108,92,231,0.14)"}}>
                       <div style={{display:"flex"}}>
                         {REVIEWS.map((r,i)=>(
                           <img key={r.nome} src={r.foto} alt="" style={{width:30,height:30,borderRadius:"50%",objectFit:"cover",border:"2px solid #fff",marginLeft:i?-9:0,background:"#e0dcff"}}/>
