@@ -1276,7 +1276,7 @@ export default function Home(){
                 </FadeIn>
                 <FadeIn delay={0.27}>
                   <div className="hero-btns">
-                    <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
+                    <a href="/registrazione" className="btn-glass btn-glass-purple" style={{padding:"13px 30px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
                       <span className="btn-glass-lens"/>
                       <span className="btn-glass-text">Inizia gratis</span>
                     </a>
