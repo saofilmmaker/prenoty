@@ -907,6 +907,7 @@ export default function Home(){
         .hero-photo-panel{ flex:0 0 44%; position:relative; overflow:hidden; min-height:540px; }
         .hero-h1{ font-size:58px; font-weight:800; color:#13112a; line-height:1.08; letter-spacing:-1.5px; margin-bottom:16px; }
         .hero-btns{ display:flex; gap:12px; flex-wrap:wrap; align-items:center; margin-bottom:0; }
+        .hero-zc{ margin-bottom:28px; }
         @media(max-width:960px){
           .hero-card{flex-direction:column!important;}
           .hero-left-panel{flex:none!important;width:100%!important;padding:40px 32px!important;order:2;}
@@ -1020,6 +1021,7 @@ export default function Home(){
           .dash-h2{ font-size:32px; letter-spacing:-1px; }
           .dash-desc{ font-size:15px; }
           .hero-bottom-divider{margin-top:24px!important;}
+          .hero-zc{margin-bottom:4px!important;}
           .desktop-mockup-row{flex-direction:column!important;}
           .desktop-mockup-text{flex:unset!important;max-width:100%!important;}
           .desktop-h2{ white-space:nowrap; }
@@ -1280,7 +1282,7 @@ export default function Home(){
                       <span className="btn-glass-text">Scopri come funziona</span>
                     </a>
                   </div>
-                  <div style={{marginTop:14}}>
+                  <div className="hero-zc" style={{marginTop:14}}>
                     <a href="#il-problema" className="btn-glass btn-glass-mint" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none"}}>
                       <span className="btn-glass-lens"/>
                       <span className="btn-glass-text" style={{display:"inline-flex",alignItems:"center",gap:9}}><span style={{width:8,height:8,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>Zero commissioni: scopri quanto risparmi ↓</span>
