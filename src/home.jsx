@@ -1504,10 +1504,11 @@ export default function Home(){
 
       {/* ── Sezione Prezzo ── */}
       <GradDivider/>
-      <section id="il-problema" className="sec-pad" style={{padding:"80px 56px 0",background:"#f3f3f6"}}>
+      <section id="il-problema" className="sec-pad" style={{padding:"80px 56px 56px",background:"#f3f3f6"}}>
         <ProblemSection/>
       </section>
-      <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
+      <GradDivider/>
+      <section id="prezzi"className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
