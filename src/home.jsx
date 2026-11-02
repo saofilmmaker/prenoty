@@ -100,10 +100,10 @@ function ReviewsSection(){
           <p style={{fontSize:16,color:"#7a748a",margin:0}}>Professionisti veri, recensioni vere.</p>
         </div>
       </FadeIn>
-      <div style={{display:"grid",gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)",gap:18,alignItems:"start",maxWidth:mobile?460:"none",margin:"0 auto"}}>
+      <div style={{display:"grid",gridTemplateColumns:mobile?"1fr":"repeat(3,1fr)",gap:18,alignItems:"stretch",maxWidth:mobile?460:"none",margin:"0 auto"}}>
         {REVIEWS.map((r,i)=>(
-          <FadeIn key={r.nome} delay={i*0.1}>
-            <div className="rv-card" style={{marginTop:!mobile&&i===1?-18:0}}>
+          <FadeIn key={r.nome} delay={i*0.1} style={{height:"100%"}}>
+            <div className="rv-card" style={{height:"100%",boxSizing:"border-box"}}>
               <div style={{display:"flex",gap:14,alignItems:"center"}}>
                 <div className="rv-av">{r.foto?<img src={r.foto} alt={r.nome}/>:r.ini}</div>
                 <div>
@@ -1334,6 +1334,17 @@ export default function Home(){
                       <span className="btn-glass-lens"/>
                       <span className="btn-glass-text">Zero commissioni: scopri quanto risparmi</span>
                     </a>
+                    <div className="hero-trust" style={{display:"flex",alignItems:"center",gap:12,marginTop:16,padding:"10px 16px",width:"fit-content",maxWidth:"100%",boxSizing:"border-box",background:"rgba(255,255,255,.6)",border:"1px solid #e0dcff",borderRadius:18,boxShadow:"inset 3px 3px 1px -3px rgba(74,60,181,.5),inset -3px -3px 1px -3px rgba(74,60,181,.45),0 4px 12px rgba(108,92,231,.08)"}}>
+                      <div style={{display:"flex"}}>
+                        {REVIEWS.map((r,i)=>(
+                          <img key={r.nome} src={r.foto} alt="" style={{width:30,height:30,borderRadius:"50%",objectFit:"cover",border:"2px solid #fff",marginLeft:i?-9:0,background:"#e0dcff"}}/>
+                        ))}
+                      </div>
+                      <div>
+                        <div style={{color:"#f9ca24",letterSpacing:2,fontSize:14,lineHeight:1}} aria-hidden="true">★★★★★</div>
+                        <div style={{fontSize:12.5,color:"#7a748a",marginTop:3,fontWeight:500}}>Scelto da professionisti reali</div>
+                      </div>
+                    </div>
                   </div>
                 </FadeIn>
               </div>
@@ -1418,6 +1429,12 @@ export default function Home(){
           </div>
           </div>{/* fine wrapper gradiente hero-card */}
         </FadeIn>
+      </section>
+
+      {/* ── Recensioni ── */}
+      <GradDivider/>
+      <section id="recensioni" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
+        <ReviewsSection/>
       </section>
 
       {/* ── Sezione Desktop Mockup ── */}
@@ -1544,12 +1561,6 @@ export default function Home(){
             </div>
           </FadeIn>
         </div>
-      </section>
-
-      {/* ── Recensioni ── */}
-      <GradDivider/>
-      <section id="recensioni" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6"}}>
-        <ReviewsSection/>
       </section>
 
       {/* ── Sezione Prezzo ── */}
