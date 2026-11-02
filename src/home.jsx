@@ -79,16 +79,45 @@ function FeatTyped({text,run,onDone,delay=0}){
 
 function ProblemSection(){
   const[ref,on]=useInView(0.3);
+  const[mobile,setMobile]=useState(()=>typeof window!=="undefined"&&window.innerWidth<=700);
+  const[r1,setR1]=useState(false);
+  const[r2,setR2]=useState(false);
+  const c1=useRef(null);
+  const c2=useRef(null);
+  useEffect(()=>{const f=()=>setMobile(window.innerWidth<=700);window.addEventListener("resize",f);return()=>window.removeEventListener("resize",f);},[]);
+  useEffect(()=>{
+    if(!mobile)return;
+    let armed=false;
+    const arm=()=>{armed=true;};
+    const full=el=>{
+      if(!el)return false;
+      const r=el.getBoundingClientRect();const vh=window.innerHeight;
+      if(r.height>vh*0.9)return Math.min(r.bottom,vh)-Math.max(r.top,0)>vh*0.7;
+      return r.top>=0&&r.bottom<=vh;
+    };
+    const check=()=>{
+      if(!armed)return;
+      if(full(c1.current))setR1(true);
+      if(full(c2.current))setR2(true);
+    };
+    const evs=["touchstart","wheel","keydown","mousedown"];
+    evs.forEach(e=>window.addEventListener(e,arm,{passive:true,once:true}));
+    window.addEventListener("scroll",check,{passive:true});
+    const iv=setInterval(check,150);
+    return()=>{clearInterval(iv);evs.forEach(e=>window.removeEventListener(e,arm));window.removeEventListener("scroll",check);};
+  },[mobile]);
+  const run1=mobile?r1:on;
+  const run2=mobile?r2:on;
   const box={background:"#fff",borderRadius:20,padding:"24px",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",boxSizing:"border-box"};
   const who={display:"flex",alignItems:"center",gap:8,fontSize:12,letterSpacing:1.2,fontWeight:700,color:"#5f5a78"};
   return(
-    <div ref={ref} className={on?"prob-run":""}>
+    <div ref={ref}>
       <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700,textAlign:"center"}}>Il problema</p>
       <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,lineHeight:1.15,textAlign:"center",maxWidth:760,margin:"0 auto 40px"}}>Altri sistemi prendono una <span style={{color:"#6c5ce7"}}>percentuale</span> su ogni prenotazione.</h2>
       <div className="prob-two" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,maxWidth:760,margin:"0 auto"}}>
-        <div style={{...box,border:"1.5px solid #e5484d"}}>
+        <div ref={c1} className={run1?"prob-run":""} style={{...box,border:"1.5px solid #e5484d"}}>
           <div style={who}><span style={{width:10,height:10,borderRadius:"50%",background:"#e5484d",display:"inline-block"}}/>ALTRI SISTEMI</div>
-          <div style={{fontSize:52,fontWeight:800,letterSpacing:-2,color:"#e5484d",margin:"14px 0 4px",lineHeight:1}}>−€<FeatCountUp to={3150} run={on} delay={0.3} fmt/></div>
+          <div style={{fontSize:52,fontWeight:800,letterSpacing:-2,color:"#e5484d",margin:"14px 0 4px",lineHeight:1}}>−€<FeatCountUp to={3150} run={run1} delay={0.3} fmt/></div>
           <div style={{fontSize:14,color:"#5f5a78"}}>persi in commissioni ogni anno*</div>
           <svg viewBox="0 0 220 70" preserveAspectRatio="none" style={{width:"100%",height:90,marginTop:18,display:"block"}}>
             <defs><linearGradient id="probG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e5484d" stopOpacity=".35"/><stop offset="1" stopColor="#e5484d" stopOpacity="0"/></linearGradient></defs>
@@ -96,7 +125,7 @@ function ProblemSection(){
             <path className="prob-fall" d="M0 6 L20 14 L40 10 L65 22 L90 20 L115 34 L140 36 L165 48 L190 52 L220 64" fill="none" stroke="#e5484d" strokeWidth="2" vectorEffect="non-scaling-stroke"/>
           </svg>
         </div>
-        <div style={{...box,border:"1.5px solid #00b894"}}>
+        <div ref={c2} className={run2?"prob-run":""} style={{...box,border:"1.5px solid #00b894"}}>
           <div style={who}><span style={{width:10,height:10,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>PRENOTY</div>
           <div style={{fontSize:52,fontWeight:800,letterSpacing:-2,color:"#00b894",margin:"14px 0 4px",lineHeight:1}}>€0</div>
           <div style={{fontSize:14,color:"#5f5a78"}}>zero commissioni sulle prenotazioni</div>
