@@ -54,7 +54,7 @@ const FEAT_GLASS_ARROW = {
   transition:"opacity .2s",
 };
 
-function FeatCountUp({to,pre="",run,delay=0}){
+function FeatCountUp({to,pre="",run,delay=0,fmt=false}){
   const[val,setVal]=useState(0);
   useEffect(()=>{
     if(!run)return;
@@ -63,7 +63,7 @@ function FeatCountUp({to,pre="",run,delay=0}){
     tm=setTimeout(go,delay*1000);
     return()=>{clearTimeout(tm);cancelAnimationFrame(raf);};
   },[run,to]);
-  return <>{pre}{val}</>;
+  return <>{pre}{fmt?String(val).replace(/\B(?=(\d{3})+(?!\d))/g,"."):val}</>;
 }
 
 function FeatTyped({text,run,onDone,delay=0}){
@@ -75,6 +75,41 @@ function FeatTyped({text,run,onDone,delay=0}){
     return()=>{clearTimeout(tm);clearInterval(iv);};
   },[run]);
   return <>{text.slice(0,n)}<span className="fc-caret"/></>;
+}
+
+function ProblemSection(){
+  const[ref,on]=useInView(0.3);
+  const box={background:"#fff",borderRadius:20,padding:"24px",boxShadow:"0 4px 12px rgba(108,92,231,0.14)",boxSizing:"border-box"};
+  const who={display:"flex",alignItems:"center",gap:8,fontSize:12,letterSpacing:1.2,fontWeight:700,color:"#5f5a78"};
+  return(
+    <div ref={ref} className={on?"prob-run":""}>
+      <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700,textAlign:"center"}}>Il problema</p>
+      <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,lineHeight:1.15,textAlign:"center",maxWidth:760,margin:"0 auto 40px"}}>Altri sistemi prendono una <span style={{color:"#6c5ce7"}}>percentuale</span> su ogni prenotazione.</h2>
+      <div className="prob-two" style={{display:"grid",gridTemplateColumns:"1fr 1fr",gap:20,maxWidth:760,margin:"0 auto"}}>
+        <div style={{...box,border:"1.5px solid #e5484d"}}>
+          <div style={who}><span style={{width:10,height:10,borderRadius:"50%",background:"#e5484d",display:"inline-block"}}/>ALTRI SISTEMI</div>
+          <div style={{fontSize:52,fontWeight:800,letterSpacing:-2,color:"#e5484d",margin:"14px 0 4px",lineHeight:1}}>−€<FeatCountUp to={3150} run={on} delay={0.3} fmt/></div>
+          <div style={{fontSize:14,color:"#5f5a78"}}>persi in commissioni ogni anno*</div>
+          <svg viewBox="0 0 220 70" preserveAspectRatio="none" style={{width:"100%",height:90,marginTop:18,display:"block"}}>
+            <defs><linearGradient id="probG" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stopColor="#e5484d" stopOpacity=".35"/><stop offset="1" stopColor="#e5484d" stopOpacity="0"/></linearGradient></defs>
+            <path className="prob-area" d="M0 6 L20 14 L40 10 L65 22 L90 20 L115 34 L140 36 L165 48 L190 52 L220 64 L220 70 L0 70Z" fill="url(#probG)"/>
+            <path className="prob-fall" d="M0 6 L20 14 L40 10 L65 22 L90 20 L115 34 L140 36 L165 48 L190 52 L220 64" fill="none" stroke="#e5484d" strokeWidth="2" vectorEffect="non-scaling-stroke"/>
+          </svg>
+        </div>
+        <div style={{...box,border:"1.5px solid #00b894"}}>
+          <div style={who}><span style={{width:10,height:10,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>PRENOTY</div>
+          <div style={{fontSize:52,fontWeight:800,letterSpacing:-2,color:"#00b894",margin:"14px 0 4px",lineHeight:1}}>€0</div>
+          <div style={{fontSize:14,color:"#5f5a78"}}>zero commissioni sulle prenotazioni</div>
+          <svg viewBox="0 0 220 70" preserveAspectRatio="none" style={{width:"100%",height:90,marginTop:18,display:"block"}}>
+            <path className="prob-flat" d="M4 35 L216 35" fill="none" stroke="#00b894" strokeWidth="2" vectorEffect="non-scaling-stroke"/>
+            <g className="prob-dots" fill="#00b894">{[4,39,74,110,145,180,216].map(x=>(<circle key={x} cx={x} cy="35" r="3"/>))}</g>
+          </svg>
+          <div style={{fontSize:12,color:"#7a748a",marginTop:4}}>€299 pagamento unico, riservato ai primi 100.</div>
+        </div>
+      </div>
+      <p style={{textAlign:"center",color:"#7a748a",fontSize:13,maxWidth:760,margin:"18px auto 0",lineHeight:1.5}}>*Esempio di calcolo: 30 nuovi clienti al mese × €35 × 25% di commissione marketplace × 12 mesi = €3.150.</p>
+    </div>
+  );
 }
 
 function FeatCarousel({stacked=false}){
@@ -885,6 +920,15 @@ export default function Home(){
         .fc-tg.on{background:#00b894;}
         .fc-tg.on:after{transform:translateX(14px);}
         @media(prefers-reduced-motion:reduce){.fc-newrow,.fc-notif,.fc-chip,.fc-pop,.fc-tg,.fc-tg:after{transition:none!important;}.fc-bell,.fc-caret{animation:none!important;}}
+        .prob-fall{stroke-dasharray:420;stroke-dashoffset:420;}
+        .prob-flat{stroke-dasharray:300;stroke-dashoffset:300;}
+        .prob-run .prob-fall,.prob-run .prob-flat{stroke-dashoffset:0;transition:stroke-dashoffset 1.6s ease .3s;}
+        .prob-area{opacity:0;}
+        .prob-run .prob-area{opacity:1;transition:opacity 1s ease 1s;}
+        .prob-dots circle{opacity:0;}
+        .prob-run .prob-dots circle{opacity:1;transition:opacity .4s ease 1.6s;}
+        @media(max-width:700px){.prob-two{grid-template-columns:1fr!important;}}
+        @media(prefers-reduced-motion:reduce){.prob-fall,.prob-flat{stroke-dashoffset:0!important;transition:none!important;}.prob-area,.prob-dots circle{opacity:1!important;transition:none!important;}}
         .feat-rail::-webkit-scrollbar{display:none;}
         .feat-booking-row{flex-wrap:wrap!important;gap:6px!important;}.feat-booking-row .booking-time{display:none!important;}.feat-booking-row .booking-badge{margin-left:auto;}
         .feat-molto-altro{font-size:16px;color:#7a748a;margin:10px 0 0;text-align:right;font-style:italic;}
@@ -1203,6 +1247,9 @@ export default function Home(){
                       <span className="btn-glass-text">Scopri come funziona</span>
                     </a>
                   </div>
+                  <a href="#il-problema" style={{display:"inline-flex",alignItems:"center",gap:7,marginTop:16,background:"rgba(0,184,148,0.12)",color:"#00805f",borderRadius:99,padding:"7px 14px",fontSize:13,fontWeight:600,textDecoration:"none"}}>
+                    <span style={{width:7,height:7,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>Zero commissioni: scopri quanto risparmi ↓
+                  </a>
                 </FadeIn>
               </div>
 
@@ -1416,6 +1463,9 @@ export default function Home(){
 
       {/* ── Sezione Prezzo ── */}
       <GradDivider/>
+      <section id="il-problema" className="sec-pad" style={{padding:"80px 56px 0",background:"#f3f3f6"}}>
+        <ProblemSection/>
+      </section>
       <section id="prezzi" className="sec-pad" style={{padding:"80px 56px",background:"#f3f3f6",textAlign:"center"}}>
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
