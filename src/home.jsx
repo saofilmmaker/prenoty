@@ -892,6 +892,10 @@ export default function Home(){
         .btn-glass-green-cta:hover .btn-glass-lens{ background:rgba(93,226,121,1); }
 
         /* Ghost su sfondo chiaro */
+        .btn-glass-mint{ color:#00694f !important; }
+        .btn-glass-mint .btn-glass-lens{ background:rgba(0,184,148,0.10); border:1.5px solid rgba(0,184,148,0.35); }
+        .btn-glass-mint:hover .btn-glass-lens{ background:rgba(0,184,148,0.18); }
+        .btn-glass-mint .btn-glass-text{ text-shadow:none; }
         .btn-glass-light{ color:#3d35a8 !important; }
         .btn-glass-light .btn-glass-lens{ background:rgba(108,92,231,0.06); border:1.5px solid rgba(108,92,231,0.22); }
         .btn-glass-light:hover .btn-glass-lens{ background:rgba(108,92,231,0.12); }
@@ -1276,9 +1280,12 @@ export default function Home(){
                       <span className="btn-glass-text">Scopri come funziona</span>
                     </a>
                   </div>
-                  <a href="#il-problema" style={{display:"inline-flex",alignItems:"center",gap:7,marginTop:16,background:"rgba(0,184,148,0.12)",color:"#00805f",borderRadius:99,padding:"7px 14px",fontSize:13,fontWeight:600,textDecoration:"none"}}>
-                    <span style={{width:7,height:7,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>Zero commissioni: scopri quanto risparmi ↓
-                  </a>
+                  <div style={{marginTop:14}}>
+                    <a href="#il-problema" className="btn-glass btn-glass-mint" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none"}}>
+                      <span className="btn-glass-lens"/>
+                      <span className="btn-glass-text" style={{display:"inline-flex",alignItems:"center",gap:9}}><span style={{width:8,height:8,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>Zero commissioni: scopri quanto risparmi ↓</span>
+                    </a>
+                  </div>
                 </FadeIn>
               </div>
 
