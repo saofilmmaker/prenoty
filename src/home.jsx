@@ -1285,7 +1285,7 @@ export default function Home(){
                   <div className="hero-zc" style={{marginTop:14}}>
                     <a href="#il-problema" className="btn-glass btn-glass-mint" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none"}}>
                       <span className="btn-glass-lens"/>
-                      <span className="btn-glass-text" style={{display:"inline-flex",alignItems:"center",gap:9}}><span style={{width:8,height:8,borderRadius:"50%",background:"#00b894",display:"inline-block"}}/>Zero commissioni: scopri quanto risparmi ↓</span>
+                      <span className="btn-glass-text">Zero commissioni: scopri quanto risparmi</span>
                     </a>
                   </div>
                 </FadeIn>
