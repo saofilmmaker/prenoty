@@ -152,7 +152,7 @@ function FeatCarousel({stacked=false}){
      v:(on,b)=>(<><div style={{...row,marginTop:0,fontFamily:"monospace",color:"#6c5ce7",minHeight:30}}><span><FeatTyped text="prenoty.com/sao-salone" run={on} delay={b} onDone={()=>setUrlDone(true)}/></span></div><div style={{display:"flex",gap:6,marginTop:8}}>{["Instagram","WhatsApp","Bio"].map(x=>(<span key={x} className={"fc-chip"+(urlDone?" on":"")} style={{fontSize:11,color:"#7a748a",background:"#fff",border:"1.5px solid #e0dcff",borderRadius:9,padding:"3px 9px"}}>{x}</span>))}</div></>)},
     {n:"05",t:"Personalizza tutto",d:"Servizi, durata, prezzi e orari. Configuri tutto in pochi minuti.",bg:"rgba(108,92,231,0.12)",c:"#6c5ce7",
      ic:<><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></>,
-     v:(on,b)=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(b+0.4+k*0.5)+"s"}}/></div>))}</>)},
+     v:(on,b)=>(<>{["Email cancellazione","Promemoria 24h","Nuova prenotazione"].map((l,k)=>(<div key={l} style={{...row,marginTop:k?6:0}}><span>{l}</span><span className={"fc-tg"+(on?" on":"")} style={{transitionDelay:(b+0.2+k*0.2)+"s"}}/></div>))}</>)},
   ];
   if(stacked){
     return(
