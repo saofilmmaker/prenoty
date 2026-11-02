@@ -892,6 +892,9 @@ export default function Home(){
         .btn-glass-green-cta:hover .btn-glass-lens{ background:rgba(93,226,121,1); }
 
         /* Ghost su sfondo chiaro */
+        .btn-glow-fucsia{display:inline-block;color:#fff;background:linear-gradient(180deg,#f06aa9,#e84393);border:1.5px solid #d02f7f;box-shadow:inset 0 1px 0 rgba(255,255,255,.55),inset 0 -3px 8px rgba(0,0,0,.14),0 0 0 4px rgba(232,67,147,.16),0 8px 20px rgba(232,67,147,.40);transition:transform .15s ease,box-shadow .25s ease;cursor:pointer;}
+        .btn-glow-fucsia:hover{transform:translateY(-1px);box-shadow:inset 0 1px 0 rgba(255,255,255,.6),inset 0 -3px 8px rgba(0,0,0,.14),0 0 0 6px rgba(232,67,147,.20),0 10px 24px rgba(232,67,147,.48);}
+        .btn-glow-fucsia:active{transform:translateY(0);box-shadow:inset 0 2px 6px rgba(0,0,0,.2),0 0 0 4px rgba(232,67,147,.16),0 4px 12px rgba(232,67,147,.35);}
         .btn-glass-mint{ color:#00694f !important; }
         .btn-glass-mint .btn-glass-lens{ background:rgba(0,184,148,0.10); border:1.5px solid rgba(0,184,148,0.35); }
         .btn-glass-mint:hover .btn-glass-lens{ background:rgba(0,184,148,0.18); }
@@ -1283,10 +1286,7 @@ export default function Home(){
                     </a>
                   </div>
                   <div className="hero-zc" style={{marginTop:14}}>
-                    <a href="#il-problema" className="btn-glass btn-glass-mint" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none"}}>
-                      <span className="btn-glass-lens"/>
-                      <span className="btn-glass-text">Zero commissioni: scopri quanto risparmi</span>
-                    </a>
+                    <a href="#il-problema" className="btn-glow-fucsia" style={{padding:"13px 26px",borderRadius:50,fontSize:15,fontWeight:600,textDecoration:"none"}}>Zero commissioni: scopri quanto risparmi</a>
                   </div>
                 </FadeIn>
               </div>
