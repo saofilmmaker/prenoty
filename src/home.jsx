@@ -1451,15 +1451,15 @@ export default function Home(){
             <div className="desktop-img-wrap" style={{flex:1,display:"flex",justifyContent:"flex-end",alignItems:"center",minWidth:0}}>
               {/* Desktop: immagine combinata */}
               <img
-                src="/laptopeiphoneinsieme.png"
+                src="/laptopeiphoneinsiemeNEW.png"
                 alt="Dashboard Prenoty su desktop e mobile"
                 className="desktop-img-combined"
                 style={{width:"1756px",maxWidth:"none",height:"auto",objectFit:"contain",marginRight:"-200px",marginLeft:"-400px"}}
               />
               {/* Mobile: laptop + iPhone separati */}
               <div className="mobile-img-stack" style={{overflow:"hidden",margin:"0 -24px"}}>
-                <img src="/laptopmockupsprenotyconombra2.png" alt="Dashboard Prenoty su laptop" style={{width:"160%",display:"block",marginBottom:24,marginLeft:"0%"}}/>
-                <img src="/Iphone17neroconombra.png" alt="App Prenoty su iPhone" style={{width:"72%",display:"block",margin:"0 auto"}}/>
+                <img src="/laptopmockupsprenotyconombra2NEW.png" alt="Dashboard Prenoty su laptop" style={{width:"160%",display:"block",marginBottom:24,marginLeft:"0%"}}/>
+                <img src="/Iphone17neroconombraNEW.png" alt="App Prenoty su iPhone" style={{width:"72%",display:"block",margin:"0 auto"}}/>
               </div>
             </div>
           </div>
