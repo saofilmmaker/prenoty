@@ -1315,7 +1315,7 @@ export default function Home(){
                 <FadeIn delay={0.1}>
                   <div style={{display:"inline-flex",alignItems:"center",gap:7,background:"rgba(108,92,231,0.06)",border:"1px solid rgba(108,92,231,0.16)",borderRadius:8,padding:"5px 14px",marginBottom:22}}>
                     <div style={{width:5,height:5,borderRadius:"50%",background:"#5de279"}}/>
-                    <span style={{fontSize:11,color:"#6c5ce7",letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>30 giorni gratis — nessuna carta</span>
+                    <span style={{fontSize:11,color:"#6c5ce7",letterSpacing:1,textTransform:"uppercase",fontWeight:600}}>14 giorni gratis — nessuna carta</span>
                   </div>
                 </FadeIn>
                 <FadeIn delay={0.15}>
@@ -1586,7 +1586,7 @@ export default function Home(){
         <FadeIn>
           <p style={{fontSize:15,letterSpacing:3,color:"#6c5ce7",textTransform:"uppercase",marginBottom:12,fontWeight:700}}>Prezzo</p>
           <h2 style={{fontSize:40,fontWeight:800,color:"#13112a",letterSpacing:-1,marginBottom:12,lineHeight:1.15}}>Semplice e trasparente.</h2>
-          <p style={{fontSize:19,color:"#6b6488",marginBottom:48}}>30 giorni gratis,{isMobile&&<br/>} poi un unico pagamento per tutto l'anno.<br/>Poi scegli il tuo abbonamento.</p>
+          <p style={{fontSize:19,color:"#6b6488",marginBottom:48}}>14 giorni gratis,{isMobile&&<br/>} poi un unico pagamento per tutto l'anno.<br/>Poi scegli il tuo abbonamento.</p>
         </FadeIn>
 
         <FadeIn delay={0.12}>
@@ -1606,7 +1606,7 @@ export default function Home(){
               background:"linear-gradient(160deg, #6c5ce7 0%, #4a3cb5 100%)",
               boxShadow:"0px -16px 24px 0px rgba(255,255,255,0.12) inset",
             }}>
-              {/* Badge 30 giorni gratis */}
+              {/* Badge 14 giorni gratis */}
               <div style={{
                 display:"inline-flex",alignItems:"center",gap:6,
                 background:"rgba(93,226,121,0.18)",
@@ -1614,7 +1614,7 @@ export default function Home(){
                 borderRadius:20,padding:"5px 16px",marginBottom:24,
               }}>
                 <div style={{width:6,height:6,borderRadius:"50%",background:"#5de279"}}/>
-                <span style={{fontSize:11,fontWeight:700,color:"#5de279",letterSpacing:1,textTransform:"uppercase"}}>30 giorni gratis — nessuna carta</span>
+                <span style={{fontSize:11,fontWeight:700,color:"#5de279",letterSpacing:1,textTransform:"uppercase"}}>14 giorni gratis — nessuna carta</span>
               </div>
 
               {/* Header */}
@@ -1665,7 +1665,7 @@ export default function Home(){
               <div style={{display:"flex",justifyContent:"center"}}>
                 <a href="/registrazione" className="btn-glass btn-glass-green-cta" style={{padding:"13px 36px",borderRadius:50,fontSize:15,fontWeight:700,textDecoration:"none"}}>
                   <span className="btn-glass-lens"/>
-                  <span className="btn-glass-text">Inizia gratis — 30 giorni</span>
+                  <span className="btn-glass-text">Inizia gratis — 14 giorni</span>
                 </a>
               </div>
               <p style={{textAlign:"center",fontSize:11,color:"rgba(224,220,255,0.4)",marginTop:10}}>
@@ -1687,7 +1687,7 @@ export default function Home(){
           <div style={{maxWidth:760,margin:"0 auto"}}>
             {[
               {q:"Perché pagamento unico e non abbonamento?", a:"Siamo in fase di lancio e vogliamo premiare chi ci crede da subito. Chi acquista ora paga €299 una volta sola e mantiene l'accesso completo per tutto il primo anno, poi si passa a un abbonamento mensile o annuale."},
-              {q:"Cosa succede dopo i 30 giorni gratis?", a:"Puoi scegliere se acquistare Prenoty a €299 oppure smettere di usarlo, senza penali, senza carte di credito richieste per iniziare."},
+              {q:"Cosa succede dopo i 14 giorni gratis?", a:"Puoi scegliere se acquistare Prenoty a €299 oppure smettere di usarlo, senza penali, senza carte di credito richieste per iniziare."},
               {q:"I miei clienti devono scaricare un'app?", a:"No. I tuoi clienti prenotano direttamente dal link della tua pagina, dal browser del telefono. Nessuna app da installare."},
               {q:"È difficile configurare?", a:"No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."},
               {q:"Posso gestire più servizi e dipendenti?", a:"Sì. Puoi aggiungere tutti i servizi che offri e tutti i collaboratori del tuo staff, ognuno con foto e ruolo. I clienti scelgono l'operatore preferito al momento della prenotazione."},
@@ -1854,7 +1854,7 @@ export default function Home(){
                     {v:"2026",c:"#6c5ce7",label:"Anno di fondazione"},
                     {v:"🇮🇹",c:"#1e1b3a",label:"100% italiano"},
                     {v:"24h",c:"#6c5ce7",label:"Risposta supporto"},
-                    {v:"30gg",c:"#00b894",label:"Gratis, senza carta"},
+                    {v:"14gg",c:"#00b894",label:"Gratis, senza carta"},
                   ].map(({v,c,label})=>(
                     <div key={label} style={{background:"#fff",borderRadius:12,padding:"16px 14px",textAlign:"center",border:"1px solid #e0dcff"}}>
                       <div style={{fontSize:22,fontWeight:800,color:c,marginBottom:4}}>{v}</div>
