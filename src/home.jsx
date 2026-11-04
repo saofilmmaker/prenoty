@@ -1511,7 +1511,7 @@ export default function Home(){
                 {/* Inner scuro #16132e */}
                 <div style={{borderRadius:18,background:"#16132e",padding:8,display:"flex",flexDirection:"column",height:"100%",boxSizing:"border-box"}}>
                   {/* Immagine: aspetto naturale, MAI ritagliata, angoli arrotondati su tutti e 4 i lati */}
-                  <img src={img} alt={t} style={{width:"100%",height:"auto",display:"block",borderRadius:12,flexShrink:0}}/>
+                  <img src={img} alt={t} style={{width:"100%",height:"auto",aspectRatio:"2752 / 1536",objectFit:"cover",objectPosition:"center 84%",display:"block",borderRadius:12,flexShrink:0}}/>
                   {/* Contenuto */}
                   <div style={{padding:"16px 10px 8px",display:"flex",flexDirection:"column",flexGrow:1}}>
                     {/* Riga icona + step */}
