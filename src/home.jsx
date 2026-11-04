@@ -719,24 +719,24 @@ const HERO_SLIDES = [
     notifica: { testo: "Appuntamento confermato", sub: "Oggi alle 11:30 · Colorazione", side: "right" },
   },
   {
-    src: "/hero-mancell.png",
-    mobileSrc: "/MOBILE/hero-mancellmobile.png",
+    src: "/hero-mancellNEW.png",
+    mobileSrc: "/MOBILE/hero-mancellmobileNEW.png",
     pos: "center 100%",
     notifica: { testo: "Appuntamento confermato", sub: "Domani alle 10:00 · Taglio", side: "left" },
   },
   {
-    src: "/hero-woman2.png",
-    mobileSrc: "/MOBILE/hero-woman2mobile.png",
+    src: "/hero-woman2NEW.png",
+    mobileSrc: "/MOBILE/hero-woman2mobileNEW.png",
     pos: "center 100%",
   },
   {
-    src: "/hero-man2.png",
-    mobileSrc: "/MOBILE/hero-man2mobile.png",
+    src: "/hero-man2NEW.png",
+    mobileSrc: "/MOBILE/hero-man2mobileNEW.png",
     pos: "center 100%",
   },
   {
-    src: "/hero-woman3.png",
-    mobileSrc: "/MOBILE/hero-woman3mobile.png",
+    src: "/hero-woman3NEW.png",
+    mobileSrc: "/MOBILE/hero-woman3mobileNEW.png",
     pos: "center 100%",
   },
 ];
