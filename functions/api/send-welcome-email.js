@@ -47,7 +47,7 @@ export async function onRequestPost(context) {
         <div style="background: #f4f3ff; border-radius: 16px; padding: 28px; margin-bottom: 28px;">
           <p style="color: #1a1730; font-size: 16px; line-height: 1.7; margin: 0 0 16px;">
             Ciao! La tua ${parolaAttivita} <strong>${nome}</strong> è stata creata con successo.<br/>
-            Hai <strong>30 giorni gratuiti</strong> per provare tutte le funzionalità di Prenoty.
+            Hai <strong>14 giorni gratuiti</strong> per provare tutte le funzionalità di Prenoty.
           </p>
           <p style="color: #555; font-size: 14px; line-height: 1.7; margin: 0;">
             Accedi alla dashboard per:

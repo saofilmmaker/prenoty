@@ -798,7 +798,7 @@ useEffect(() => {
     setSalvataggioStato("salvataggio");
 
     const provaScadeIl = new Date();
-    provaScadeIl.setDate(provaScadeIl.getDate() + 30);
+    provaScadeIl.setDate(provaScadeIl.getDate() + 14);
 
     const payload = {
       user_id: uid,

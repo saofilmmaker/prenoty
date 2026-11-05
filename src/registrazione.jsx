@@ -112,7 +112,7 @@ export default function Registrazione() {
           <div className="reg-form">
             <img src="/Prenoty_Viola.png" alt="Prenoty" style={{ height:28, objectFit:"contain", display:"block", margin:"0 auto 20px" }} />
             <h2 style={{ fontSize:18, fontWeight:700, color:"#4a3cb5", textAlign:"center", marginBottom:4 }}>Crea il tuo account</h2>
-            <p style={{ color:"#9b96c8", fontSize:12, textAlign:"center", marginBottom:28 }}>30 giorni gratis — nessuna carta richiesta</p>
+            <p style={{ color:"#9b96c8", fontSize:12, textAlign:"center", marginBottom:28 }}>14 giorni gratis — nessuna carta richiesta</p>
 
             {successo ? (
               <div style={{ textAlign:"center" }}>
