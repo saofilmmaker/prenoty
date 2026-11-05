@@ -1692,7 +1692,7 @@ export default function Home(){
               {q:"È difficile configurare?", a:"No. In meno di 10 minuti aggiungi i tuoi servizi, gli orari e il gioco è fatto. La tua pagina prenotazioni è subito online."},
               {q:"Posso gestire più servizi e dipendenti?", a:"Sì. Puoi aggiungere tutti i servizi che offri e tutti i collaboratori del tuo staff, ognuno con foto e ruolo. I clienti scelgono l'operatore preferito al momento della prenotazione."},
               {q:"Gli aggiornamenti futuri sono inclusi?", a:"Sì, per il piano attuale. Chi acquista oggi a €299 mantiene per sempre tutte le funzionalità incluse oggi, senza pagare nulla in più. In futuro lanceremo una versione Pro con funzionalità aggiuntive, disponibile in abbonamento. Chi ha già acquistato potrà scegliere se restare sul piano attuale o passare alla Pro."},
-              {q:"E se ho bisogno di aiuto?", a:<>Scrivici su WhatsApp direttamente dalla dashboard (bottone Assistenza in basso, risposta entro 1 ora) oppure via email a <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>prenoty.official@gmail.com</a>.</>},
+              {q:"E se ho bisogno di aiuto?", a:<>Scrivici su WhatsApp direttamente dalla dashboard (bottone Assistenza in basso, risposta entro 24 ore) oppure via email a <a href="mailto:prenoty.official@gmail.com" style={{color:"#6c5ce7",fontWeight:600,textDecoration:"none"}}>prenoty.official@gmail.com</a>.</>},
             ].map(({q,a},i)=><FaqItem key={i} q={q} a={a}/>)}
             <div style={{textAlign:"center",marginTop:40,fontSize:15,color:"#7a748a"}}>
               Non hai trovato risposta?{" "}
@@ -1815,12 +1815,12 @@ export default function Home(){
                   {
                     bg:"rgba(108,92,231,0.10)", color:"#6c5ce7",
                     icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>,
-                    t:"Semplicità prima di tutto",s:"Setup in 5 minuti, nessuna formazione necessaria."
+                    t:"Semplicità prima di tutto",s:"Setup in meno di 10 minuti, nessuna formazione necessaria."
                   },
                   {
                     bg:"rgba(93,226,121,0.12)", color:"#27ae60",
                     icon:<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#27ae60" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>,
-                    t:"Supporto in italiano",s:"Siamo raggiungibili su Whatsapp o via email, e risponderemo a ogni tua richiesta in meno di 24 ore."
+                    t:"Supporto in italiano",s:"Siamo raggiungibili su WhatsApp o via email, e risponderemo a ogni tua richiesta in meno di 24 ore."
                   },
                   {
                     bg:"rgba(108,92,231,0.08)", color:"#6c5ce7",
