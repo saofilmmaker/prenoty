@@ -33,6 +33,7 @@ export default function Registrazione() {
   const [loading, setLoading] = useState(false);
   const [errore, setErrore] = useState("");
   const [successo, setSuccesso] = useState(false);
+  const [giaRegistrata, setGiaRegistrata] = useState(false);
   const [showPw, setShowPw] = useState(false);
   const [showConfirmPw, setShowConfirmPw] = useState(false);
 
@@ -42,9 +43,10 @@ export default function Registrazione() {
     if (password !== confermaPassword) { setErrore("Le password non coincidono"); return; }
     setLoading(true);
     setErrore("");
+    setGiaRegistrata(false);
     // Controlla nella tabella saloni se email esiste già
     const { data: esistente } = await supabase.from("saloni").select("id").eq("email", email).single();
-    if (esistente) { setErrore("Questa email è già registrata. Accedi invece di registrarti."); setLoading(false); return; }
+    if (esistente) { setErrore("Questa email è già registrata."); setGiaRegistrata(true); setLoading(false); return; }
 
     const nomeDefault = tipoAttivita === "generico" ? "La mia attività" : "Il mio salone";
     const { data, error } = await supabase.auth.signUp({
@@ -60,7 +62,9 @@ export default function Registrazione() {
       },
     });
     if (error) { setErrore(error.message.includes('already') ? 'Questa email è già registrata. Accedi invece di registrarti.' : error.message); setLoading(false); return; }
-    if (!data.user) { setErrore('Questa email è già registrata. Accedi invece di registrarti.'); setLoading(false); return; }
+    if (!data.user) { setErrore('Questa email è già registrata.'); setGiaRegistrata(true); setLoading(false); return; }
+    // Email già registrata e confermata: Supabase non manda nessuna email e restituisce un utente senza identità
+    if (Array.isArray(data.user.identities) && data.user.identities.length === 0) { setErrore('Questa email è già registrata.'); setGiaRegistrata(true); setLoading(false); return; }
 
     setSuccesso(true);
     setLoading(false);
@@ -217,7 +221,7 @@ export default function Registrazione() {
                     <div style={{ fontSize:11, color:"#e74c3c", marginTop:4 }}>Le password non coincidono</div>
                   )}
                 </div>
-                {errore && <div style={{ background:"rgba(231,76,60,0.08)", color:"#e74c3c", padding:"10px 14px", borderRadius:8, fontSize:13, marginBottom:14 }}>{errore}</div>}
+                {errore && <div style={{ background:"rgba(231,76,60,0.08)", color:"#e74c3c", padding:"10px 14px", borderRadius:8, fontSize:13, marginBottom:14 }}>{errore}{giaRegistrata && <div style={{ marginTop:6 }}>Hai già un account? <a href="/login" style={{ color:"#6c5ce7", fontWeight:600 }}>Accedi</a> oppure <a href="/recupera-password" style={{ color:"#6c5ce7", fontWeight:600 }}>recupera la password</a>.</div>}</div>}
                 <button onClick={handleRegistrazione} disabled={loading}
                   style={{ width:"100%", padding:"12px", background:"#6c5ce7", color:"#fff", border:"none", borderRadius:999, fontSize:14, fontWeight:600, cursor:"pointer", marginBottom:14 }}>
                   {loading ? "Creazione account..." : "Registrati gratis"}
