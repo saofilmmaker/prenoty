@@ -527,9 +527,12 @@ useEffect(() => {
         const tipo   = meta.tipo_attivita || "parrucchiere";
         const nome   = meta.nome_salone   || "Il mio salone";
         const slug   = "salone-" + userId.slice(0, 8);
+        // Prova gratuita: 14 giorni dalla creazione del salone
+        const provaScade = new Date();
+        provaScade.setDate(provaScade.getDate() + 14);
         const { data: nuovoSalone, error: errIns } = await supabase
           .from("saloni")
-          .insert({ user_id: userId, nome, slug, email: user.email, tipo })
+          .insert({ user_id: userId, nome, slug, email: user.email, tipo, prova_scade_il: provaScade.toISOString().split("T")[0] })
           .select()
           .single();
         if (!errIns && nuovoSalone) {

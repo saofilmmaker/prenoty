@@ -15,7 +15,7 @@ const benefit = [
   { ico:<><rect x="3" y="4" width="18" height="18" rx="3"/><path d="M3 10h18M8 2v3M16 2v3"/></>, titolo:"Prenotazioni 24/7", testo:"I clienti prenotano quando vogliono, anche di notte." },
   { ico:<><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></>, titolo:"Il tuo link unico", testo:"Condividi una pagina personalizzata con i tuoi clienti." },
   { ico:<><rect x="2" y="3" width="20" height="14" rx="2"/><path d="M8 21h8M12 17v4"/></>, titolo:"Dashboard in tempo reale", testo:"Gestisci tutto da un unico pannello, ovunque tu sia." },
-  { ico:<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>, titolo:"30 giorni gratis", testo:"Nessuna carta richiesta. Provi senza impegno." },
+  { ico:<><path d="M20 12V22H4V12"/><path d="M22 7H2v5h20V7z"/><path d="M12 22V7"/><path d="M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7z"/><path d="M12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"/></>, titolo:"14 giorni gratis", testo:"Nessuna carta richiesta. Provi senza impegno." },
 ];
 
 const TIPI_ATTIVITA = [
