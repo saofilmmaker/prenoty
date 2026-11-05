@@ -611,8 +611,8 @@ useEffect(() => {
   // DATI SALONE (modificabili in impostazioni → così l'app serve per qualsiasi attività beauty)
   const [salone, setSalone] = useState({
     nome: "Atelier Bellezza",
-    indirizzo: "Via Roma 12, Milano",
-    telefono: "+39 02 1234567",
+    indirizzo: "",
+    telefono: "",
     email: "info@atelierbellezza.it",
     logo: null, // URL dell'immagine del logo caricato dal parrucchiere
     copertina: null, // URL foto di copertina (banner in cima alla pagina cliente)
@@ -3638,7 +3638,8 @@ useEffect(() => {
                     <label className="text-xs tracking-widest" style={{ color: T.textMuted }}>{tipoAttivita === "generico" ? "NOME ATTIVITÀ" : "NOME SALONE"}</label>
                     <input
                       type="text"
-                      value={salone.nome}
+                      value={["La mia attività", "Il mio salone"].includes(salone.nome) ? "" : salone.nome}
+                      placeholder={tipoAttivita === "generico" ? "Es: Studio Rossi" : "Es: Salone Maria"}
                       onChange={(e) => {
                         const nuovoNome = e.target.value;
                         const nuovoSlug = nuovoNome.toLowerCase().trim().replace(/[^a-z0-9\s-]/g, "").replace(/\s+/g, "-").replace(/-+/g, "-");
@@ -3694,6 +3695,7 @@ useEffect(() => {
                       type="tel"
                       value={salone.telefono}
                       onChange={(e) => setSalone({ ...salone, telefono: e.target.value })}
+                      placeholder="Es: +39 333 1234567"
                       className="w-full mt-1 p-3 border outline-none"
                       style={{ backgroundColor: T.bg, borderColor: T.border, color: T.text }}
                     />
