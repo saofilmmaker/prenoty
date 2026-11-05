@@ -109,7 +109,7 @@ export default function Registrazione() {
             ))}
           </div>
 
-          <div className="reg-form">
+          <div className="reg-form" style={successo ? { background:"#fff" } : undefined}>
             <img src="/Prenoty_Viola.png" alt="Prenoty" style={{ height:28, objectFit:"contain", display:"block", margin:"0 auto 20px" }} />
             <h2 style={{ fontSize:18, fontWeight:700, color:"#4a3cb5", textAlign:"center", marginBottom:4 }}>Crea il tuo account</h2>
             <p style={{ color:"#9b96c8", fontSize:12, textAlign:"center", marginBottom:28 }}>14 giorni gratis — nessuna carta richiesta</p>
@@ -117,10 +117,9 @@ export default function Registrazione() {
             {successo ? (
               <div style={{ textAlign:"center" }}>
                 <div style={{ marginBottom:16, display:"flex", justifyContent:"center" }}>
-                  <div style={{ width:64, height:64, borderRadius:"50%", background:"rgba(93,226,121,0.12)", border:"1.5px solid rgba(93,226,121,0.35)", display:"flex", alignItems:"center", justifyContent:"center" }}>
-                    <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="#5de279" strokeWidth="1.8" strokeLinecap="round" strokeLinejoin="round">
-                      <path d="M9.937 15.5A2 2 0 0 0 8.5 14.063l-6.135-1.582a.5.5 0 0 1 0-.962L8.5 9.937A2 2 0 0 0 9.937 8.5l1.582-6.135a.5.5 0 0 1 .963 0L14.063 8.5A2 2 0 0 0 15.5 9.937l6.135 1.581a.5.5 0 0 1 0 .964L15.5 14.063a2 2 0 0 0-1.437 1.437l-1.582 6.135a.5.5 0 0 1-.963 0z"/>
-                      <path d="M20 3v4"/><path d="M22 5h-4"/><path d="M4 17v2"/><path d="M5 18H3"/>
+                  <div style={{ width:64, height:64, borderRadius:"50%", background:"#00b894", display:"flex", alignItems:"center", justifyContent:"center" }}>
+                    <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.6" strokeLinecap="round" strokeLinejoin="round">
+                      <path d="M20 6 9 17l-5-5"/>
                     </svg>
                   </div>
                 </div>
