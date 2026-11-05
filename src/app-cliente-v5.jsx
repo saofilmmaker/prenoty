@@ -1239,7 +1239,7 @@ export default function AppCliente() {
                   <button
                     onClick={() => setModalRecensioneAperto(true)}
                     className="mt-3 px-6 py-2 tracking-widest text-xs"
-                    style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em" }}
+                    style={{ backgroundColor: T.dark, color: T.bg, letterSpacing: "0.15em", borderRadius: 999 }}
                   >
                     SCRIVI LA PRIMA RECENSIONE
                   </button>
