@@ -19,7 +19,7 @@ const COLONNE_PUBBLICHE_SALONE = [
   "id", "nome", "slug", "tipo", "indirizzo", "telefono", "email", "descrizione", "logo", "copertina", "copertina_y",
   "galleria", "social", "orari", "staff", "recensioni", "metodi_pagamento",
   "mostra_galleria", "mostra_mappa", "mostra_orari", "mostra_recensioni", "mostra_social",
-  "blocco_occupato", "blocco_sovrapposizione", "limite_sovrapposizione", "prenotazione_anticipo",
+  "blocco_occupato", "blocco_sovrapposizione", "limite_sovrapposizione", "prenotazione_anticipo", "blocco_orario_chiusura",
   "ferie_attive", "ferie_dal", "ferie_al", "ferie_messaggio", "chiusure_temporanee", "aperture_straordinarie",
   "stato_abbonamento", "abbonamento_attivo", "piano_speciale", "prova_scade_il",
 ].join(",");
@@ -35,6 +35,36 @@ const IconaOmbrellone = ({ className }) => (
     <path d="M3 19.25a2.4 2.4 0 0 1 1 -.25a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 2 1a2.4 2.4 0 0 0 2 1a2.4 2.4 0 0 0 2 -1a2.4 2.4 0 0 1 2 -1a2.4 2.4 0 0 1 1 .25" />
   </svg>
 );
+
+// Regola "i servizi devono finire entro la chiusura".
+// orarioGiorno es. "09:00-12:00 15:00-19:00"; slots es. ["09:00","09:05",...].
+// Ritorna gli orari troppo tardi per la durata scelta e, per ogni chiusura, l'ultimo orario valido.
+export function limitiChiusura(orarioGiorno, slots, durata) {
+  const inMinuti = (t) => { const [h, m] = String(t).split(":").map(Number); return h * 60 + m; };
+  const fasce = String(orarioGiorno || "").trim().split(" ")
+    .map(f => { const [da, a] = f.split("-"); return { da: da ? inMinuti(da) : NaN, a: a ? inMinuti(a) : NaN, fine: a }; })
+    .filter(f => !isNaN(f.da) && !isNaN(f.a) && f.a > f.da)
+    .sort((x, y) => x.da - y.da);
+  // Fasce attaccate o sovrapposte (es. 09:00-13:00 13:00-18:00) valgono come una sola
+  const unite = [];
+  for (const f of fasce) {
+    const prec = unite[unite.length - 1];
+    if (prec && f.da <= prec.a) { if (f.a > prec.a) { prec.a = f.a; prec.fine = f.fine; } }
+    else unite.push({ ...f });
+  }
+  const oltre = new Set();
+  const chiusure = unite.map(f => {
+    let ultimo = null;
+    for (const slot of slots) {
+      const t = inMinuti(slot);
+      if (t < f.da || t >= f.a) continue;
+      if (t + durata > f.a) oltre.add(slot);
+      else if (ultimo === null || t > inMinuti(ultimo)) ultimo = slot;
+    }
+    return { chiusura: f.fine, ultimo, tagliata: slots.some(sl => oltre.has(sl) && inMinuti(sl) >= f.da && inMinuti(sl) < f.a) };
+  });
+  return { oltre, chiusure };
+}
 
 // Normalizza numero di telefono: rimuove +39, 0039, spazi, trattini
 function normalizzaTel(tel) {
@@ -249,6 +279,7 @@ export default function AppCliente() {
         bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
         limiteSovrapposizione: saloneDb.limite_sovrapposizione ?? 3,
         bloccoOccupato: saloneDb.blocco_occupato ?? false,
+        bloccoOrarioChiusura: saloneDb.blocco_orario_chiusura ?? false,
         prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
         ferieAttive: saloneDb.ferie_attive ?? false,
         ferieDal: saloneDb.ferie_dal || null,
@@ -418,6 +449,21 @@ export default function AppCliente() {
 
   const totale = serviziScelti.reduce((s, x) => s + x.prezzo, 0);
   const durataTotale = serviziScelti.reduce((s, x) => s + x.durata, 0);
+
+  // Orari in cui i servizi scelti finirebbero dopo la chiusura (solo se il salone ha acceso la regola)
+  const regolaChiusura = (() => {
+    if (!salone.bloccoOrarioChiusura || !data || !salone.orari || durataTotale <= 0) return null;
+    const speciale = aperturaStraordinaria(data);
+    const orarioGiorno = speciale ? (speciale.orario || `${speciale.dalle}-${speciale.alle}`) : salone.orari[chiavi[data.getDay()]];
+    if (!orarioGiorno || orarioGiorno === "Chiuso") return null;
+    return limitiChiusura(orarioGiorno, orari, durataTotale);
+  })();
+
+  // Se cambiando i servizi l'orario già scelto non va più bene, viene tolto
+  const oraOltreChiusura = !!(ora && regolaChiusura?.oltre.has(ora));
+  useEffect(() => {
+    if (oraOltreChiusura) setOra(null);
+  }, [oraOltreChiusura]);
 
   // Inizializza Stripe quando il cliente sceglie "carta"
   useEffect(() => {
@@ -1447,12 +1493,25 @@ export default function AppCliente() {
               }
               return null;
             })()}
+            {regolaChiusura && regolaChiusura.oltre.size > 0 && (() => {
+              const tagliate = regolaChiusura.chiusure.filter(c => c.tagliata);
+              const nessuno = regolaChiusura.chiusure.every(c => !c.ultimo);
+              return (
+                <div className="mb-4 p-3 text-sm" style={{ backgroundColor: T.accentSoft, border: `1px solid ${T.accent}`, borderRadius: 12, color: T.text }}>
+                  {nessuno
+                    ? `I servizi scelti (${durataTotale} min) durano più dell'orario di apertura di questo giorno. Scegli un altro giorno o meno servizi.`
+                    : tagliate.length === 1 && tagliate[0].ultimo
+                      ? `Chiudiamo alle ${tagliate[0].chiusura}: per i servizi scelti (${durataTotale} min) l'ultimo orario è alle ${tagliate[0].ultimo}.`
+                      : `Per i servizi scelti (${durataTotale} min): ${tagliate.map(c => c.ultimo ? `ultimo orario ${c.ultimo} (chiusura ${c.chiusura})` : `non c'è tempo prima delle ${c.chiusura}`).join(" · ")}.`}
+                </div>
+              );
+            })()}
             <div className="grid grid-cols-4 gap-3">
               {orari.map((o) => {
                 const sel = ora === o;
                 const chiusure = data ? chiusureDelGiorno(data) : [];
                 const inChiusura = isSlotInChiusura(o, chiusure);
-                const occupato = orariOccupati.includes(o) || inChiusura;
+                const occupato = orariOccupati.includes(o) || inChiusura || !!regolaChiusura?.oltre.has(o);
                 return (
                   <button
                     key={o}
