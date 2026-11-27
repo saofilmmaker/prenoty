@@ -480,6 +480,7 @@ useEffect(() => {
           bloccoSovrapposizione: saloneDb.blocco_sovrapposizione ?? false,
           limiteSovrapposizione: saloneDb.limite_sovrapposizione ?? 3,
           bloccoOccupato: saloneDb.blocco_occupato ?? false,
+          bloccoOrarioChiusura: saloneDb.blocco_orario_chiusura ?? false,
           prenotazioneAnticipo: saloneDb.prenotazione_anticipo || "1mese",
           ferieAttive: saloneDb.ferie_attive ?? false,
           ferieDal: saloneDb.ferie_dal || "",
@@ -634,6 +635,7 @@ useEffect(() => {
     bloccoSovrapposizione: false,
     limiteSovrapposizione: 3,
     bloccoOccupato: false,
+    bloccoOrarioChiusura: false,
     prenotazioneAnticipo: "1mese",
     ferieAttive: false,
     ferieDal: "",
@@ -3993,6 +3995,30 @@ useEffect(() => {
                     <div><span className="font-semibold">Nessun limite attivo.</span> Chiunque può prenotare alla stessa ora, anche con lo stesso operatore.</div>
                   </div>
                 )}
+
+                <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
+
+                <label className="flex items-center justify-between cursor-pointer py-2">
+                  <div className="flex-1 pr-3">
+                    <div className="text-sm">Servizi entro l'orario di chiusura</div>
+                    <div className="text-xs mt-0.5" style={{ color: T.textMuted }}>
+                      I clienti che prenotano online vedono solo gli orari in cui il servizio finisce prima della chiusura.<br />
+                      <span style={{ color: "#00b894" }}>● Attivo</span> — se chiudi alle 18:00, un servizio di 40 min si può prenotare al massimo alle 17:20. Vale anche per la pausa tra mattina e pomeriggio. Gli appuntamenti inseriti da te non sono bloccati.<br />
+                      <span style={{ color: T.textMuted }}>● Disattivo</span> — questa regola è disattivata.
+                    </div>
+                  </div>
+                  <button
+                    onClick={async () => {
+                      const nuovo = !salone.bloccoOrarioChiusura;
+                      setSalone({ ...salone, bloccoOrarioChiusura: nuovo });
+                      if (salone.dbId) await supabase.from("saloni").update({ blocco_orario_chiusura: nuovo }).eq("id", salone.dbId);
+                    }}
+                    className="w-10 h-6 rounded-full relative transition flex-shrink-0"
+                    style={{ backgroundColor: salone.bloccoOrarioChiusura ? T.accent : T.border }}
+                  >
+                    <div className="w-4 h-4 bg-white rounded-full absolute top-1 transition" style={{ left: salone.bloccoOrarioChiusura ? "calc(100% - 20px)" : "4px" }} />
+                  </button>
+                </label>
 
                 <div style={{ borderTop: `0.5px solid ${T.border}`, margin: "8px 0" }} />
 
