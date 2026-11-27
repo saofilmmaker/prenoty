@@ -16,6 +16,32 @@ const EMAIL_RE = /^[^\s@<>"]+@[^\s@<>"]+\.[^\s@<>"]{2,}$/;
 const risposta = (status, obj) => new Response(JSON.stringify(obj), { status, headers: { "Content-Type": "application/json", ...CORS } });
 const pulisci = (v, max) => String(v ?? "").replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F]/g, "").trim().slice(0, max);
 
+// Regola "i servizi devono finire entro la chiusura" (stesso calcolo della pagina pubblica).
+// Ritorna l'orario di chiusura superato, oppure null se va bene.
+function chiusuraSuperata(sal, data, ora, durata) {
+  const chiavi = ["dom", "lun", "mar", "mer", "gio", "ven", "sab"];
+  const speciale = (sal.aperture_straordinarie || []).find((a) => a.giorno === data);
+  const orarioGiorno = speciale
+    ? (speciale.orario || `${speciale.dalle}-${speciale.alle}`)
+    : sal.orari?.[chiavi[new Date(data + "T00:00:00Z").getUTCDay()]];
+  if (!orarioGiorno || orarioGiorno === "Chiuso") return null;
+  const inMinuti = (t) => { const [h, m] = String(t).split(":").map(Number); return h * 60 + m; };
+  const fasce = String(orarioGiorno).trim().split(" ")
+    .map((f) => { const [da, a] = f.split("-"); return { da: da ? inMinuti(da) : NaN, a: a ? inMinuti(a) : NaN, fine: a }; })
+    .filter((f) => !isNaN(f.da) && !isNaN(f.a) && f.a > f.da)
+    .sort((x, y) => x.da - y.da);
+  // Fasce attaccate o sovrapposte valgono come una sola
+  const unite = [];
+  for (const f of fasce) {
+    const prec = unite[unite.length - 1];
+    if (prec && f.da <= prec.a) { if (f.a > prec.a) { prec.a = f.a; prec.fine = f.fine; } }
+    else unite.push({ ...f });
+  }
+  const t = inMinuti(ora);
+  const fascia = unite.find((f) => t >= f.da && t < f.a);
+  return fascia && t + durata > fascia.a ? fascia.fine : null;
+}
+
 export async function onRequestPost(context) {
   const { request, env } = context;
   try {
@@ -56,7 +82,7 @@ export async function onRequestPost(context) {
 
     // 2) Salone, servizi e operatore dal database
     const salRes = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/saloni?id=eq.${saloneId}&select=id,staff,blocco_occupato,blocco_sovrapposizione,limite_sovrapposizione`,
+      `${env.SUPABASE_URL}/rest/v1/saloni?id=eq.${saloneId}&select=id,staff,blocco_occupato,blocco_sovrapposizione,limite_sovrapposizione,blocco_orario_chiusura,orari,aperture_straordinarie`,
       { headers: sb }
     );
     if (!salRes.ok) return risposta(500, { error: "Errore verifica salone" });
@@ -79,6 +105,12 @@ export async function onRequestPost(context) {
 
     if (staffIdIn !== null && !(sal.staff || []).some((x) => x.id === staffIdIn)) {
       return risposta(400, { error: "Operatore non valido" });
+    }
+
+    // Il servizio finisce entro la chiusura? (solo se il salone ha acceso la regola)
+    if (sal.blocco_orario_chiusura) {
+      const chiusura = chiusuraSuperata(sal, data, ora, durataTot);
+      if (chiusura) return risposta(409, { error: `Con i servizi scelti si andrebbe oltre la chiusura delle ${chiusura}. Scegli un orario precedente.` });
     }
 
     // 3) Orario ancora libero? Stesse regole della pagina pubblica (blocco occupati / limite sovrapposizione)
