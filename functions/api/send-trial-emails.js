@@ -28,8 +28,9 @@ async function runTrialEmailCheck(env) {
     const dataStr = dataTarget.toISOString().split("T")[0]; // YYYY-MM-DD
 
     // Cerca saloni con prova che scade esattamente tra N giorni
+    // (esclusi chi ha pagato e chi ha un uso gratis concesso dall'admin: non vengono bloccati)
     const res = await fetch(
-      `${env.SUPABASE_URL}/rest/v1/saloni?prova_scade_il=eq.${dataStr}&abbonamento_attivo=eq.false&select=id,nome,email`,
+      `${env.SUPABASE_URL}/rest/v1/saloni?prova_scade_il=eq.${dataStr}&abbonamento_attivo=eq.false&piano_speciale=is.null&select=id,nome,email`,
       {
         headers: {
           "apikey": env.SUPABASE_SERVICE_KEY,
